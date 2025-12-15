@@ -1,0 +1,23 @@
+# ===============================
+# Python / PyQt6
+# ===============================
+
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+env/
+env/
+.venv/
+
+# Python environment files
+pip-wheel-metadata/
+.python-version
+
+# ===============================
+# IDE / Editor
+# ===============================
+
+# VS Code
