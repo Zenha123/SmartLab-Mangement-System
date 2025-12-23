@@ -1,0 +1,138 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Semester {{ sem }}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<div class="container">
+  <h2>Semester {{ sem }}</h2>
+
+  <!-- ================= STUDENTS ================= -->
+  <h3>Students</h3>
+
+  {% if students %}
+  <table>
+    <tr>
+      <th>Roll No</th>
+      <th>Name</th>
+    </tr>
+    {% for s in students %}
+    <tr>
+      <td>{{ s.roll_no }}</td>
+      <td>{{ s.name }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+    <p>No students added yet.</p>
+  {% endif %}
+
+  <h4>Add Student</h4>
+  <form method="post">
+    {% csrf_token %}
+    <input name="roll" placeholder="Roll No" required>
+    <input name="name" placeholder="Name" required>
+    <button name="add_student">Add Student</button>
+  </form>
+
+  <hr>
+
+  <!-- ================= TIMETABLE ================= -->
+  <hr>
+<h3>Timetable</h3>
+
+{% if timetable_exists and not request.GET.edit %}
+  <table>
+    <tr>
+      <th>Day / Hour</th>
+      {% for h in hours %}
+        <th>H{{ h }}</th>
+      {% endfor %}
+    </tr>
+
+    {% for day, slots in grid.items %}
+    <tr>
+      <th>{{ day }}</th>
+      {% for slot in slots %}
+        <td>
+          {% if slot %}
+            {{ slot.subject }}<br>
+            <small>{{ slot.faculty }}</small>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+
+  <a href="?edit=1">
+    <button>Edit Timetable</button>
+  </a>
+
+{% else %}
+  <form method="post">
+    {% csrf_token %}
+    <table>
+      <tr>
+        <th>Day / Hour</th>
+        {% for h in hours %}
+          <th>H{{ h }}</th>
+        {% endfor %}
+      </tr>
+
+      {% for day, slots in grid.items %}
+      <tr>
+        <th>{{ day }}</th>
+        {% for slot in slots %}
+          <td>
+            {% if slot %}
+              <select name="{{ day }}_{{ forloop.counter }}_subject">
+            <option value="">-- Free --</option>
+            {% for s in subjects %}
+              <option value="{{ s.id }}"
+                {% if slot and slot.subject_id == s.id %}selected{% endif %}
+              >
+                {{ s }}
+              </option>
+            {% endfor %}
+          </select>
+            {% else %}
+              <select name="{{ day }}_{{ forloop.counter }}_subject">
+            <option value="">-- Free --</option>
+            {% for s in subjects %}
+              <option value="{{ s.id }}"
+                {% if slot and slot.subject_id == s.id %}selected{% endif %}
+              >
+                {{ s }}
+              </option>
+            {% endfor %}
+          </select>
+            {% endif %}
+
+          <select name="{{ day }}_{{ forloop.counter }}_faculty">
+            <option value="">-- Free --</option>
+            {% for f in faculties %}
+              <option value="{{ f.id }}"
+                {% if slot and slot.faculty_id == f.id %}selected{% endif %}
+              >
+                {{ f }}
+              </option>
+            {% endfor %}
+          </select>
+        </td>
+
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+
+    <button name="save_timetable">
+      {% if timetable_exists %}Update Timetable{% else %}Save Timetable{% endif %}
+    </button>
+  </form>
+{% endif %}
