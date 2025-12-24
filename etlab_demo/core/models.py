@@ -21,6 +21,7 @@ class Subject(models.Model):
 
 # Faculty profile (created via Django admin)
 class Faculty(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     faculty_name = models.CharField(max_length=100)
 
     def __str__(self):

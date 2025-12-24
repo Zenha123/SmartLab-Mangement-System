@@ -1,0 +1,112 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Faculty Dashboard</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/faculty.css' %}">
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+<div class="sidebar">
+  <h3>{{ faculty.faculty_name }}</h3>
+
+  <!-- MY TIMETABLE -->
+  <div class="nav-item">
+    <a href="?view=timetable">
+      <button class="{% if view_mode == 'timetable' %}active{% endif %}">
+        My Timetable
+      </button>
+    </a>
+  </div>
+
+  <!-- MY CLASSES -->
+  <div class="nav-item">
+    <button disabled>My Classes</button>
+    <select onchange="location.href='?view=semester&semester=' + this.value">
+      <option value="">Select Semester</option>
+      {% for s in semesters %}
+        <option value="{{ s.id }}"
+          {% if selected_semester and s.id == selected_semester.id %}selected{% endif %}
+        >
+          {{ s.semester_name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+
+
+  <!-- MAIN CONTENT -->
+  <div class="main">
+
+  {% if view_mode == 'timetable' %}
+    <h2>My Timetable</h2>
+
+    <table class="timetable">
+      <tr>
+        <th>Day / Hour</th>
+        {% for h in hours %}
+          <th>H{{ h }}</th>
+        {% endfor %}
+      </tr>
+
+      {% for day, slots in timetable_grid.items %}
+      <tr>
+        <th>{{ day }}</th>
+        {% for slot in slots %}
+          <td>
+            {% if slot %}
+              <strong>{{ slot.subject.subject_name }}</strong><br>
+              <small>{{ slot.semester.semester_name }}</small>
+            {% else %}
+              <span class="free">Free</span>
+            {% endif %}
+          </td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if view_mode == 'semester' %}
+    <h2>{{ selected_semester.semester_name }}</h2>
+
+    <div class="subject-bar">
+      {% for subject in subjects %}
+        <div class="subject-card" onclick="toggleSubject(this)">
+          <strong>{{ subject.subject_name }}</strong>
+
+          <div class="subject-actions">
+            <button>Mark Attendance</button>
+            <button>Mark Marks</button>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    {% if not subjects %}
+      <p>No subjects assigned for this semester.</p>
+    {% endif %}
+  {% endif %}
+
+</div>
+
+
+
+</div>
+<script>
+function toggleSubject(card) {
+  document.querySelectorAll('.subject-card')
+    .forEach(c => c.classList.remove('active'));
+
+  card.classList.add('active');
+}
+</script>
+
+
+</body>
+</html>

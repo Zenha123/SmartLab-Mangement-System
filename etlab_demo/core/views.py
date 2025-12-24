@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login
 from .models import Student, Timetable, Faculty, Semester, Subject
+from django.contrib.auth.decorators import login_required
 
 # LOGIN VIEW
 def login_view(request):
@@ -16,6 +17,8 @@ def login_view(request):
             login(request, user)
             if role == 'admin' and user.is_staff:
                 return redirect('semester_list')
+            if role == 'faculty' and not user.is_staff:
+                return redirect('faculty_dashboard')  # Placeholder for faculty dashboard
             else:
                 error = "Invalid role selection"
         else:
@@ -101,3 +104,59 @@ def semester_detail(request, sem):
         'timetable_exists': timetable_exists,
         'hours': HOURS
     })
+
+
+DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+HOURS = [1, 2, 3, 4, 5, 6]
+
+@login_required
+def faculty_dashboard(request):
+    faculty = get_object_or_404(Faculty, user=request.user)
+
+    view_mode = request.GET.get('view', 'timetable')
+
+    semesters = Semester.objects.filter(
+        timetable__faculty=faculty
+    ).distinct()
+
+    context = {
+        'faculty': faculty,
+        'semesters': semesters,
+        'view_mode': view_mode,
+        'hours': HOURS
+    }
+
+    # ---------------- TIMETABLE VIEW ----------------
+    if view_mode == 'timetable':
+        slots = Timetable.objects.filter(
+            faculty=faculty
+        ).select_related('semester', 'subject')
+
+        grid = {}
+        for day in DAYS:
+            grid[day] = []
+            for hour in HOURS:
+                slot = slots.filter(
+                    day_of_week=day,
+                    hour_slot=hour
+                ).first()
+                grid[day].append(slot)
+
+        context['timetable_grid'] = grid
+
+    # ---------------- SEMESTER / SUBJECT VIEW ----------------
+    if view_mode == 'semester':
+        sem_id = request.GET.get('semester')
+        selected_semester = get_object_or_404(Semester, id=sem_id)
+
+        subjects = Subject.objects.filter(
+            timetable__faculty=faculty,
+            timetable__semester=selected_semester
+        ).distinct()
+
+        context.update({
+            'selected_semester': selected_semester,
+            'subjects': subjects
+        })
+
+    return render(request, 'faculty/dashboard.html', context)
