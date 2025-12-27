@@ -1,0 +1,252 @@
+[
+    {
+        "model": "accounts.user",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$test$dummyhash",
+            "last_login": null,
+            "is_superuser": false,
+            "faculty_id": "FAC001",
+            "email": "shireen@university.edu",
+            "name": "Shireen",
+            "is_active": true,
+            "is_staff": false,
+            "created_at": "2024-01-01T00:00:00Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "accounts.user",
+        "pk": 2,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$test$dummyhash",
+            "last_login": null,
+            "is_superuser": false,
+            "faculty_id": "FAC002",
+            "email": "john.doe@university.edu",
+            "name": "John Doe",
+            "is_active": true,
+            "is_staff": false,
+            "created_at": "2024-01-01T00:00:00Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "core.semester",
+        "pk": 1,
+        "fields": {
+            "name": "Sem 1",
+            "number": 1,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "core.semester",
+        "pk": 2,
+        "fields": {
+            "name": "Sem 2",
+            "number": 2,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "core.semester",
+        "pk": 3,
+        "fields": {
+            "name": "Sem 3",
+            "number": 3,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "core.batch",
+        "pk": 1,
+        "fields": {
+            "semester": 1,
+            "name": "Batch 1",
+            "year": 2024,
+            "total_students": 30,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "core.batch",
+        "pk": 2,
+        "fields": {
+            "semester": 1,
+            "name": "Batch 2",
+            "year": 2024,
+            "total_students": 28,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "students.student",
+        "pk": 1,
+        "fields": {
+            "student_id": "8765766",
+            "name": "Andrea John",
+            "email": "andrea.john@student.edu",
+            "batch": 1,
+            "status": "online",
+            "current_mode": "normal",
+            "last_seen": "2024-12-27T08:00:00Z",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-12-27T08:00:00Z"
+        }
+    },
+    {
+        "model": "students.student",
+        "pk": 2,
+        "fields": {
+            "student_id": "8767786",
+            "name": "Decca Thomas",
+            "email": "decca.thomas@student.edu",
+            "batch": 1,
+            "status": "offline",
+            "current_mode": "locked",
+            "last_seen": "2024-12-26T18:00:00Z",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-12-26T18:00:00Z"
+        }
+    },
+    {
+        "model": "students.student",
+        "pk": 3,
+        "fields": {
+            "student_id": "8799486",
+            "name": "Krishna Kumar",
+            "email": "krishna.kumar@student.edu",
+            "batch": 1,
+            "status": "online",
+            "current_mode": "exam",
+            "last_seen": "2024-12-27T08:00:00Z",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-12-27T08:00:00Z"
+        }
+    },
+    {
+        "model": "students.student",
+        "pk": 4,
+        "fields": {
+            "student_id": "8798583",
+            "name": "John Doe",
+            "email": "john.doe.student@student.edu",
+            "batch": 1,
+            "status": "online",
+            "current_mode": "viva",
+            "last_seen": "2024-12-27T08:00:00Z",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-12-27T08:00:00Z"
+        }
+    },
+    {
+        "model": "students.student",
+        "pk": 5,
+        "fields": {
+            "student_id": "8765777",
+            "name": "Mike Harry",
+            "email": "mike.harry@student.edu",
+            "batch": 1,
+            "status": "offline",
+            "current_mode": "normal",
+            "last_seen": "2024-12-26T17:00:00Z",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-12-26T17:00:00Z"
+        }
+    },
+    {
+        "model": "students.student",
+        "pk": 6,
+        "fields": {
+            "student_id": "8765888",
+            "name": "Chen Zung",
+            "email": "chen.zung@student.edu",
+            "batch": 1,
+            "status": "online",
+            "current_mode": "normal",
+            "last_seen": "2024-12-27T08:00:00Z",
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-12-27T08:00:00Z"
+        }
+    },
+    {
+        "model": "core.pcmapping",
+        "pk": 1,
+        "fields": {
+            "pc_id": "PC-01",
+            "student": 1,
+            "batch": 1,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "core.pcmapping",
+        "pk": 2,
+        "fields": {
+            "pc_id": "PC-02",
+            "student": 2,
+            "batch": 1,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "core.pcmapping",
+        "pk": 3,
+        "fields": {
+            "pc_id": "PC-03",
+            "student": 3,
+            "batch": 1,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "core.pcmapping",
+        "pk": 4,
+        "fields": {
+            "pc_id": "PC-04",
+            "student": 4,
+            "batch": 1,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "core.pcmapping",
+        "pk": 5,
+        "fields": {
+            "pc_id": "PC-05",
+            "student": 5,
+            "batch": 1,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "core.pcmapping",
+        "pk": 6,
+        "fields": {
+            "pc_id": "PC-06",
+            "student": 6,
+            "batch": 1,
+            "is_active": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "updated_at": "2024-01-01T00:00:00Z"
+        }
+    }
+]
