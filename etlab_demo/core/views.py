@@ -1,7 +1,12 @@
+from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login
-from .models import Student, Timetable, Faculty, Semester, Subject
+from django.urls import reverse
+
+from .utils import faculty_sidebar_context
+from .models import Student, Timetable, Faculty, Semester, Subject, AttendanceSession, AttendanceRecord
 from django.contrib.auth.decorators import login_required
+from datetime import date, timedelta, datetime
 
 # LOGIN VIEW
 def login_view(request):
@@ -160,3 +165,159 @@ def faculty_dashboard(request):
         })
 
     return render(request, 'faculty/dashboard.html', context)
+
+
+
+DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+HOURS = [1, 2, 3, 4, 5, 6]
+
+@login_required
+def attendance_week_view(request, subject_id):
+    faculty = get_object_or_404(Faculty, user=request.user)
+    subject = get_object_or_404(Subject, id=subject_id)
+
+    # Get semester from timetable
+    timetable_entries = Timetable.objects.filter(
+        faculty=faculty,
+        subject=subject
+    )
+
+    semester_id = request.GET.get('semester')
+    semester = get_object_or_404(Semester, id=semester_id)
+
+
+    # Week calculation
+    today = date.today()
+    selected_date_str = request.GET.get('date')
+
+    if selected_date_str:
+        selected_date = date.fromisoformat(selected_date_str)
+    else:
+        selected_date = today
+
+    # Prevent future dates
+    if selected_date > today:
+        selected_date = today
+
+    # Build date range: selected_date → today
+    date_range = []
+    current = selected_date
+
+    while current <= today:
+        date_range.append(current)
+        current += timedelta(days=1)
+
+
+    # Build grid
+    grid = []
+
+    for day_date in date_range:
+        day_name = day_date.strftime('%A')
+
+        row = {
+            'date': day_date,
+            'day': day_name,
+            'periods': []
+        }
+
+        for hour in HOURS:
+            is_scheduled = Timetable.objects.filter(
+                faculty=faculty,
+                subject=subject,
+                semester=semester,
+                day_of_week=day_name,
+                hour_slot=hour
+            ).exists()
+
+            if not is_scheduled:
+                row['periods'].append({'status': 'disabled'})
+                continue
+
+            session_exists = AttendanceSession.objects.filter(
+                faculty=faculty,
+                subject=subject,
+                semester=semester,
+                date=day_date,
+                period=hour
+            ).exists()
+
+            row['periods'].append({
+                'status': 'edit' if session_exists else 'add',
+                'date': day_date,
+                'period': hour
+            })
+
+        grid.append(row)
+
+    context = {
+        'subject': subject,
+        'semester': semester,
+        'grid': grid,
+        'selected_date': selected_date,
+        'today': today,
+        'hours': HOURS,
+    }
+
+    context.update(
+        faculty_sidebar_context(
+            faculty=faculty,
+            view_mode='attendance',
+            selected_semester=semester
+        )
+    )
+
+    return render(request, 'faculty/attendance_week.html', context)
+
+
+@login_required
+def mark_attendance(request):
+    subject_id = request.GET.get("subject")
+    semester_id = request.GET.get("semester")
+    date_str = request.GET.get("date")
+    period = request.GET.get("period")
+
+    subject = Subject.objects.get(id=subject_id)
+    semester = Semester.objects.get(id=semester_id)
+    attendance_date = date.fromisoformat(date_str)
+    faculty=request.user.faculty
+
+    session, _ = AttendanceSession.objects.get_or_create(
+        subject=subject,
+        semester=semester,
+        date=attendance_date,
+        period=period,
+        faculty=faculty
+    )
+
+    students = Student.objects.filter(semester=semester)
+
+    if request.method == "POST":
+        AttendanceRecord.objects.filter(session=session).delete()
+
+        for student in students:
+            is_present = request.POST.get(f"present_{student.id}")
+            AttendanceRecord.objects.create(
+                session=session,
+                student=student,
+                is_present=bool(is_present)
+            )
+
+        messages.success(request, "Attendance saved successfully.")
+        return redirect(
+        f"{reverse('attendance_week', args=[subject.id])}?semester={semester.id}&date={attendance_date}"
+        )
+
+    records = AttendanceRecord.objects.filter(session=session)
+    attendance_map = {
+        record.student_id: record.is_present
+        for record in records
+    }
+
+    return render(request, "faculty/mark_attendance.html", {
+        "subject": subject,
+        "semester": semester,
+        "period": period,
+        "students": students,
+        "attendance_map": attendance_map,
+        "date": attendance_date,
+    })

@@ -75,3 +75,38 @@ class Timetable(models.Model):
 
     def __str__(self):
         return f"{self.semester} {self.day_of_week} H{self.hour_slot}"
+    
+# ---------------- ATTENDANCE SESSION ----------------
+class AttendanceSession(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+    date = models.DateField()
+    period = models.IntegerField()
+    is_suspended = models.BooleanField(default=False)
+    remarks = models.TextField(blank=True, null=True)
+
+    faculty = models.ForeignKey(
+        Faculty,
+        on_delete=models.CASCADE
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = (
+            'date',
+            'semester',
+            'subject',
+            'faculty',
+            'period'
+        )
+
+    def __str__(self):
+        return f"{self.subject} | {self.date} | P{self.period}"
+
+
+# ---------------- ATTENDANCE RECORD ----------------
+class AttendanceRecord(models.Model):
+    session = models.ForeignKey(AttendanceSession, on_delete=models.CASCADE, related_name="records")
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    is_present = models.BooleanField(default=False)
