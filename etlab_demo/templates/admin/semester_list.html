@@ -1,0 +1,12 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<div class="container">
+  <h2>Select Semester</h2>
+
+  {% for s in semesters %}
+    <p>
+    <a href="/etlab-admin/semester/{{ s }}/">Semester {{ s }}</a>
+    </p>
+  {% endfor %}
+</div>

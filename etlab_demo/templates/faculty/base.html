@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Faculty Portal</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/faculty.css' %}">
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR (ALWAYS PRESENT) -->
+  <div class="sidebar">
+    <h3>{{ faculty.faculty_name }}</h3>
+
+    <div class="nav-item">
+      <a href="{% url 'faculty_dashboard' %}">
+        <button class="{% if view_mode == 'timetable' %}active{% endif %}">
+          My Timetable
+        </button>
+      </a>
+    </div>
+
+    <div class="nav-item">
+      <button disabled>My Classes</button>
+      <select onchange="onSemesterChange(this)">
+  <option value="">Select Semester</option>
+  {% for s in semesters %}
+    <option value="{{ s.id }}"
+      {% if selected_semester and s.id == selected_semester.id %}selected{% endif %}
+    >
+      {{ s.semester_name }}
+    </option>
+  {% endfor %}
+</select>
+
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT (CHANGES) -->
+  <div class="main">
+    {% block content %}
+    {% endblock %}
+  </div>
+
+</div>
+
+<script>
+function toggleSubject(card) {
+  document.querySelectorAll('.subject-card')
+    .forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+}
+
+function onSemesterChange(select) {
+  if (select.value) {
+    window.location.href =
+      "{% url 'faculty_dashboard' %}?view=semester&semester=" + select.value;
+  }
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+{% extends 'faculty/base.html' %}
+
+{% block content %}
+
+{% if view_mode == 'timetable' %}
+  <h2>My Timetable</h2>
+
+  <table class="timetable">
+    <tr>
+      <th>Day / Hour</th>
+      {% for h in hours %}
+        <th>H{{ h }}</th>
+      {% endfor %}
+    </tr>
+
+    {% for day, slots in timetable_grid.items %}
+    <tr>
+      <th>{{ day }}</th>
+      {% for slot in slots %}
+        <td>
+          {% if slot %}
+            <strong>{{ slot.subject.subject_name }}</strong><br>
+            <small>{{ slot.semester.semester_name }}</small>
+          {% else %}
+            <span class="free">Free</span>
+          {% endif %}
+        </td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+{% endif %}
+
+{% if view_mode == 'semester' %}
+  <h2>{{ selected_semester.semester_name }}</h2>
+
+  <div class="subject-bar">
+    {% for subject in subjects %}
+      <div class="subject-card" onclick="toggleSubject(this)">
+        <strong>{{ subject.subject_name }}</strong>
+
+        <div class="subject-actions">
+          <a href="{% url 'attendance_week' subject.id %}?semester={{ selected_semester.id }}">
+            <button type="button">Mark Attendance</button>
+          </a>
+          <button type="button">Mark Marks</button>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if not subjects %}
+    <p>No subjects assigned for this semester.</p>
+  {% endif %}
+{% endif %}
+
+{% endblock %}

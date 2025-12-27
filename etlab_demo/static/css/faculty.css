@@ -1,0 +1,146 @@
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: #f4f4f4;
+}
+
+.layout {
+  display: flex;
+  height: 100vh;
+}
+
+/* Sidebar */
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background: #ffffff;
+  border-right: 1px solid #e0e0e0;
+  padding: 25px 20px;
+  color: black;
+  box-sizing: border-box;
+}
+
+.sidebar h3 {
+  margin: 0 0 25px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #222;
+}
+
+/* Navigation buttons */
+.nav-item {
+  margin-bottom: 18px;
+}
+
+.nav-item button {
+  width: 100%;
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  padding: 10px 14px;
+  text-align: left;
+  font-size: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border 0.2s;
+  color: black;
+}
+
+.nav-item button:hover {
+  background: #eeeeee;
+}
+
+.nav-item button.active {
+  background: #333;
+  color: white;
+  border-color: #333;
+}
+
+/* Semester dropdown */
+.nav-item select {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: #fafafa;
+}
+
+
+/* Main content */
+.main {
+  flex: 1;
+  padding: 30px;
+  overflow-x: auto;
+}
+
+.main h2 {
+  margin-top: 0;
+  color: #333;
+}
+
+/* Timetable */
+.timetable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: white;
+}
+
+.timetable th,
+.timetable td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+.timetable th {
+  background: #f0f0f0;
+  font-weight: 600;
+}
+
+.slot {
+  background: #fafafa;
+}
+
+.slot strong {
+  display: block;
+  color: #333;
+}
+
+.free {
+  color: #aaa;
+}
+
+.subject-bar {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.subject-card {
+  background: #fff;
+  padding: 15px 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  cursor: pointer;
+  min-width: 160px;
+}
+
+.subject-card.active {
+  border-color: #444;
+  background: #f9f9f9;
+}
+
+.subject-actions {
+  margin-top: 15px;
+  display: none;
+}
+
+.subject-card.active .subject-actions {
+  display: block;
+}
+
+.subject-actions button {
+  margin-right: 10px;
+}
