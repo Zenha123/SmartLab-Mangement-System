@@ -100,6 +100,11 @@ class MainWindow(QMainWindow):
         
         # Show login screen initially
         self._show_login()
+        
+        # Initialize batch tracking
+        self.current_batch_id = None
+        self.current_semester = ""
+        self.current_batch = ""
 
     def _build_toolbar(self) -> QToolBar:
         tb = QToolBar("Top Bar")
@@ -123,17 +128,17 @@ class MainWindow(QMainWindow):
         self.sem_screen = SemesterSelectionScreen()
         self.sem_screen.batch_selected.connect(self._on_batch_selected)
 
-        self.dashboard_screen = BatchDashboardScreen()
-        self.student_list_screen = StudentListScreen()
+        self.dashboard_screen = BatchDashboardScreen(parent=self)
+        self.student_list_screen = StudentListScreen(parent=self)
         self.student_progress_screen = StudentProgressScreen()
         self.evaluation_screen = EvaluationScreen()
         self.live_monitor_screen = LiveMonitorScreen()
         self.single_student_screen = SingleStudentScreen()
         self.control_panel_screen = ControlPanelScreen()
-        self.tasks_screen = TasksScreen()
-        self.viva_screen = VivaScreen()
+        self.tasks_screen = TasksScreen(parent=self)
+        self.viva_screen = VivaScreen(parent=self)
         self.exam_screen = ExamScreen()
-        self.reports_screen = ReportsScreen()
+        self.reports_screen = ReportsScreen(parent=self)
         self.settings_screen = SettingsScreen()
 
         # Add login screen to stack (but not to navigation)
@@ -223,11 +228,15 @@ class MainWindow(QMainWindow):
         self._show_login()
         self.statusBar().showMessage("Logged out successfully", 3000)
 
-    def _on_batch_selected(self, semester: str, batch: str):
+    def _on_batch_selected(self, semester: str, batch: str, batch_id: int):
+        self.current_batch_id = batch_id  # Store for API calls
+        self.current_semester = semester
+        self.current_batch = batch
         self.stack.setCurrentWidget(self.dashboard_screen)
         # Dashboard is at index 1 in screens list (after Semester Select at 0)
         self.sidebar.setCurrentRow(1)
         self.statusBar().showMessage(f"Selected {semester} - {batch}", 3000)
+
 
     def _on_nav_change(self, index: int):
         if index < 0:

@@ -1,0 +1,6118 @@
+[
+  {
+    "model": "accounts.user",
+    "pk": 1,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$test$dummyhash",
+      "last_login": null,
+      "is_superuser": true,
+      "faculty_id": "test",
+      "email": "admin@university.edu",
+      "name": "Admin User",
+      "is_active": true,
+      "is_staff": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 2,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$test$dummyhash",
+      "last_login": null,
+      "is_superuser": false,
+      "faculty_id": "FAC001",
+      "email": "shireen@university.edu",
+      "name": "Dr. Shireen Khan",
+      "is_active": true,
+      "is_staff": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$test$dummyhash",
+      "last_login": null,
+      "is_superuser": false,
+      "faculty_id": "FAC002",
+      "email": "rajesh.kumar@university.edu",
+      "name": "Prof. Rajesh Kumar",
+      "is_active": true,
+      "is_staff": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "accounts.user",
+    "pk": 4,
+    "fields": {
+      "password": "pbkdf2_sha256$600000$test$dummyhash",
+      "last_login": null,
+      "is_superuser": false,
+      "faculty_id": "FAC003",
+      "email": "priya.sharma@university.edu",
+      "name": "Dr. Priya Sharma",
+      "is_active": true,
+      "is_staff": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "core.semester",
+    "pk": 1,
+    "fields": {
+      "name": "Sem 1",
+      "number": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.semester",
+    "pk": 2,
+    "fields": {
+      "name": "Sem 2",
+      "number": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.semester",
+    "pk": 3,
+    "fields": {
+      "name": "Sem 3",
+      "number": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.semester",
+    "pk": 4,
+    "fields": {
+      "name": "Sem 4",
+      "number": 4,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.semester",
+    "pk": 5,
+    "fields": {
+      "name": "Sem 5",
+      "number": 5,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.semester",
+    "pk": 6,
+    "fields": {
+      "name": "Sem 6",
+      "number": 6,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.semester",
+    "pk": 7,
+    "fields": {
+      "name": "Sem 7",
+      "number": 7,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.semester",
+    "pk": 8,
+    "fields": {
+      "name": "Sem 8",
+      "number": 8,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 1,
+    "fields": {
+      "semester": 1,
+      "name": "Batch 1",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 2,
+    "fields": {
+      "semester": 1,
+      "name": "Batch 2",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 3,
+    "fields": {
+      "semester": 2,
+      "name": "Batch 1",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 4,
+    "fields": {
+      "semester": 2,
+      "name": "Batch 2",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 5,
+    "fields": {
+      "semester": 3,
+      "name": "Batch 1",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 6,
+    "fields": {
+      "semester": 3,
+      "name": "Batch 2",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 7,
+    "fields": {
+      "semester": 4,
+      "name": "Batch 1",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 8,
+    "fields": {
+      "semester": 4,
+      "name": "Batch 2",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 9,
+    "fields": {
+      "semester": 5,
+      "name": "Batch 1",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 10,
+    "fields": {
+      "semester": 5,
+      "name": "Batch 2",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 11,
+    "fields": {
+      "semester": 6,
+      "name": "Batch 1",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.batch",
+    "pk": 12,
+    "fields": {
+      "semester": 6,
+      "name": "Batch 2",
+      "year": 2024,
+      "total_students": 30,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 1,
+    "fields": {
+      "student_id": "8765001",
+      "name": "Andrea John",
+      "email": "andrea.john.1@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "normal",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 2,
+    "fields": {
+      "student_id": "8765002",
+      "name": "Decca Thomas",
+      "email": "decca.thomas.2@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 3,
+    "fields": {
+      "student_id": "8765003",
+      "name": "Krishna Kumar",
+      "email": "krishna.kumar.3@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 4,
+    "fields": {
+      "student_id": "8765004",
+      "name": "John Doe",
+      "email": "john.doe.4@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "locked",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 5,
+    "fields": {
+      "student_id": "8765005",
+      "name": "Mike Harry",
+      "email": "mike.harry.5@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 6,
+    "fields": {
+      "student_id": "8765006",
+      "name": "Chen Zung",
+      "email": "chen.zung.6@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 7,
+    "fields": {
+      "student_id": "8765007",
+      "name": "Sarah Williams",
+      "email": "sarah.williams.7@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "viva",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 8,
+    "fields": {
+      "student_id": "8765008",
+      "name": "David Brown",
+      "email": "david.brown.8@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 9,
+    "fields": {
+      "student_id": "8765009",
+      "name": "Emily Davis",
+      "email": "emily.davis.9@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 10,
+    "fields": {
+      "student_id": "8765010",
+      "name": "Michael Wilson",
+      "email": "michael.wilson.10@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "exam",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 11,
+    "fields": {
+      "student_id": "8765011",
+      "name": "Jessica Moore",
+      "email": "jessica.moore.11@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 12,
+    "fields": {
+      "student_id": "8765012",
+      "name": "Christopher Taylor",
+      "email": "christopher.taylor.12@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 13,
+    "fields": {
+      "student_id": "8765013",
+      "name": "Ashley Anderson",
+      "email": "ashley.anderson.13@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "normal",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 14,
+    "fields": {
+      "student_id": "8765014",
+      "name": "Matthew Thomas",
+      "email": "matthew.thomas.14@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 15,
+    "fields": {
+      "student_id": "8765015",
+      "name": "Amanda Jackson",
+      "email": "amanda.jackson.15@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 16,
+    "fields": {
+      "student_id": "8765016",
+      "name": "Daniel White",
+      "email": "daniel.white.16@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "locked",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 17,
+    "fields": {
+      "student_id": "8765017",
+      "name": "Stephanie Harris",
+      "email": "stephanie.harris.17@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 18,
+    "fields": {
+      "student_id": "8765018",
+      "name": "Joshua Martin",
+      "email": "joshua.martin.18@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 19,
+    "fields": {
+      "student_id": "8765019",
+      "name": "Jennifer Thompson",
+      "email": "jennifer.thompson.19@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "viva",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 20,
+    "fields": {
+      "student_id": "8765020",
+      "name": "Andrew Garcia",
+      "email": "andrew.garcia.20@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 21,
+    "fields": {
+      "student_id": "8765021",
+      "name": "Elizabeth Martinez",
+      "email": "elizabeth.martinez.21@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 22,
+    "fields": {
+      "student_id": "8765022",
+      "name": "Ryan Robinson",
+      "email": "ryan.robinson.22@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "exam",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 23,
+    "fields": {
+      "student_id": "8765023",
+      "name": "Nicole Clark",
+      "email": "nicole.clark.23@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 24,
+    "fields": {
+      "student_id": "8765024",
+      "name": "Brandon Rodriguez",
+      "email": "brandon.rodriguez.24@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 25,
+    "fields": {
+      "student_id": "8765025",
+      "name": "Samantha Lewis",
+      "email": "samantha.lewis.25@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "normal",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 26,
+    "fields": {
+      "student_id": "8765026",
+      "name": "Justin Lee",
+      "email": "justin.lee.26@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 27,
+    "fields": {
+      "student_id": "8765027",
+      "name": "Rachel Walker",
+      "email": "rachel.walker.27@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 28,
+    "fields": {
+      "student_id": "8765028",
+      "name": "Kevin Hall",
+      "email": "kevin.hall.28@student.edu",
+      "batch": 1,
+      "status": "offline",
+      "current_mode": "locked",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 29,
+    "fields": {
+      "student_id": "8765029",
+      "name": "Lauren Allen",
+      "email": "lauren.allen.29@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 30,
+    "fields": {
+      "student_id": "8765030",
+      "name": "Tyler Young",
+      "email": "tyler.young.30@student.edu",
+      "batch": 1,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 31,
+    "fields": {
+      "student_id": "8765031",
+      "name": "Andrea John",
+      "email": "andrea.john.31@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "normal",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 32,
+    "fields": {
+      "student_id": "8765032",
+      "name": "Decca Thomas",
+      "email": "decca.thomas.32@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 33,
+    "fields": {
+      "student_id": "8765033",
+      "name": "Krishna Kumar",
+      "email": "krishna.kumar.33@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 34,
+    "fields": {
+      "student_id": "8765034",
+      "name": "John Doe",
+      "email": "john.doe.34@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "locked",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 35,
+    "fields": {
+      "student_id": "8765035",
+      "name": "Mike Harry",
+      "email": "mike.harry.35@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 36,
+    "fields": {
+      "student_id": "8765036",
+      "name": "Chen Zung",
+      "email": "chen.zung.36@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 37,
+    "fields": {
+      "student_id": "8765037",
+      "name": "Sarah Williams",
+      "email": "sarah.williams.37@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "viva",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 38,
+    "fields": {
+      "student_id": "8765038",
+      "name": "David Brown",
+      "email": "david.brown.38@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 39,
+    "fields": {
+      "student_id": "8765039",
+      "name": "Emily Davis",
+      "email": "emily.davis.39@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 40,
+    "fields": {
+      "student_id": "8765040",
+      "name": "Michael Wilson",
+      "email": "michael.wilson.40@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "exam",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 41,
+    "fields": {
+      "student_id": "8765041",
+      "name": "Jessica Moore",
+      "email": "jessica.moore.41@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 42,
+    "fields": {
+      "student_id": "8765042",
+      "name": "Christopher Taylor",
+      "email": "christopher.taylor.42@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 43,
+    "fields": {
+      "student_id": "8765043",
+      "name": "Ashley Anderson",
+      "email": "ashley.anderson.43@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "normal",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 44,
+    "fields": {
+      "student_id": "8765044",
+      "name": "Matthew Thomas",
+      "email": "matthew.thomas.44@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 45,
+    "fields": {
+      "student_id": "8765045",
+      "name": "Amanda Jackson",
+      "email": "amanda.jackson.45@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 46,
+    "fields": {
+      "student_id": "8765046",
+      "name": "Daniel White",
+      "email": "daniel.white.46@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "locked",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 47,
+    "fields": {
+      "student_id": "8765047",
+      "name": "Stephanie Harris",
+      "email": "stephanie.harris.47@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 48,
+    "fields": {
+      "student_id": "8765048",
+      "name": "Joshua Martin",
+      "email": "joshua.martin.48@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 49,
+    "fields": {
+      "student_id": "8765049",
+      "name": "Jennifer Thompson",
+      "email": "jennifer.thompson.49@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "viva",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 50,
+    "fields": {
+      "student_id": "8765050",
+      "name": "Andrew Garcia",
+      "email": "andrew.garcia.50@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 51,
+    "fields": {
+      "student_id": "8765051",
+      "name": "Elizabeth Martinez",
+      "email": "elizabeth.martinez.51@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 52,
+    "fields": {
+      "student_id": "8765052",
+      "name": "Ryan Robinson",
+      "email": "ryan.robinson.52@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "exam",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 53,
+    "fields": {
+      "student_id": "8765053",
+      "name": "Nicole Clark",
+      "email": "nicole.clark.53@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 54,
+    "fields": {
+      "student_id": "8765054",
+      "name": "Brandon Rodriguez",
+      "email": "brandon.rodriguez.54@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 55,
+    "fields": {
+      "student_id": "8765055",
+      "name": "Samantha Lewis",
+      "email": "samantha.lewis.55@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "normal",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 56,
+    "fields": {
+      "student_id": "8765056",
+      "name": "Justin Lee",
+      "email": "justin.lee.56@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 57,
+    "fields": {
+      "student_id": "8765057",
+      "name": "Rachel Walker",
+      "email": "rachel.walker.57@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 58,
+    "fields": {
+      "student_id": "8765058",
+      "name": "Kevin Hall",
+      "email": "kevin.hall.58@student.edu",
+      "batch": 2,
+      "status": "offline",
+      "current_mode": "locked",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 59,
+    "fields": {
+      "student_id": "8765059",
+      "name": "Lauren Allen",
+      "email": "lauren.allen.59@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 60,
+    "fields": {
+      "student_id": "8765060",
+      "name": "Tyler Young",
+      "email": "tyler.young.60@student.edu",
+      "batch": 2,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 61,
+    "fields": {
+      "student_id": "8765061",
+      "name": "Andrea John",
+      "email": "andrea.john.61@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "normal",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 62,
+    "fields": {
+      "student_id": "8765062",
+      "name": "Decca Thomas",
+      "email": "decca.thomas.62@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 63,
+    "fields": {
+      "student_id": "8765063",
+      "name": "Krishna Kumar",
+      "email": "krishna.kumar.63@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 64,
+    "fields": {
+      "student_id": "8765064",
+      "name": "John Doe",
+      "email": "john.doe.64@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "locked",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 65,
+    "fields": {
+      "student_id": "8765065",
+      "name": "Mike Harry",
+      "email": "mike.harry.65@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 66,
+    "fields": {
+      "student_id": "8765066",
+      "name": "Chen Zung",
+      "email": "chen.zung.66@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 67,
+    "fields": {
+      "student_id": "8765067",
+      "name": "Sarah Williams",
+      "email": "sarah.williams.67@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "viva",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 68,
+    "fields": {
+      "student_id": "8765068",
+      "name": "David Brown",
+      "email": "david.brown.68@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 69,
+    "fields": {
+      "student_id": "8765069",
+      "name": "Emily Davis",
+      "email": "emily.davis.69@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 70,
+    "fields": {
+      "student_id": "8765070",
+      "name": "Michael Wilson",
+      "email": "michael.wilson.70@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "exam",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 71,
+    "fields": {
+      "student_id": "8765071",
+      "name": "Jessica Moore",
+      "email": "jessica.moore.71@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 72,
+    "fields": {
+      "student_id": "8765072",
+      "name": "Christopher Taylor",
+      "email": "christopher.taylor.72@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 73,
+    "fields": {
+      "student_id": "8765073",
+      "name": "Ashley Anderson",
+      "email": "ashley.anderson.73@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "normal",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 74,
+    "fields": {
+      "student_id": "8765074",
+      "name": "Matthew Thomas",
+      "email": "matthew.thomas.74@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 75,
+    "fields": {
+      "student_id": "8765075",
+      "name": "Amanda Jackson",
+      "email": "amanda.jackson.75@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 76,
+    "fields": {
+      "student_id": "8765076",
+      "name": "Daniel White",
+      "email": "daniel.white.76@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "locked",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 77,
+    "fields": {
+      "student_id": "8765077",
+      "name": "Stephanie Harris",
+      "email": "stephanie.harris.77@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 78,
+    "fields": {
+      "student_id": "8765078",
+      "name": "Joshua Martin",
+      "email": "joshua.martin.78@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 79,
+    "fields": {
+      "student_id": "8765079",
+      "name": "Jennifer Thompson",
+      "email": "jennifer.thompson.79@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "viva",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 80,
+    "fields": {
+      "student_id": "8765080",
+      "name": "Andrew Garcia",
+      "email": "andrew.garcia.80@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 81,
+    "fields": {
+      "student_id": "8765081",
+      "name": "Elizabeth Martinez",
+      "email": "elizabeth.martinez.81@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 82,
+    "fields": {
+      "student_id": "8765082",
+      "name": "Ryan Robinson",
+      "email": "ryan.robinson.82@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "exam",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 83,
+    "fields": {
+      "student_id": "8765083",
+      "name": "Nicole Clark",
+      "email": "nicole.clark.83@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 84,
+    "fields": {
+      "student_id": "8765084",
+      "name": "Brandon Rodriguez",
+      "email": "brandon.rodriguez.84@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "locked",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 85,
+    "fields": {
+      "student_id": "8765085",
+      "name": "Samantha Lewis",
+      "email": "samantha.lewis.85@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "normal",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 86,
+    "fields": {
+      "student_id": "8765086",
+      "name": "Justin Lee",
+      "email": "justin.lee.86@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 87,
+    "fields": {
+      "student_id": "8765087",
+      "name": "Rachel Walker",
+      "email": "rachel.walker.87@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "viva",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 88,
+    "fields": {
+      "student_id": "8765088",
+      "name": "Kevin Hall",
+      "email": "kevin.hall.88@student.edu",
+      "batch": 3,
+      "status": "offline",
+      "current_mode": "locked",
+      "last_seen": "2024-12-26T18:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 89,
+    "fields": {
+      "student_id": "8765089",
+      "name": "Lauren Allen",
+      "email": "lauren.allen.89@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "normal",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 90,
+    "fields": {
+      "student_id": "8765090",
+      "name": "Tyler Young",
+      "email": "tyler.young.90@student.edu",
+      "batch": 3,
+      "status": "online",
+      "current_mode": "exam",
+      "last_seen": "2024-12-27T08:00:00Z",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-12-27T08:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 1,
+    "fields": {
+      "pc_id": "PC-01",
+      "student": 1,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 2,
+    "fields": {
+      "pc_id": "PC-02",
+      "student": 2,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 3,
+    "fields": {
+      "pc_id": "PC-03",
+      "student": 3,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 4,
+    "fields": {
+      "pc_id": "PC-04",
+      "student": 4,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 5,
+    "fields": {
+      "pc_id": "PC-05",
+      "student": 5,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 6,
+    "fields": {
+      "pc_id": "PC-06",
+      "student": 6,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 7,
+    "fields": {
+      "pc_id": "PC-07",
+      "student": 7,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 8,
+    "fields": {
+      "pc_id": "PC-08",
+      "student": 8,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 9,
+    "fields": {
+      "pc_id": "PC-09",
+      "student": 9,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 10,
+    "fields": {
+      "pc_id": "PC-10",
+      "student": 10,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 11,
+    "fields": {
+      "pc_id": "PC-11",
+      "student": 11,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 12,
+    "fields": {
+      "pc_id": "PC-12",
+      "student": 12,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 13,
+    "fields": {
+      "pc_id": "PC-13",
+      "student": 13,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 14,
+    "fields": {
+      "pc_id": "PC-14",
+      "student": 14,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 15,
+    "fields": {
+      "pc_id": "PC-15",
+      "student": 15,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 16,
+    "fields": {
+      "pc_id": "PC-16",
+      "student": 16,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 17,
+    "fields": {
+      "pc_id": "PC-17",
+      "student": 17,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 18,
+    "fields": {
+      "pc_id": "PC-18",
+      "student": 18,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 19,
+    "fields": {
+      "pc_id": "PC-19",
+      "student": 19,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 20,
+    "fields": {
+      "pc_id": "PC-20",
+      "student": 20,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 21,
+    "fields": {
+      "pc_id": "PC-21",
+      "student": 21,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 22,
+    "fields": {
+      "pc_id": "PC-22",
+      "student": 22,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 23,
+    "fields": {
+      "pc_id": "PC-23",
+      "student": 23,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 24,
+    "fields": {
+      "pc_id": "PC-24",
+      "student": 24,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 25,
+    "fields": {
+      "pc_id": "PC-25",
+      "student": 25,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 26,
+    "fields": {
+      "pc_id": "PC-26",
+      "student": 26,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 27,
+    "fields": {
+      "pc_id": "PC-27",
+      "student": 27,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 28,
+    "fields": {
+      "pc_id": "PC-28",
+      "student": 28,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 29,
+    "fields": {
+      "pc_id": "PC-29",
+      "student": 29,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 30,
+    "fields": {
+      "pc_id": "PC-30",
+      "student": 30,
+      "batch": 1,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 31,
+    "fields": {
+      "pc_id": "PC-31",
+      "student": 31,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 32,
+    "fields": {
+      "pc_id": "PC-32",
+      "student": 32,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 33,
+    "fields": {
+      "pc_id": "PC-33",
+      "student": 33,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 34,
+    "fields": {
+      "pc_id": "PC-34",
+      "student": 34,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 35,
+    "fields": {
+      "pc_id": "PC-35",
+      "student": 35,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 36,
+    "fields": {
+      "pc_id": "PC-36",
+      "student": 36,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 37,
+    "fields": {
+      "pc_id": "PC-37",
+      "student": 37,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 38,
+    "fields": {
+      "pc_id": "PC-38",
+      "student": 38,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 39,
+    "fields": {
+      "pc_id": "PC-39",
+      "student": 39,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 40,
+    "fields": {
+      "pc_id": "PC-40",
+      "student": 40,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 41,
+    "fields": {
+      "pc_id": "PC-41",
+      "student": 41,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 42,
+    "fields": {
+      "pc_id": "PC-42",
+      "student": 42,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 43,
+    "fields": {
+      "pc_id": "PC-43",
+      "student": 43,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 44,
+    "fields": {
+      "pc_id": "PC-44",
+      "student": 44,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 45,
+    "fields": {
+      "pc_id": "PC-45",
+      "student": 45,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 46,
+    "fields": {
+      "pc_id": "PC-46",
+      "student": 46,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 47,
+    "fields": {
+      "pc_id": "PC-47",
+      "student": 47,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 48,
+    "fields": {
+      "pc_id": "PC-48",
+      "student": 48,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 49,
+    "fields": {
+      "pc_id": "PC-49",
+      "student": 49,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 50,
+    "fields": {
+      "pc_id": "PC-50",
+      "student": 50,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 51,
+    "fields": {
+      "pc_id": "PC-51",
+      "student": 51,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 52,
+    "fields": {
+      "pc_id": "PC-52",
+      "student": 52,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 53,
+    "fields": {
+      "pc_id": "PC-53",
+      "student": 53,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 54,
+    "fields": {
+      "pc_id": "PC-54",
+      "student": 54,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 55,
+    "fields": {
+      "pc_id": "PC-55",
+      "student": 55,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 56,
+    "fields": {
+      "pc_id": "PC-56",
+      "student": 56,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 57,
+    "fields": {
+      "pc_id": "PC-57",
+      "student": 57,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 58,
+    "fields": {
+      "pc_id": "PC-58",
+      "student": 58,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 59,
+    "fields": {
+      "pc_id": "PC-59",
+      "student": 59,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 60,
+    "fields": {
+      "pc_id": "PC-60",
+      "student": 60,
+      "batch": 2,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 61,
+    "fields": {
+      "pc_id": "PC-61",
+      "student": 61,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 62,
+    "fields": {
+      "pc_id": "PC-62",
+      "student": 62,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 63,
+    "fields": {
+      "pc_id": "PC-63",
+      "student": 63,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 64,
+    "fields": {
+      "pc_id": "PC-64",
+      "student": 64,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 65,
+    "fields": {
+      "pc_id": "PC-65",
+      "student": 65,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 66,
+    "fields": {
+      "pc_id": "PC-66",
+      "student": 66,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 67,
+    "fields": {
+      "pc_id": "PC-67",
+      "student": 67,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 68,
+    "fields": {
+      "pc_id": "PC-68",
+      "student": 68,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 69,
+    "fields": {
+      "pc_id": "PC-69",
+      "student": 69,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 70,
+    "fields": {
+      "pc_id": "PC-70",
+      "student": 70,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 71,
+    "fields": {
+      "pc_id": "PC-71",
+      "student": 71,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 72,
+    "fields": {
+      "pc_id": "PC-72",
+      "student": 72,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 73,
+    "fields": {
+      "pc_id": "PC-73",
+      "student": 73,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 74,
+    "fields": {
+      "pc_id": "PC-74",
+      "student": 74,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 75,
+    "fields": {
+      "pc_id": "PC-75",
+      "student": 75,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 76,
+    "fields": {
+      "pc_id": "PC-76",
+      "student": 76,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 77,
+    "fields": {
+      "pc_id": "PC-77",
+      "student": 77,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 78,
+    "fields": {
+      "pc_id": "PC-78",
+      "student": 78,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 79,
+    "fields": {
+      "pc_id": "PC-79",
+      "student": 79,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 80,
+    "fields": {
+      "pc_id": "PC-80",
+      "student": 80,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 81,
+    "fields": {
+      "pc_id": "PC-81",
+      "student": 81,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 82,
+    "fields": {
+      "pc_id": "PC-82",
+      "student": 82,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 83,
+    "fields": {
+      "pc_id": "PC-83",
+      "student": 83,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 84,
+    "fields": {
+      "pc_id": "PC-84",
+      "student": 84,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 85,
+    "fields": {
+      "pc_id": "PC-85",
+      "student": 85,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 86,
+    "fields": {
+      "pc_id": "PC-86",
+      "student": 86,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 87,
+    "fields": {
+      "pc_id": "PC-87",
+      "student": 87,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 88,
+    "fields": {
+      "pc_id": "PC-88",
+      "student": 88,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 89,
+    "fields": {
+      "pc_id": "PC-89",
+      "student": 89,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "core.pcmapping",
+    "pk": 90,
+    "fields": {
+      "pc_id": "PC-90",
+      "student": 90,
+      "batch": 3,
+      "is_active": true,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z"
+    }
+  },
+  {
+    "model": "lab_sessions.labsession",
+    "pk": 1,
+    "fields": {
+      "batch": 1,
+      "faculty": 2,
+      "session_type": "regular",
+      "status": "completed",
+      "start_time": "2024-12-21T00:00:00Z",
+      "end_time": "2024-12-21T02:00:00Z",
+      "created_at": "2024-12-21T00:00:00Z",
+      "updated_at": "2024-12-21T02:00:00Z"
+    }
+  },
+  {
+    "model": "lab_sessions.labsession",
+    "pk": 2,
+    "fields": {
+      "batch": 1,
+      "faculty": 2,
+      "session_type": "regular",
+      "status": "completed",
+      "start_time": "2024-12-22T00:00:00Z",
+      "end_time": "2024-12-22T02:00:00Z",
+      "created_at": "2024-12-22T00:00:00Z",
+      "updated_at": "2024-12-22T02:00:00Z"
+    }
+  },
+  {
+    "model": "lab_sessions.labsession",
+    "pk": 3,
+    "fields": {
+      "batch": 1,
+      "faculty": 2,
+      "session_type": "regular",
+      "status": "completed",
+      "start_time": "2024-12-23T00:00:00Z",
+      "end_time": "2024-12-23T02:00:00Z",
+      "created_at": "2024-12-23T00:00:00Z",
+      "updated_at": "2024-12-23T02:00:00Z"
+    }
+  },
+  {
+    "model": "lab_sessions.labsession",
+    "pk": 4,
+    "fields": {
+      "batch": 2,
+      "faculty": 2,
+      "session_type": "regular",
+      "status": "completed",
+      "start_time": "2024-12-21T00:00:00Z",
+      "end_time": "2024-12-21T02:00:00Z",
+      "created_at": "2024-12-21T00:00:00Z",
+      "updated_at": "2024-12-21T02:00:00Z"
+    }
+  },
+  {
+    "model": "lab_sessions.labsession",
+    "pk": 5,
+    "fields": {
+      "batch": 2,
+      "faculty": 2,
+      "session_type": "regular",
+      "status": "completed",
+      "start_time": "2024-12-22T00:00:00Z",
+      "end_time": "2024-12-22T02:00:00Z",
+      "created_at": "2024-12-22T00:00:00Z",
+      "updated_at": "2024-12-22T02:00:00Z"
+    }
+  },
+  {
+    "model": "lab_sessions.labsession",
+    "pk": 6,
+    "fields": {
+      "batch": 2,
+      "faculty": 2,
+      "session_type": "regular",
+      "status": "completed",
+      "start_time": "2024-12-23T00:00:00Z",
+      "end_time": "2024-12-23T02:00:00Z",
+      "created_at": "2024-12-23T00:00:00Z",
+      "updated_at": "2024-12-23T02:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 1,
+    "fields": {
+      "student": 1,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 2,
+    "fields": {
+      "student": 2,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 3,
+    "fields": {
+      "student": 3,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 4,
+    "fields": {
+      "student": 4,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 5,
+    "fields": {
+      "student": 5,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 6,
+    "fields": {
+      "student": 6,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 7,
+    "fields": {
+      "student": 7,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 8,
+    "fields": {
+      "student": 8,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 9,
+    "fields": {
+      "student": 9,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 10,
+    "fields": {
+      "student": 10,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 11,
+    "fields": {
+      "student": 11,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 12,
+    "fields": {
+      "student": 12,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 13,
+    "fields": {
+      "student": 13,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 14,
+    "fields": {
+      "student": 14,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 15,
+    "fields": {
+      "student": 15,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 16,
+    "fields": {
+      "student": 16,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 17,
+    "fields": {
+      "student": 17,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 18,
+    "fields": {
+      "student": 18,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 19,
+    "fields": {
+      "student": 19,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 20,
+    "fields": {
+      "student": 20,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 21,
+    "fields": {
+      "student": 21,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 22,
+    "fields": {
+      "student": 22,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 23,
+    "fields": {
+      "student": 23,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 24,
+    "fields": {
+      "student": 24,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 25,
+    "fields": {
+      "student": 25,
+      "session": 1,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 26,
+    "fields": {
+      "student": 1,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 27,
+    "fields": {
+      "student": 2,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 28,
+    "fields": {
+      "student": 3,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 29,
+    "fields": {
+      "student": 4,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 30,
+    "fields": {
+      "student": 5,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 31,
+    "fields": {
+      "student": 6,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 32,
+    "fields": {
+      "student": 7,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 33,
+    "fields": {
+      "student": 8,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 34,
+    "fields": {
+      "student": 9,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 35,
+    "fields": {
+      "student": 10,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 36,
+    "fields": {
+      "student": 11,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 37,
+    "fields": {
+      "student": 12,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 38,
+    "fields": {
+      "student": 13,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 39,
+    "fields": {
+      "student": 14,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 40,
+    "fields": {
+      "student": 15,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 41,
+    "fields": {
+      "student": 16,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 42,
+    "fields": {
+      "student": 17,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 43,
+    "fields": {
+      "student": 18,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 44,
+    "fields": {
+      "student": 19,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 45,
+    "fields": {
+      "student": 20,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 46,
+    "fields": {
+      "student": 21,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 47,
+    "fields": {
+      "student": 22,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 48,
+    "fields": {
+      "student": 23,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 49,
+    "fields": {
+      "student": 24,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 50,
+    "fields": {
+      "student": 25,
+      "session": 2,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 51,
+    "fields": {
+      "student": 1,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 52,
+    "fields": {
+      "student": 2,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 53,
+    "fields": {
+      "student": 3,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 54,
+    "fields": {
+      "student": 4,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 55,
+    "fields": {
+      "student": 5,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 56,
+    "fields": {
+      "student": 6,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 57,
+    "fields": {
+      "student": 7,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 58,
+    "fields": {
+      "student": 8,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 59,
+    "fields": {
+      "student": 9,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 60,
+    "fields": {
+      "student": 10,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 61,
+    "fields": {
+      "student": 11,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 62,
+    "fields": {
+      "student": 12,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 63,
+    "fields": {
+      "student": 13,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 64,
+    "fields": {
+      "student": 14,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 65,
+    "fields": {
+      "student": 15,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 66,
+    "fields": {
+      "student": 16,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 67,
+    "fields": {
+      "student": 17,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 68,
+    "fields": {
+      "student": 18,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 69,
+    "fields": {
+      "student": 19,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 70,
+    "fields": {
+      "student": 20,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 71,
+    "fields": {
+      "student": 21,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 72,
+    "fields": {
+      "student": 22,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 73,
+    "fields": {
+      "student": 23,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 74,
+    "fields": {
+      "student": 24,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 75,
+    "fields": {
+      "student": 25,
+      "session": 3,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 76,
+    "fields": {
+      "student": 31,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 77,
+    "fields": {
+      "student": 32,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 78,
+    "fields": {
+      "student": 33,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 79,
+    "fields": {
+      "student": 34,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 80,
+    "fields": {
+      "student": 35,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 81,
+    "fields": {
+      "student": 36,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 82,
+    "fields": {
+      "student": 37,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 83,
+    "fields": {
+      "student": 38,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 84,
+    "fields": {
+      "student": 39,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 85,
+    "fields": {
+      "student": 40,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 86,
+    "fields": {
+      "student": 41,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 87,
+    "fields": {
+      "student": 42,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 88,
+    "fields": {
+      "student": 43,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 89,
+    "fields": {
+      "student": 44,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 90,
+    "fields": {
+      "student": 45,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 91,
+    "fields": {
+      "student": 46,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 92,
+    "fields": {
+      "student": 47,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 93,
+    "fields": {
+      "student": 48,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 94,
+    "fields": {
+      "student": 49,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 95,
+    "fields": {
+      "student": 50,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 96,
+    "fields": {
+      "student": 51,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 97,
+    "fields": {
+      "student": 52,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 98,
+    "fields": {
+      "student": 53,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 99,
+    "fields": {
+      "student": 54,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 100,
+    "fields": {
+      "student": 55,
+      "session": 4,
+      "status": "present",
+      "login_time": "2024-12-21T09:00:00Z",
+      "logout_time": "2024-12-21T11:00:00Z",
+      "created_at": "2024-12-21T09:00:00Z",
+      "updated_at": "2024-12-21T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 101,
+    "fields": {
+      "student": 31,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 102,
+    "fields": {
+      "student": 32,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 103,
+    "fields": {
+      "student": 33,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 104,
+    "fields": {
+      "student": 34,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 105,
+    "fields": {
+      "student": 35,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 106,
+    "fields": {
+      "student": 36,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 107,
+    "fields": {
+      "student": 37,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 108,
+    "fields": {
+      "student": 38,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 109,
+    "fields": {
+      "student": 39,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 110,
+    "fields": {
+      "student": 40,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 111,
+    "fields": {
+      "student": 41,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 112,
+    "fields": {
+      "student": 42,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 113,
+    "fields": {
+      "student": 43,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 114,
+    "fields": {
+      "student": 44,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 115,
+    "fields": {
+      "student": 45,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 116,
+    "fields": {
+      "student": 46,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 117,
+    "fields": {
+      "student": 47,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 118,
+    "fields": {
+      "student": 48,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 119,
+    "fields": {
+      "student": 49,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 120,
+    "fields": {
+      "student": 50,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 121,
+    "fields": {
+      "student": 51,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 122,
+    "fields": {
+      "student": 52,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 123,
+    "fields": {
+      "student": 53,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 124,
+    "fields": {
+      "student": 54,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 125,
+    "fields": {
+      "student": 55,
+      "session": 5,
+      "status": "present",
+      "login_time": "2024-12-22T09:00:00Z",
+      "logout_time": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T09:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 126,
+    "fields": {
+      "student": 31,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 127,
+    "fields": {
+      "student": 32,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 128,
+    "fields": {
+      "student": 33,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 129,
+    "fields": {
+      "student": 34,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 130,
+    "fields": {
+      "student": 35,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 131,
+    "fields": {
+      "student": 36,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 132,
+    "fields": {
+      "student": 37,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 133,
+    "fields": {
+      "student": 38,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 134,
+    "fields": {
+      "student": 39,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 135,
+    "fields": {
+      "student": 40,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 136,
+    "fields": {
+      "student": 41,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 137,
+    "fields": {
+      "student": 42,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 138,
+    "fields": {
+      "student": 43,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 139,
+    "fields": {
+      "student": 44,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 140,
+    "fields": {
+      "student": 45,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 141,
+    "fields": {
+      "student": 46,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 142,
+    "fields": {
+      "student": 47,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 143,
+    "fields": {
+      "student": 48,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 144,
+    "fields": {
+      "student": 49,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 145,
+    "fields": {
+      "student": 50,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 146,
+    "fields": {
+      "student": 51,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 147,
+    "fields": {
+      "student": 52,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 148,
+    "fields": {
+      "student": 53,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 149,
+    "fields": {
+      "student": 54,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "students.attendance",
+    "pk": 150,
+    "fields": {
+      "student": 55,
+      "session": 6,
+      "status": "present",
+      "login_time": "2024-12-23T09:00:00Z",
+      "logout_time": "2024-12-23T11:00:00Z",
+      "created_at": "2024-12-23T09:00:00Z",
+      "updated_at": "2024-12-23T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 1,
+    "fields": {
+      "student": 1,
+      "session": 1,
+      "faculty": 2,
+      "marks": 60,
+      "notes": "Good performance. Answered 60% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 2,
+    "fields": {
+      "student": 2,
+      "session": 1,
+      "faculty": 2,
+      "marks": 62,
+      "notes": "Good performance. Answered 62% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 3,
+    "fields": {
+      "student": 3,
+      "session": 1,
+      "faculty": 2,
+      "marks": 64,
+      "notes": "Good performance. Answered 64% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 4,
+    "fields": {
+      "student": 4,
+      "session": 1,
+      "faculty": 2,
+      "marks": 66,
+      "notes": "Good performance. Answered 66% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 5,
+    "fields": {
+      "student": 5,
+      "session": 1,
+      "faculty": 2,
+      "marks": 68,
+      "notes": "Good performance. Answered 68% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 6,
+    "fields": {
+      "student": 6,
+      "session": 1,
+      "faculty": 2,
+      "marks": 70,
+      "notes": "Good performance. Answered 70% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 7,
+    "fields": {
+      "student": 7,
+      "session": 1,
+      "faculty": 2,
+      "marks": 72,
+      "notes": "Good performance. Answered 72% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 8,
+    "fields": {
+      "student": 8,
+      "session": 1,
+      "faculty": 2,
+      "marks": 74,
+      "notes": "Good performance. Answered 74% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 9,
+    "fields": {
+      "student": 9,
+      "session": 1,
+      "faculty": 2,
+      "marks": 76,
+      "notes": "Good performance. Answered 76% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 10,
+    "fields": {
+      "student": 10,
+      "session": 1,
+      "faculty": 2,
+      "marks": 78,
+      "notes": "Good performance. Answered 78% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 11,
+    "fields": {
+      "student": 11,
+      "session": 1,
+      "faculty": 2,
+      "marks": 80,
+      "notes": "Good performance. Answered 80% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 12,
+    "fields": {
+      "student": 12,
+      "session": 1,
+      "faculty": 2,
+      "marks": 82,
+      "notes": "Good performance. Answered 82% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 13,
+    "fields": {
+      "student": 13,
+      "session": 1,
+      "faculty": 2,
+      "marks": 84,
+      "notes": "Good performance. Answered 84% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 14,
+    "fields": {
+      "student": 14,
+      "session": 1,
+      "faculty": 2,
+      "marks": 86,
+      "notes": "Good performance. Answered 86% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 15,
+    "fields": {
+      "student": 15,
+      "session": 1,
+      "faculty": 2,
+      "marks": 88,
+      "notes": "Good performance. Answered 88% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 16,
+    "fields": {
+      "student": 16,
+      "session": 1,
+      "faculty": 2,
+      "marks": 90,
+      "notes": "Good performance. Answered 90% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 17,
+    "fields": {
+      "student": 17,
+      "session": 1,
+      "faculty": 2,
+      "marks": 92,
+      "notes": "Good performance. Answered 92% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 18,
+    "fields": {
+      "student": 18,
+      "session": 1,
+      "faculty": 2,
+      "marks": 94,
+      "notes": "Good performance. Answered 94% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 19,
+    "fields": {
+      "student": 19,
+      "session": 1,
+      "faculty": 2,
+      "marks": 96,
+      "notes": "Good performance. Answered 96% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.vivarecord",
+    "pk": 20,
+    "fields": {
+      "student": 20,
+      "session": 1,
+      "faculty": 2,
+      "marks": 98,
+      "notes": "Good performance. Answered 98% of questions correctly.",
+      "status": "completed",
+      "conducted_at": "2024-12-21T10:00:00Z",
+      "created_at": "2024-12-21T10:00:00Z",
+      "updated_at": "2024-12-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.task",
+    "pk": 1,
+    "fields": {
+      "batch": 1,
+      "faculty": 2,
+      "title": "Python Assignment 1",
+      "description": "Create a calculator using OOP principles",
+      "deadline": "2024-12-30T23:59:59Z",
+      "auto_delete": false,
+      "created_at": "2024-12-15T00:00:00Z",
+      "updated_at": "2024-12-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.task",
+    "pk": 2,
+    "fields": {
+      "batch": 1,
+      "faculty": 2,
+      "title": "Database Project",
+      "description": "Design and implement a library management system",
+      "deadline": "2024-12-30T23:59:59Z",
+      "auto_delete": false,
+      "created_at": "2024-12-15T00:00:00Z",
+      "updated_at": "2024-12-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.task",
+    "pk": 3,
+    "fields": {
+      "batch": 1,
+      "faculty": 2,
+      "title": "Web Development Task",
+      "description": "Build a responsive portfolio website using HTML/CSS/JS",
+      "deadline": "2024-12-30T23:59:59Z",
+      "auto_delete": false,
+      "created_at": "2024-12-15T00:00:00Z",
+      "updated_at": "2024-12-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.task",
+    "pk": 4,
+    "fields": {
+      "batch": 2,
+      "faculty": 2,
+      "title": "Python Assignment 1",
+      "description": "Create a calculator using OOP principles",
+      "deadline": "2024-12-30T23:59:59Z",
+      "auto_delete": false,
+      "created_at": "2024-12-15T00:00:00Z",
+      "updated_at": "2024-12-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.task",
+    "pk": 5,
+    "fields": {
+      "batch": 2,
+      "faculty": 2,
+      "title": "Database Project",
+      "description": "Design and implement a library management system",
+      "deadline": "2024-12-30T23:59:59Z",
+      "auto_delete": false,
+      "created_at": "2024-12-15T00:00:00Z",
+      "updated_at": "2024-12-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.task",
+    "pk": 6,
+    "fields": {
+      "batch": 2,
+      "faculty": 2,
+      "title": "Web Development Task",
+      "description": "Build a responsive portfolio website using HTML/CSS/JS",
+      "deadline": "2024-12-30T23:59:59Z",
+      "auto_delete": false,
+      "created_at": "2024-12-15T00:00:00Z",
+      "updated_at": "2024-12-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.task",
+    "pk": 7,
+    "fields": {
+      "batch": 3,
+      "faculty": 2,
+      "title": "Python Assignment 1",
+      "description": "Create a calculator using OOP principles",
+      "deadline": "2024-12-30T23:59:59Z",
+      "auto_delete": false,
+      "created_at": "2024-12-15T00:00:00Z",
+      "updated_at": "2024-12-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.task",
+    "pk": 8,
+    "fields": {
+      "batch": 3,
+      "faculty": 2,
+      "title": "Database Project",
+      "description": "Design and implement a library management system",
+      "deadline": "2024-12-30T23:59:59Z",
+      "auto_delete": false,
+      "created_at": "2024-12-15T00:00:00Z",
+      "updated_at": "2024-12-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.task",
+    "pk": 9,
+    "fields": {
+      "batch": 3,
+      "faculty": 2,
+      "title": "Web Development Task",
+      "description": "Build a responsive portfolio website using HTML/CSS/JS",
+      "deadline": "2024-12-30T23:59:59Z",
+      "auto_delete": false,
+      "created_at": "2024-12-15T00:00:00Z",
+      "updated_at": "2024-12-15T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 1,
+    "fields": {
+      "task": 1,
+      "student": 1,
+      "file_path": "/submissions/task1/student_1_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 70,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 2,
+    "fields": {
+      "task": 1,
+      "student": 2,
+      "file_path": "/submissions/task1/student_2_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 72,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 3,
+    "fields": {
+      "task": 1,
+      "student": 3,
+      "file_path": "/submissions/task1/student_3_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 74,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 4,
+    "fields": {
+      "task": 1,
+      "student": 4,
+      "file_path": "/submissions/task1/student_4_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 76,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 5,
+    "fields": {
+      "task": 1,
+      "student": 5,
+      "file_path": "/submissions/task1/student_5_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 78,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 6,
+    "fields": {
+      "task": 1,
+      "student": 6,
+      "file_path": "/submissions/task1/student_6_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 80,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 7,
+    "fields": {
+      "task": 1,
+      "student": 7,
+      "file_path": "/submissions/task1/student_7_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 82,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 8,
+    "fields": {
+      "task": 1,
+      "student": 8,
+      "file_path": "/submissions/task1/student_8_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 84,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 9,
+    "fields": {
+      "task": 1,
+      "student": 9,
+      "file_path": "/submissions/task1/student_9_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 86,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 10,
+    "fields": {
+      "task": 1,
+      "student": 10,
+      "file_path": "/submissions/task1/student_10_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 88,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 11,
+    "fields": {
+      "task": 1,
+      "student": 11,
+      "file_path": "/submissions/task1/student_11_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 90,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 12,
+    "fields": {
+      "task": 1,
+      "student": 12,
+      "file_path": "/submissions/task1/student_12_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 92,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 13,
+    "fields": {
+      "task": 1,
+      "student": 13,
+      "file_path": "/submissions/task1/student_13_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 94,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 14,
+    "fields": {
+      "task": 1,
+      "student": 14,
+      "file_path": "/submissions/task1/student_14_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 96,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.tasksubmission",
+    "pk": 15,
+    "fields": {
+      "task": 1,
+      "student": 15,
+      "file_path": "/submissions/task1/student_15_calculator.py",
+      "submitted_at": "2024-12-20T10:00:00Z",
+      "marks": 98,
+      "feedback": "Good work. Code is clean and functional.",
+      "created_at": "2024-12-20T10:00:00Z",
+      "updated_at": "2024-12-20T10:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examsession",
+    "pk": 1,
+    "fields": {
+      "lab_session": 2,
+      "exam_type": "practical",
+      "duration_minutes": 120,
+      "allowed_apps": "VS Code, Chrome, Terminal",
+      "created_at": "2024-12-22T00:00:00Z",
+      "updated_at": "2024-12-22T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 1,
+    "fields": {
+      "student": 1,
+      "exam_session": 1,
+      "marks": 55,
+      "duration_minutes": 110,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 2,
+    "fields": {
+      "student": 2,
+      "exam_session": 1,
+      "marks": 56,
+      "duration_minutes": 111,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 3,
+    "fields": {
+      "student": 3,
+      "exam_session": 1,
+      "marks": 58,
+      "duration_minutes": 112,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 4,
+    "fields": {
+      "student": 4,
+      "exam_session": 1,
+      "marks": 59,
+      "duration_minutes": 113,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 5,
+    "fields": {
+      "student": 5,
+      "exam_session": 1,
+      "marks": 61,
+      "duration_minutes": 114,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 6,
+    "fields": {
+      "student": 6,
+      "exam_session": 1,
+      "marks": 62,
+      "duration_minutes": 115,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 7,
+    "fields": {
+      "student": 7,
+      "exam_session": 1,
+      "marks": 64,
+      "duration_minutes": 116,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 8,
+    "fields": {
+      "student": 8,
+      "exam_session": 1,
+      "marks": 65,
+      "duration_minutes": 117,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 9,
+    "fields": {
+      "student": 9,
+      "exam_session": 1,
+      "marks": 67,
+      "duration_minutes": 118,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 10,
+    "fields": {
+      "student": 10,
+      "exam_session": 1,
+      "marks": 68,
+      "duration_minutes": 119,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 11,
+    "fields": {
+      "student": 11,
+      "exam_session": 1,
+      "marks": 70,
+      "duration_minutes": 110,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 12,
+    "fields": {
+      "student": 12,
+      "exam_session": 1,
+      "marks": 71,
+      "duration_minutes": 111,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 13,
+    "fields": {
+      "student": 13,
+      "exam_session": 1,
+      "marks": 73,
+      "duration_minutes": 112,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 14,
+    "fields": {
+      "student": 14,
+      "exam_session": 1,
+      "marks": 74,
+      "duration_minutes": 113,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 15,
+    "fields": {
+      "student": 15,
+      "exam_session": 1,
+      "marks": 76,
+      "duration_minutes": 114,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 16,
+    "fields": {
+      "student": 16,
+      "exam_session": 1,
+      "marks": 77,
+      "duration_minutes": 115,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 17,
+    "fields": {
+      "student": 17,
+      "exam_session": 1,
+      "marks": 79,
+      "duration_minutes": 116,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 18,
+    "fields": {
+      "student": 18,
+      "exam_session": 1,
+      "marks": 80,
+      "duration_minutes": 117,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 19,
+    "fields": {
+      "student": 19,
+      "exam_session": 1,
+      "marks": 82,
+      "duration_minutes": 118,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 20,
+    "fields": {
+      "student": 20,
+      "exam_session": 1,
+      "marks": 83,
+      "duration_minutes": 119,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 21,
+    "fields": {
+      "student": 21,
+      "exam_session": 1,
+      "marks": 85,
+      "duration_minutes": 110,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 22,
+    "fields": {
+      "student": 22,
+      "exam_session": 1,
+      "marks": 86,
+      "duration_minutes": 111,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 23,
+    "fields": {
+      "student": 23,
+      "exam_session": 1,
+      "marks": 88,
+      "duration_minutes": 112,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 24,
+    "fields": {
+      "student": 24,
+      "exam_session": 1,
+      "marks": 89,
+      "duration_minutes": 113,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 25,
+    "fields": {
+      "student": 25,
+      "exam_session": 1,
+      "marks": 91,
+      "duration_minutes": 114,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examsession",
+    "pk": 2,
+    "fields": {
+      "lab_session": 5,
+      "exam_type": "practical",
+      "duration_minutes": 120,
+      "allowed_apps": "VS Code, Chrome, Terminal",
+      "created_at": "2024-12-22T00:00:00Z",
+      "updated_at": "2024-12-22T00:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 26,
+    "fields": {
+      "student": 31,
+      "exam_session": 2,
+      "marks": 55,
+      "duration_minutes": 110,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 27,
+    "fields": {
+      "student": 32,
+      "exam_session": 2,
+      "marks": 56,
+      "duration_minutes": 111,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 28,
+    "fields": {
+      "student": 33,
+      "exam_session": 2,
+      "marks": 58,
+      "duration_minutes": 112,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 29,
+    "fields": {
+      "student": 34,
+      "exam_session": 2,
+      "marks": 59,
+      "duration_minutes": 113,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 30,
+    "fields": {
+      "student": 35,
+      "exam_session": 2,
+      "marks": 61,
+      "duration_minutes": 114,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 31,
+    "fields": {
+      "student": 36,
+      "exam_session": 2,
+      "marks": 62,
+      "duration_minutes": 115,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 32,
+    "fields": {
+      "student": 37,
+      "exam_session": 2,
+      "marks": 64,
+      "duration_minutes": 116,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 33,
+    "fields": {
+      "student": 38,
+      "exam_session": 2,
+      "marks": 65,
+      "duration_minutes": 117,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 34,
+    "fields": {
+      "student": 39,
+      "exam_session": 2,
+      "marks": 67,
+      "duration_minutes": 118,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 35,
+    "fields": {
+      "student": 40,
+      "exam_session": 2,
+      "marks": 68,
+      "duration_minutes": 119,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 36,
+    "fields": {
+      "student": 41,
+      "exam_session": 2,
+      "marks": 70,
+      "duration_minutes": 110,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 37,
+    "fields": {
+      "student": 42,
+      "exam_session": 2,
+      "marks": 71,
+      "duration_minutes": 111,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 38,
+    "fields": {
+      "student": 43,
+      "exam_session": 2,
+      "marks": 73,
+      "duration_minutes": 112,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 39,
+    "fields": {
+      "student": 44,
+      "exam_session": 2,
+      "marks": 74,
+      "duration_minutes": 113,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 40,
+    "fields": {
+      "student": 45,
+      "exam_session": 2,
+      "marks": 76,
+      "duration_minutes": 114,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 41,
+    "fields": {
+      "student": 46,
+      "exam_session": 2,
+      "marks": 77,
+      "duration_minutes": 115,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 42,
+    "fields": {
+      "student": 47,
+      "exam_session": 2,
+      "marks": 79,
+      "duration_minutes": 116,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 43,
+    "fields": {
+      "student": 48,
+      "exam_session": 2,
+      "marks": 80,
+      "duration_minutes": 117,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 44,
+    "fields": {
+      "student": 49,
+      "exam_session": 2,
+      "marks": 82,
+      "duration_minutes": 118,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 45,
+    "fields": {
+      "student": 50,
+      "exam_session": 2,
+      "marks": 83,
+      "duration_minutes": 119,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 46,
+    "fields": {
+      "student": 51,
+      "exam_session": 2,
+      "marks": 85,
+      "duration_minutes": 110,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 47,
+    "fields": {
+      "student": 52,
+      "exam_session": 2,
+      "marks": 86,
+      "duration_minutes": 111,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 48,
+    "fields": {
+      "student": 53,
+      "exam_session": 2,
+      "marks": 88,
+      "duration_minutes": 112,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 49,
+    "fields": {
+      "student": 54,
+      "exam_session": 2,
+      "marks": 89,
+      "duration_minutes": 113,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  },
+  {
+    "model": "evaluation.examresult",
+    "pk": 50,
+    "fields": {
+      "student": 55,
+      "exam_session": 2,
+      "marks": 91,
+      "duration_minutes": 114,
+      "started_at": "2024-12-22T09:00:00Z",
+      "submitted_at": "2024-12-22T11:00:00Z",
+      "created_at": "2024-12-22T11:00:00Z",
+      "updated_at": "2024-12-22T11:00:00Z"
+    }
+  }
+]
