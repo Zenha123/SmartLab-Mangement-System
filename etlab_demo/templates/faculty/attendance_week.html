@@ -1,0 +1,52 @@
+{% extends 'faculty/base.html' %}
+
+{% block content %}
+
+<h2>Attendance – {{ subject.subject_name }}</h2>
+<p>Week: {{ week_start }} → {{ week_end }}</p>
+
+<form method="get" style="margin-bottom: 20px;">
+  <input type="hidden" name="semester" value="{{ semester.id }}">
+
+  <label>
+    Attendance by Date:
+    <input
+      type="date"
+      name="date"
+      value="{{ selected_date }}"
+      max="{{ today }}"
+      onchange="this.form.submit()"
+    >
+  </label>
+</form>
+
+
+<table class="timetable">
+  <tr>
+    <th>Date</th>
+    <th>Day</th>
+    {% for h in hours %}
+      <th>P{{ h }}</th>
+    {% endfor %}
+  </tr>
+
+  {% for row in grid %}
+  <tr>
+    <td>{{ row.date }}</td>
+    <td>{{ row.day }}</td>
+    {% for p in row.periods %}
+      <td>
+        {% if p.status == 'add' or p.status == 'edit' %}
+  <a href="{% url 'mark_attendance' %}?subject={{ subject.id }}&semester={{ semester.id }}&date={{ row.date|date:'Y-m-d' }}&period={{ p.period }}">
+    <button>{{ p.status|title }}</button>
+  </a>
+{% else %}
+          —
+        {% endif %}
+      </td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+
+{% endblock %}
