@@ -10,16 +10,17 @@
   {% endif %}
 
   <form method="post">
-    {% csrf_token %}
+  {% csrf_token %}
 
-    <select name="role">
-      <option value="admin">Admin</option>
-      <option value="faculty">Faculty</option>
-    </select>
+  <input type="text" name="faculty_id" placeholder="Faculty ID" required>
+  <input type="password" name="password" placeholder="Password" required>
 
-    <input type="email" name="email" placeholder="Email">
-    <input type="password" name="password" placeholder="Password">
+  {% if error %}
+    <p style="color:red;">{{ error }}</p>
+  {% endif %}
 
-    <button>Login</button>
-  </form>
+  <button type="submit">Login</button>
+</form>
+
+
 </div>

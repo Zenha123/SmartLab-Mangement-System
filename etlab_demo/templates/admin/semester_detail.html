@@ -16,12 +16,12 @@
   {% if students %}
   <table>
     <tr>
-      <th>Roll No</th>
+      <th>Reg No</th>
       <th>Name</th>
     </tr>
     {% for s in students %}
     <tr>
-      <td>{{ s.roll_no }}</td>
+      <td>{{ s.reg_number }}</td>
       <td>{{ s.name }}</td>
     </tr>
     {% endfor %}

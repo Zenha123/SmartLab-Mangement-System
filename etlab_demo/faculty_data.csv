@@ -1,0 +1,4 @@
+faculty_id,name,email,role,password
+FAC001,Dr Arun,arun@college.edu,FACULTY,pass123
+FAC002,Dr Meera,meera@college.edu,ADMIN,admin123
+FAC003,Dr Ravi,ravi@college.edu,FACULTY,ravi@123

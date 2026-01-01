@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 
 from .utils import faculty_sidebar_context
@@ -12,27 +12,36 @@ from datetime import date, timedelta, datetime
 def login_view(request):
     error = None
 
-    if request.method == 'POST':
-        role = request.POST['role']
-        email = request.POST['email']
-        password = request.POST['password']
+    if request.method == "POST":
+        faculty_id = request.POST.get("faculty_id")
+        password = request.POST.get("password")
 
-        user = authenticate(username=email, password=password)
-        if user:
-            login(request, user)
-            if role == 'admin' and user.is_staff:
-                return redirect('semester_list')
-            if role == 'faculty' and not user.is_staff:
-                return redirect('faculty_dashboard')  # Placeholder for faculty dashboard
-            else:
-                error = "Invalid role selection"
+        user = authenticate(
+            request,
+            username=faculty_id,   # Faculty ID used as username
+            password=password
+        )
+
+        if user is None:
+            error = "Invalid Faculty ID or password"
         else:
-            error = "Invalid credentials"
+            faculty = user.faculty
+            login(request, user)
 
-    return render(request, 'auth/login.html', {'error': error})
+            if faculty.is_admin():
+                return redirect("semester_list")
+            else:
+                return redirect("faculty_dashboard")
+
+    return render(request, "auth/login.html", {"error": error})
+
+def logout_view(request):
+    logout(request)
+    return redirect("login")
 
 
 # ADMIN: semester list
+@login_required
 def semester_list(request):
     semesters = Semester.objects.all()
     return render(request, 'admin/semester_list.html', {'semesters': semesters})
@@ -295,7 +304,7 @@ def mark_attendance(request):
         AttendanceRecord.objects.filter(session=session).delete()
 
         for student in students:
-            is_present = request.POST.get(f"present_{student.id}")
+            is_present = request.POST.get(f"present_{student.reg_number}")
             AttendanceRecord.objects.create(
                 session=session,
                 student=student,
@@ -307,11 +316,11 @@ def mark_attendance(request):
         f"{reverse('attendance_week', args=[subject.id])}?semester={semester.id}&date={attendance_date}"
         )
 
-    records = AttendanceRecord.objects.filter(session=session)
     attendance_map = {
-        record.student_id: record.is_present
-        for record in records
-    }
+    r.student.reg_number: r.is_present
+    for r in AttendanceRecord.objects.filter(session=session)
+}
+
 
     return render(request, "faculty/mark_attendance.html", {
         "subject": subject,
