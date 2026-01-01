@@ -1,16 +1,19 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTabWidget, QTableWidget, QTableWidgetItem, QHBoxLayout, QComboBox, QPushButton
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QTabWidget, QTableWidgetItem, QHBoxLayout, QPushButton, QMessageBox
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont, QColor
 
 from ui.common.cards import CardFrame
 from ui.common.tables import StyledTableWidget
 from ui.theme import heading_font, Theme, body_font
-from data.mock_data import reports_attendance
+from api.global_client import api_client
 
 
 class ReportsScreen(QWidget):
-    def __init__(self):
+    def __init__(self, parent=None):
         super().__init__()
+        self.parent_window = parent
+        self.attendance_data = []
+        
         root = QVBoxLayout(self)
         root.setContentsMargins(24, 24, 24, 24)
         root.setSpacing(20)
@@ -20,70 +23,16 @@ class ReportsScreen(QWidget):
         title.setStyleSheet(f"color: {Theme.text_primary}; margin-bottom: 4px;")
         root.addWidget(title)
 
-        # Filters
-        filters_card = CardFrame(padding=16)
-        filters_label = QLabel("🔍 Filters:")
-        filters_label.setFont(body_font(13, QFont.Weight.DemiBold))
-        filters_label.setStyleSheet(f"color: {Theme.text_primary}; margin-bottom: 12px;")
-        filters_card.layout.addWidget(filters_label)
+        # Action buttons
+        actions_card = CardFrame(padding=16)
+        actions = QHBoxLayout()
+        actions.setSpacing(12)
         
-        filters = QHBoxLayout()
-        filters.setSpacing(12)
-        
-        date_label = QLabel("Date:")
-        date_label.setFont(body_font(12))
-        date_label.setStyleSheet(f"color: {Theme.text_secondary};")
-        self.date_filter = QComboBox()
-        self.date_filter.addItems(["All Dates", *[r["date"] for r in reports_attendance]])
-        self.date_filter.setStyleSheet(
-            f"""
-            QComboBox {{
-                border: 1px solid {Theme.border};
-                border-radius: 6px;
-                padding: 8px 12px;
-                min-width: 150px;
-            }}
-            """
-        )
-        
-        sem_label = QLabel("Semester:")
-        sem_label.setFont(body_font(12))
-        sem_label.setStyleSheet(f"color: {Theme.text_secondary};")
-        self.sem_filter = QComboBox()
-        self.sem_filter.addItems([f"Sem {i}" for i in range(1, 9)])
-        self.sem_filter.setStyleSheet(
-            f"""
-            QComboBox {{
-                border: 1px solid {Theme.border};
-                border-radius: 6px;
-                padding: 8px 12px;
-                min-width: 120px;
-            }}
-            """
-        )
-        
-        batch_label = QLabel("Batch:")
-        batch_label.setFont(body_font(12))
-        batch_label.setStyleSheet(f"color: {Theme.text_secondary};")
-        self.batch_filter = QComboBox()
-        self.batch_filter.addItems(["Batch 1", "Batch 2"])
-        self.batch_filter.setStyleSheet(
-            f"""
-            QComboBox {{
-                border: 1px solid {Theme.border};
-                border-radius: 6px;
-                padding: 8px 12px;
-                min-width: 120px;
-            }}
-            """
-        )
-        
-        export_btn = QPushButton("📥 Export Report")
-        export_btn.setProperty("class", "primary")
-        export_btn.setStyleSheet(
+        refresh_btn = QPushButton("🔄 Refresh Data")
+        refresh_btn.setStyleSheet(
             f"""
             QPushButton {{
-                background: {Theme.primary};
+                background: {Theme.secondary};
                 color: white;
                 border: none;
                 border-radius: 6px;
@@ -92,56 +41,94 @@ class ReportsScreen(QWidget):
                 font-size: 13px;
             }}
             QPushButton:hover {{
-                background: {Theme.primary_hover};
+                background: #16A085;
             }}
             """
         )
+        refresh_btn.clicked.connect(self.load_reports)
         
-        filters.addWidget(date_label)
-        filters.addWidget(self.date_filter)
-        filters.addWidget(sem_label)
-        filters.addWidget(self.sem_filter)
-        filters.addWidget(batch_label)
-        filters.addWidget(self.batch_filter)
-        filters.addStretch()
-        filters.addWidget(export_btn)
-        filters_card.layout.addLayout(filters)
-        root.addWidget(filters_card)
+        actions.addWidget(refresh_btn)
+        actions.addStretch()
+        actions_card.layout.addLayout(actions)
+        root.addWidget(actions_card)
 
-        tabs = QTabWidget()
-        tabs.addTab(self._attendance_tab(), "📊 Attendance")
-        tabs.addTab(self._generic_tab("Viva Marks"), "🎤 Viva Marks")
-        tabs.addTab(self._generic_tab("Submissions"), "📝 Submissions")
-        root.addWidget(tabs)
+        # Tabs
+        self.tabs = QTabWidget()
+        self.attendance_tab_widget = self._create_attendance_tab()
+        self.tabs.addTab(self.attendance_tab_widget, "📊 Attendance")
+        self.tabs.addTab(self._generic_tab("Viva Marks"), "🎤 Viva Marks")
+        self.tabs.addTab(self._generic_tab("Task Submissions"), "📝 Submissions")
+        root.addWidget(self.tabs)
         root.addStretch(1)
-
-    def _attendance_tab(self):
+    
+    def _create_attendance_tab(self):
+        """Create attendance report tab"""
         widget = CardFrame(padding=20)
-        table = StyledTableWidget(len(reports_attendance), 3)
-        table.setHorizontalHeaderLabels(["Date", "Present", "Absent"])
-        for r, row in enumerate(reports_attendance):
-            date_item = QTableWidgetItem(row["date"])
-            date_item.setFont(body_font(13))
-            table.setItem(r, 0, date_item)
-            
-            present_item = QTableWidgetItem(str(row["present"]))
-            present_item.setFont(body_font(13, QFont.Weight.DemiBold))
-            present_item.setForeground(QColor(Theme.success))
-            table.setItem(r, 1, present_item)
-            
-            absent_item = QTableWidgetItem(str(row["absent"]))
-            absent_item.setFont(body_font(13, QFont.Weight.DemiBold))
-            absent_item.setForeground(QColor(Theme.danger))
-            table.setItem(r, 2, absent_item)
-        widget.layout.addWidget(table)
+        self.attendance_table = StyledTableWidget(0, 4)
+        self.attendance_table.setHorizontalHeaderLabels(["Student", "Student ID", "Status", "Duration (min)"])
+        widget.layout.addWidget(self.attendance_table)
         return widget
+    
+    def load_reports(self):
+        """Load reports from backend"""
+        if not hasattr(self.parent_window, 'current_batch_id') or self.parent_window.current_batch_id is None:
+            QMessageBox.information(self, "Info", "Please select a batch first")
+            return
+        
+        batch_id = self.parent_window.current_batch_id
+        
+        # Get students with attendance data
+        result = api_client.get_students(batch_id=batch_id)
+        
+        if result["success"]:
+            students = result["data"]
+            self._populate_attendance_table(students)
+        else:
+            QMessageBox.warning(self, "Error", f"Failed to load reports:\n{result['error']}")
+    
+    def _populate_attendance_table(self, students):
+        """Populate attendance table with student data"""
+        self.attendance_table.setRowCount(len(students))
+        
+        for row, student in enumerate(students):
+            # Student name
+            name_item = QTableWidgetItem(f"👤 {student.get('name', 'Unknown')}")
+            name_item.setFont(body_font(13, QFont.Weight.Medium))
+            self.attendance_table.setItem(row, 0, name_item)
+            
+            # Student ID
+            id_item = QTableWidgetItem(student.get("student_id", "N/A"))
+            id_item.setFont(body_font(12))
+            self.attendance_table.setItem(row, 1, id_item)
+            
+            # Status
+            status = student.get("status", "offline")
+            status_item = QTableWidgetItem(status.title())
+            status_item.setFont(body_font(13, QFont.Weight.DemiBold))
+            status_item.setForeground(QColor(Theme.success if status == "online" else Theme.text_muted))
+            self.attendance_table.setItem(row, 2, status_item)
+            
+            # Duration (placeholder - would come from attendance records)
+            duration_item = QTableWidgetItem("N/A")
+            duration_item.setFont(body_font(12))
+            duration_item.setForeground(QColor(Theme.text_muted))
+            self.attendance_table.setItem(row, 3, duration_item)
+        
+        self.attendance_table.resizeColumnsToContents()
 
     def _generic_tab(self, title: str):
+        """Create generic placeholder tab"""
         widget = CardFrame(padding=40)
-        placeholder = QLabel(f"📋 {title} Report\n\nThis section will display {title.lower()} data based on selected filters.")
+        placeholder = QLabel(f"📋 {title} Report\n\nThis section will display {title.lower()} data.\nData will be loaded from backend when available.")
         placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
         placeholder.setFont(body_font(14))
         placeholder.setStyleSheet(f"color: {Theme.text_muted};")
+        placeholder.setWordWrap(True)
         widget.layout.addWidget(placeholder)
         return widget
+    
+    def showEvent(self, event):
+        """Load reports when screen is shown"""
+        super().showEvent(event)
+        self.load_reports()
 

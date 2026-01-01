@@ -1,0 +1,70 @@
+[
+    {
+        "model": "accounts.user",
+        "pk": 1,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$test$dummyhash",
+            "last_login": null,
+            "is_superuser": true,
+            "faculty_id": "test",
+            "email": "admin@university.edu",
+            "name": "Admin User",
+            "is_active": true,
+            "is_staff": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "accounts.user",
+        "pk": 2,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$test$dummyhash",
+            "last_login": null,
+            "is_superuser": false,
+            "faculty_id": "FAC001",
+            "email": "shireen@university.edu",
+            "name": "Dr. Shireen Khan",
+            "is_active": true,
+            "is_staff": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "accounts.user",
+        "pk": 3,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$test$dummyhash",
+            "last_login": null,
+            "is_superuser": false,
+            "faculty_id": "FAC002",
+            "email": "rajesh.kumar@university.edu",
+            "name": "Prof. Rajesh Kumar",
+            "is_active": true,
+            "is_staff": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "accounts.user",
+        "pk": 4,
+        "fields": {
+            "password": "pbkdf2_sha256$600000$test$dummyhash",
+            "last_login": null,
+            "is_superuser": false,
+            "faculty_id": "FAC003",
+            "email": "priya.sharma@university.edu",
+            "name": "Dr. Priya Sharma",
+            "is_active": true,
+            "is_staff": true,
+            "created_at": "2024-01-01T00:00:00Z",
+            "groups": [],
+            "user_permissions": []
+        }
+    }
+]

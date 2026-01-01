@@ -14,7 +14,7 @@ class VivaRecordSerializer(serializers.ModelSerializer):
             'marks', 'notes', 'status', 'conducted_at',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'faculty', 'created_at', 'updated_at']
     
     def validate_marks(self, value):
         """Validate marks are between 0 and 100"""
@@ -70,7 +70,7 @@ class TaskSerializer(serializers.ModelSerializer):
             'title', 'description', 'deadline', 'auto_delete', 'submission_count',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'faculty', 'created_at', 'updated_at']
     
     def get_submission_count(self, obj):
         return obj.submissions.count()

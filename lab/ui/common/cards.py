@@ -96,6 +96,7 @@ class StatCard(CardFrame):
         value_lbl = QLabel(value)
         value_lbl.setFont(heading_font(28, bold=True))
         value_lbl.setStyleSheet(f"color: {accent}; font-weight: 700;")
+        self.value_label = value_lbl  # Store reference for updates
 
         self.layout.addWidget(title_lbl)
         self.layout.addWidget(value_lbl)
@@ -113,6 +114,10 @@ class StatCard(CardFrame):
         accent_line.setFixedHeight(3)
         accent_line.setStyleSheet(f"background: {accent}; border-radius: 2px;")
         self.layout.addWidget(accent_line)
+    
+    def update_value(self, new_value: str):
+        """Update the value displayed on the card"""
+        self.value_label.setText(new_value)
 
 
 class KeyValueRow(QFrame):

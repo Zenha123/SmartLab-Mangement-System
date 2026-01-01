@@ -134,7 +134,15 @@ class APIClient:
             
             if response.status_code == 201:
                 return {"success": True, "data": response.json(), "error": None}
-            return {"success": False, "data": None, "error": "Failed to start session"}
+            
+            # Get actual error message from backend
+            try:
+                error_data = response.json()
+                error_msg = str(error_data)
+            except:
+                error_msg = f"Failed to start session (HTTP {response.status_code})"
+            
+            return {"success": False, "data": None, "error": error_msg}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
     
