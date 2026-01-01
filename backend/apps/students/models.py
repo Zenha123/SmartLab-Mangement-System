@@ -19,7 +19,7 @@ class Student(models.Model):
     
     student_id = models.CharField(max_length=50, unique=True, db_index=True)
     name = models.CharField(max_length=200)
-    email = models.EmailField(unique=True)
+    email = models.EmailField(null=True, blank=True)
     batch = models.ForeignKey('core.Batch', on_delete=models.CASCADE, related_name='students')
     
     # Real-time status tracking
@@ -98,3 +98,4 @@ class Attendance(models.Model):
             delta = self.logout_time - self.login_time
             self.duration_minutes = int(delta.total_seconds() / 60)
             self.save(update_fields=['duration_minutes'])
+
