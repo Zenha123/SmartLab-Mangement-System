@@ -6,6 +6,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Quick-start development settings - unsuitable for production
 SECRET_KEY = 'django-insecure-test-key-replace-in-production'
+
+ETLAB_SERVICE_TOKEN = "etlab-smartlab-secret-123"
+
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
