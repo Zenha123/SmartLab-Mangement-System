@@ -1,5 +1,7 @@
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
+
 
 
 class Student(models.Model):
@@ -16,6 +18,13 @@ class Student(models.Model):
         ('viva', 'Viva'),
         ('exam', 'Exam'),
     ]
+
+    user= models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="student_profile",
+        null=False, blank=False,
+    )
     
     student_id = models.CharField(max_length=50, unique=True, db_index=True)
     name = models.CharField(max_length=200)
