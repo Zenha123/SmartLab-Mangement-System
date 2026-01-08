@@ -7,6 +7,14 @@
 </head>
 <body>
 
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="logout-btn">
+        Logout
+    </button>
+</form>
+
+
 <div class="container">
   <h2>Semester {{ sem }}</h2>
 

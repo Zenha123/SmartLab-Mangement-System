@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 # ---------------- SEMESTER ----------------
 class Semester(models.Model):
+    number = models.IntegerField(unique=True)
     semester_name = models.CharField(max_length=50)  # e.g. "Semester 3"
 
     def __str__(self):

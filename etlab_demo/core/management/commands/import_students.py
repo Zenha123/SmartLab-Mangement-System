@@ -31,19 +31,21 @@ class Command(BaseCommand):
                 skipped = 0
 
                 for row in reader:
+                    reg_number, name, semester_number = "", "", ""
                     try:
                         reg_number = row["reg_number"].strip()
                         name = row["name"].strip()
-                        semester_no = int(row["semester_number"])
+                        semester_number = row["semester_number"].strip()
 
-                        if not reg_number or not name:
+                        if not reg_number or not name or not semester_number:
                             skipped += 1
                             continue
 
-                        semester_name = f"Semester {semester_no}"
-
+                        semester_no=int(semester_number)
+                        semester_name = f"Semester {semester_number}"
                         # ✅ AUTO-CREATE SEMESTER
                         semester, _ = Semester.objects.get_or_create(
+                            number=semester_no,
                             semester_name=semester_name
                         )
 
@@ -61,6 +63,8 @@ class Command(BaseCommand):
                             skipped += 1
 
                     except Exception:
+                        print("exception")
+                        print(reg_number, name, semester_number)
                         skipped += 1
                         continue
 

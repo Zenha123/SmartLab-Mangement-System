@@ -9,9 +9,9 @@ from api_client import logout_student
 class StudentDashboard(QWidget):
     logout_requested = pyqtSignal()
 
-    def __init__(self, student_name="Student"): 
-        super().__init__() 
-        self.student_name = student_name 
+    def __init__(self, student_name="Student"):
+        super().__init__()
+        self.student_name = student_name
         self.init_ui()
 
 
@@ -151,5 +151,5 @@ class StudentDashboard(QWidget):
     def handle_logout(self):
         logout_student()
         self.logout_requested.emit()
-        self.close() 
+        self.close()
         # Close the dashboard window

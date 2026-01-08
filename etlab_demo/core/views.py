@@ -2,11 +2,18 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
+from django.views.decorators.http import require_POST
 
 from .utils import faculty_sidebar_context
 from .models import Student, Timetable, Faculty, Semester, Subject, AttendanceSession, AttendanceRecord
 from django.contrib.auth.decorators import login_required
 from datetime import date, timedelta, datetime
+
+@require_POST
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
 
 # LOGIN VIEW
 def login_view(request):
@@ -53,7 +60,7 @@ DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 HOURS = [1, 2, 3, 4, 5, 6]
 
 def semester_detail(request, sem):
-    semester = get_object_or_404(Semester, id=sem)
+    semester = get_object_or_404(Semester, number=sem)
     subjects = Subject.objects.all()
     students = Student.objects.filter(semester=semester)
     faculties = Faculty.objects.all()
