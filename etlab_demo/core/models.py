@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 
 # ---------------- SEMESTER ----------------
 class Semester(models.Model):
+    number = models.IntegerField(unique=True)
     semester_name = models.CharField(max_length=50)  # e.g. "Semester 3"
 
     def __str__(self):
@@ -21,16 +22,33 @@ class Subject(models.Model):
 
 # Faculty profile (created via Django admin)
 class Faculty(models.Model):
+    ROLE_CHOICES = (
+        ("ADMIN", "Admin"),
+        ("FACULTY", "Faculty"),
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    faculty_name = models.CharField(max_length=100)
+    faculty_id = models.CharField(max_length=20, unique=True)
+    name = models.CharField(max_length=100)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
+
+
+    def is_admin(self):
+        return self.role == "ADMIN"
+
+    def is_faculty(self):
+        return self.role == "FACULTY"
 
     def __str__(self):
-        return self.faculty_name
+        return f"{self.user.username} ({self.role})"
 
 
+# ---------------- STUDENT ----------------
 # Student belongs to a semester
 class Student(models.Model):
-    roll_no = models.CharField(max_length=20, unique=True)
+    reg_number = models.CharField(
+        max_length=20,
+        primary_key=True
+    )
     name = models.CharField(max_length=100)
     semester = models.ForeignKey(
         Semester,
@@ -38,7 +56,8 @@ class Student(models.Model):
     )
 
     def __str__(self):
-        return self.roll_no
+        return f"{self.reg_number} - {self.name}"
+
 
 
 # Timetable entry

@@ -4,7 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .models import Student, Attendance
 from .serializers import StudentSerializer, AttendanceSerializer
-
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate
+from rest_framework_simplejwt.tokens import RefreshToken
 
 class StudentViewSet(viewsets.ModelViewSet):
     """ViewSet for Student CRUD with real-time status"""
@@ -66,3 +68,40 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(session_id=session_id)
         
         return queryset
+    
+class StudentLoginView(APIView):
+    def post(self, request):
+        student_id = request.data.get("student_id")
+        password = request.data.get("password")
+
+        user = authenticate(
+            request,
+            faculty_id=student_id,
+            password=password
+        )
+
+        if not user:
+            return Response(
+                {"error": "Invalid credentials"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+
+        try:
+            student = user.student_profile
+        except Student.DoesNotExist:
+            return Response(
+                {"error": "Student profile not found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        refresh = RefreshToken.for_user(user)
+
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
+            "student": {
+                "student_id": student.student_id,
+                "name": student.name,
+                "batch": str(student.batch),
+            }
+        })

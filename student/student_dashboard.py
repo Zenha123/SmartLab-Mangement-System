@@ -2,13 +2,16 @@ from PyQt5.QtWidgets import (
     QWidget, QLabel, QPushButton, QVBoxLayout, QHBoxLayout,
     QFrame, QStackedWidget
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
+from api_client import logout_student
 
 
-class StudentDashboard(QWidget): 
-    def __init__(self, student_name="Student"): 
-        super().__init__() 
-        self.student_name = student_name 
+class StudentDashboard(QWidget):
+    logout_requested = pyqtSignal()
+
+    def __init__(self, student_name="Student"):
+        super().__init__()
+        self.student_name = student_name
         self.init_ui()
 
 
@@ -110,6 +113,7 @@ class StudentDashboard(QWidget):
         btn_results.clicked.connect(
             lambda: (self.stack.setCurrentIndex(3), self.set_active(btn_results))
         )
+        btn_logout.clicked.connect(self.handle_logout)
         
 
 
@@ -144,3 +148,8 @@ class StudentDashboard(QWidget):
         layout.addStretch()
 
         return page
+    def handle_logout(self):
+        logout_student()
+        self.logout_requested.emit()
+        self.close()
+        # Close the dashboard window

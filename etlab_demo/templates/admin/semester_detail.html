@@ -7,6 +7,14 @@
 </head>
 <body>
 
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="logout-btn">
+        Logout
+    </button>
+</form>
+
+
 <div class="container">
   <h2>Semester {{ sem }}</h2>
 
@@ -16,12 +24,12 @@
   {% if students %}
   <table>
     <tr>
-      <th>Roll No</th>
+      <th>Reg No</th>
       <th>Name</th>
     </tr>
     {% for s in students %}
     <tr>
-      <td>{{ s.roll_no }}</td>
+      <td>{{ s.reg_number }}</td>
       <td>{{ s.name }}</td>
     </tr>
     {% endfor %}

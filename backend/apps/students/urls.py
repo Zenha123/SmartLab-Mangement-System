@@ -8,4 +8,5 @@ router.register(r'attendance', views.AttendanceViewSet, basename='attendance')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('api/student/login/', views.StudentLoginView.as_view(), name='student-login'),
 ]

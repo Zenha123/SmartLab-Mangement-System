@@ -1,12 +1,20 @@
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
+
+
 <div class="container">
   <h2>Select Semester</h2>
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="logout-btn">
+        Logout
+    </button>
+</form>
 
   {% for s in semesters %}
     <p>
-    <a href="/etlab-admin/semester/{{ s }}/">Semester {{ s }}</a>
+    <a href="{% url 'semester_detail' s.number %}">{{ s.semester_name }}</a>
     </p>
   {% endfor %}
 </div>

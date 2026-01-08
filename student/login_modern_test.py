@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout, QMessageBox
 )
 from PyQt5.QtCore import Qt
+from api_client import login_student
 
 
 class LoginPage(QWidget):
@@ -13,7 +14,6 @@ class LoginPage(QWidget):
 
     def init_ui(self):
         self.showMaximized()
-
 
         self.setStyleSheet("""
             QWidget {
@@ -49,7 +49,7 @@ class LoginPage(QWidget):
         title.setAlignment(Qt.AlignCenter)
 
         self.username_input = QLineEdit()
-        self.username_input.setPlaceholderText("Username")
+        self.username_input.setPlaceholderText("Student ID")
         self.username_input.setFixedWidth(360)
 
         self.password_input = QLineEdit()
@@ -71,9 +71,18 @@ class LoginPage(QWidget):
         layout.addStretch()
 
     def handle_login(self):
-        if self.username_input.text() == "student" and self.password_input.text() == "1234":
+        student_id = self.username_input.text().strip()
+        password = self.password_input.text().strip()
+
+        if not student_id or not password:
+            QMessageBox.warning(self, "Error", "Please enter all fields")
+            return
+
+        result = login_student(student_id, password)
+
+        if result["success"]:
             if self.on_login_success:
-                self.on_login_success(self.username_input.text())
+                self.on_login_success(result["student"]["name"])
             self.close()
         else:
-            QMessageBox.warning(self, "Login Failed", "Invalid credentials")
+            QMessageBox.warning(self, "Login Failed", result["error"])

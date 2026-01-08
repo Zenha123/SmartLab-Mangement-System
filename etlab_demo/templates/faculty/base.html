@@ -35,6 +35,13 @@
   {% endfor %}
 </select>
 
+<form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="logout-btn">
+        Logout
+    </button>
+</form>
+
     </div>
   </div>
 
