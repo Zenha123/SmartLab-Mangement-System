@@ -54,7 +54,24 @@ class StudentDashboard(QWidget):
                 background-color: white;
                 border-radius: 12px;
             }
-        """)
+QFrame#topbar {
+    background-color: white;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+QLabel#userLabel {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+}
+
+QFrame {
+    background: transparent;
+}
+
+
+
+    """)
 
         # ================= SIDEBAR =================
         sidebar = QFrame()
@@ -94,7 +111,7 @@ class StudentDashboard(QWidget):
 
         self.dashboard_page = self.create_dashboard_page()
         self.tasks_page = self.create_tasks_page()
-        self.exams_page = self.create_simple_page("Exams")
+        self.exams_page = self.create_exams_page()
         self.results_page = self.create_results_page()
 
 
@@ -110,14 +127,71 @@ class StudentDashboard(QWidget):
         btn_results.clicked.connect(lambda: self.switch_page(3, btn_results))
 
         # ================= MAIN LAYOUT =================
+        # ================= TOP BAR =================
+        topbar = QFrame()
+        topbar.setObjectName("topbar")
+        topbar.setFixedHeight(70)
+
+        topbar_layout = QHBoxLayout(topbar)
+        topbar_layout.setContentsMargins(30, 0, 30, 0)
+        topbar_layout.setSpacing(20)
+
+        topbar_layout.addStretch()
+
+        # 🔔 Notification Icon
+        notif_btn = QLabel("🔔")
+        notif_btn.setStyleSheet("font-size:18px;")
+        notif_btn.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        topbar_layout.addWidget(notif_btn)
+
+        # Profile Container (Icon + Name Together)
+        profile_container = QFrame()
+        profile_layout = QHBoxLayout(profile_container)
+        profile_layout.setContentsMargins(10, 5, 10, 5)
+        profile_layout.setSpacing(8)
+
+        # 👤 Circle Avatar
+        avatar = QLabel("👤")
+        avatar.setFixedSize(36, 36)
+        avatar.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        avatar.setStyleSheet("""
+            background-color: #e5e7eb;
+            border-radius: 18px;
+            font-size:16px;
+        """)
+
+        # Username
+        self.user_label = QLabel(self.username)
+        self.user_label.setObjectName("userLabel")
+
+        profile_layout.addWidget(avatar)
+        profile_layout.addWidget(self.user_label)
+
+        topbar_layout.addWidget(profile_container)
+
+
+        # ================= CONTENT AREA =================
+        content_layout = QVBoxLayout()
+        content_layout.setSpacing(0)
+        content_layout.setContentsMargins(0, 0, 0, 0)
+
+        content_layout.addWidget(topbar)
+        content_layout.addWidget(self.stack)
+        content_widget = QWidget()
+        content_widget.setLayout(content_layout)
+
+
+
+        # ================= MAIN LAYOUT =================
         main_layout = QHBoxLayout(self)
         main_layout.setSpacing(0)
         main_layout.setContentsMargins(0, 0, 0, 0)
 
         main_layout.addWidget(sidebar)
-        main_layout.addWidget(self.stack)
+        main_layout.addWidget(content_widget)
 
         self.switch_page(0, btn_dashboard)
+
 
     # ================= DASHBOARD =================
     def create_dashboard_page(self):
@@ -202,7 +276,7 @@ class StudentDashboard(QWidget):
     def create_experiment_card(self, name):
         card = QFrame()
         card.setObjectName("card")
-        card.setFixedHeight(150)
+        card.setFixedHeight(200)
 
         layout = QVBoxLayout(card)
         layout.setContentsMargins(20, 20, 20, 20)
@@ -220,7 +294,7 @@ class StudentDashboard(QWidget):
                 background-color: #2563eb;
                 color: white;
                 border-radius: 6px;
-                padding: 6px;
+                padding: 10px;
             }
             QPushButton:hover {
                 background-color: #1e40af;
@@ -289,6 +363,91 @@ class StudentDashboard(QWidget):
 
         self.stack.addWidget(submission_page)
         self.stack.setCurrentWidget(submission_page)
+
+    def create_exams_page(self):
+        page = QWidget()
+        layout = QVBoxLayout(page)
+        layout.setContentsMargins(40, 40, 40, 40)
+        layout.setSpacing(25)
+
+        title = QLabel("Exams")
+        title.setStyleSheet("font-size:26px; font-weight:bold;")
+        layout.addWidget(title)
+
+        grid = QGridLayout()
+        grid.setSpacing(20)
+
+        # Viva Card
+        grid.addWidget(self.create_exam_card(
+            "🎤 Viva Exam",
+            "Subject: Operating Systems",
+            "Date: 25 Feb 2026",
+            "Status: Scheduled"
+        ), 0, 0)
+
+        # Practical Card
+        grid.addWidget(self.create_exam_card(
+            "🧪 Practical Exam",
+            "Subject: Python Lab",
+            "Date: 28 Feb 2026",
+            "Status: Upcoming"
+        ), 0, 1)
+
+        layout.addLayout(grid)
+        layout.addStretch()
+
+        return page
+    
+    def create_exam_card(self, title_text, subject, date, status_text):
+        card = QFrame()
+        card.setObjectName("card")
+        card.setFixedHeight(220)
+
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(10)
+
+        title = QLabel(title_text)
+        title.setStyleSheet("font-size:16px; font-weight:bold;")
+
+        subject_label = QLabel(subject)
+        date_label = QLabel(date)
+
+        status_label = QLabel(status_text)
+        status_label.setStyleSheet("color:#eab308; font-weight:600;")
+
+        # ✅ Start Button (hidden initially)
+        start_btn = QPushButton("Start Exam")
+        start_btn.setFixedHeight(40)
+        start_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2563eb;
+                color: white;
+                border-radius: 8px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #1e40af;
+            }
+        """)
+        start_btn.hide()  # 👈 Hidden initially
+
+        # 🔥 Show button when card is clicked
+        def show_start():
+            start_btn.show()
+
+        card.mousePressEvent = lambda event: show_start()
+
+        layout.addWidget(title)
+        layout.addWidget(subject_label)
+        layout.addWidget(date_label)
+        layout.addWidget(status_label)
+        layout.addStretch()
+        layout.addWidget(start_btn)
+
+        return card
+
+
 
 
 
