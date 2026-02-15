@@ -26,9 +26,15 @@ def login_student(student_id, password):
                 "student": data["student"]
             }
 
+        #pass real backkend error to ui
+        try:
+            error_msg = response.json().get("error", "Login failed")
+        except Exception:
+            error_msg = response.text
+        
         return {
             "success": False,
-            "error": "Invalid credentials from server"
+            "error": error_msg
         }
 
     except requests.exceptions.RequestException:
@@ -36,6 +42,44 @@ def login_student(student_id, password):
             "success": False,
             "error": "Cannot connect to server"
         }
+    '''try:
+        payload = {
+            "student_id": student_id,
+            "password": password
+        }
+
+        print("DEBUG payload:", payload)
+
+        response = requests.post(
+            BASE_URL,
+            json=payload,
+            timeout=5
+        )
+
+        print("DEBUG status code:", response.status_code)
+        print("DEBUG response:", response.text)
+
+        if response.status_code == 200:
+            data = response.json()
+            return {
+                "success": True,
+                "access": data["access"],
+                "refresh": data["refresh"],
+                "student": data["student"]
+            }
+
+        return {
+            "success": False,
+            "error": response.text
+        }
+
+    except requests.exceptions.RequestException as e:
+        print("DEBUG exception:", e)
+        return {
+            "success": False,
+            "error": "Cannot connect to server"
+        }'''
+
 
 def auth_headers():
     if not ACCESS_TOKEN:
