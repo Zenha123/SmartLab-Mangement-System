@@ -7,11 +7,106 @@ from PyQt6.QtCore import Qt
 import sys
 
 
+from websocket_client import WebSocketClient
+import api_client
+
 class StudentDashboard(QWidget):
     def __init__(self, username):
         super().__init__()
         self.username = username
+        self.tasks = []
         self.init_ui()
+        
+        # Load initial data
+        self.load_tasks()
+        
+        # Start WebSocket Client
+        self.ws_client = WebSocketClient()
+        self.ws_client.message_signal.connect(self.handle_websocket_message)
+        self.ws_client.start()
+
+    def handle_websocket_message(self, data):
+        """Handle all WebSocket messages"""
+        event_type = data.get('type')
+        
+        if event_type == 'session_status':
+            self.update_session_ui(data)
+        elif event_type == 'task_event':
+            self.handle_task_event(data)
+
+    def update_session_ui(self, data):
+        """Handle session status updates"""
+        status = data.get('status')
+        if status == 'session_started':
+            self.session_status_label.setText(f"🔴 LIVE SESSION: {data.get('session_type', 'Lab').upper()}")
+            self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+        elif status == 'session_ended':
+            self.session_status_label.hide()
+
+    def handle_task_event(self, data):
+        """Handle task creation events"""
+        if data.get('event_type') == 'task_created':
+            task = data.get('task')
+            self.add_task_to_ui(task)
+            self.update_task_count()
+            
+            # Show notification (simulated with status label for now or alert)
+            # We can use the notif btn or a temporary label
+            self.session_status_label.setText(f"🔔 NEW TASK ASSIGNED: {task.get('title')}")
+            self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+            # In a real app, use QTimer to hide it after few seconds
+
+    def load_tasks(self):
+        """Fetch tasks from API"""
+        result = api_client.get_student_tasks()
+        if result['success']:
+            tasks_data = result['tasks']
+            # Handle both list and dict responses (paginated)
+            if isinstance(tasks_data, dict):
+                self.tasks = tasks_data.get('results', [])
+            elif isinstance(tasks_data, list):
+                self.tasks = tasks_data
+            else:
+                self.tasks = []
+            self.refresh_tasks_grid()
+            self.update_task_count()
+        else:
+            print(f"Error loading tasks: {result.get('error')}")
+
+    def update_task_count(self):
+        """Update the total tasks card"""
+        # Find the card linked to Total Tasks and update it
+        # Since cards are created in init_ui, we need a reference.
+        # Quick hack: recreate dashboard page or find child.
+        # Better: Store reference in create_dashboard_page
+        if hasattr(self, 'total_tasks_label'):
+            self.total_tasks_label.setText(str(len(self.tasks)))
+
+    def refresh_tasks_grid(self):
+        """Clear and rebuild tasks grid"""
+        if not hasattr(self, 'tasks_grid'):
+            return
+            
+        # Clear existing items
+        while self.tasks_grid.count():
+            child = self.tasks_grid.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+        
+        # Add tasks
+        for index, task in enumerate(self.tasks):
+            row = index // 2
+            col = index % 2
+            card = self.create_experiment_card(task)
+            self.tasks_grid.addWidget(card, row, col)
+
+    def add_task_to_ui(self, task):
+        """Add a single task to UI without full reload"""
+        self.tasks.insert(0, task) # Add to top
+        self.refresh_tasks_grid() # Rebuild grid to maintain order order
+
 
     def init_ui(self):
         self.setWindowTitle("Student Dashboard")
@@ -138,6 +233,11 @@ QFrame {
 
         topbar_layout.addStretch()
 
+        # Session Status Label
+        self.session_status_label = QLabel("No Active Session")
+        self.session_status_label.hide()
+        topbar_layout.addWidget(self.session_status_label)
+
         # 🔔 Notification Icon
         notif_btn = QLabel("🔔")
         notif_btn.setStyleSheet("font-size:18px;")
@@ -211,7 +311,13 @@ QFrame {
         submitted = 5
         overdue = 1
 
-        grid.addWidget(self.create_card("Total Tasks", str(total_tasks)), 0, 0)
+        t_card = self.create_card("Total Tasks", str(total_tasks))
+        # Find the value label to update it later
+        # We need to ensure create_card sets object name or we find by type order
+        # Let's Modify create_card below to set objectName for valueLabel
+        # Assuming create_card is modified:
+        self.total_tasks_label = t_card.findChild(QLabel, "valueLabel")
+        grid.addWidget(t_card, 0, 0)
         grid.addWidget(self.create_card("Upcoming Exams", str(upcoming_exams)), 0, 1)
         grid.addWidget(self.create_card("Submitted", str(submitted), "#16a34a"), 1, 0)
 
@@ -238,6 +344,7 @@ QFrame {
         title_label.setStyleSheet("font-size:14px; color:#6b7280;")
 
         value_label = QLabel(value)
+        value_label.setObjectName("valueLabel")
         value_label.setStyleSheet(
             f"font-size:26px; font-weight:bold; color:{color};"
         )
@@ -260,20 +367,29 @@ QFrame {
         title.setStyleSheet("font-size:26px; font-weight:bold;")
         layout.addWidget(title)
 
-        grid = QGridLayout()
-        grid.setSpacing(20)
+        self.tasks_grid = QGridLayout()
+        self.tasks_grid.setSpacing(20)
 
-        grid.addWidget(self.create_experiment_card("Experiment 1"), 0, 0)
-        grid.addWidget(self.create_experiment_card("Experiment 2"), 0, 1)
-        grid.addWidget(self.create_experiment_card("Experiment 3"), 1, 0)
-        grid.addWidget(self.create_experiment_card("Experiment 4"), 1, 1)
+        # Tasks are populated by load_tasks() via refresh_tasks_grid()
 
-        layout.addLayout(grid)
+        layout.addLayout(self.tasks_grid)
         layout.addStretch()
 
         return page
 
-    def create_experiment_card(self, name):
+    def create_experiment_card(self, task):
+        # task is a dict or a string (for compatibility if needed, but we switched to dicts)
+        if isinstance(task, str):
+            name = task
+            deadline_text = "Pending"
+            status_text = "Pending"
+            faculty_txt = "Faculty: Unknown"
+        else:
+            name = task.get('title', 'Unknown Task')
+            deadline_text = f"Deadline: {task.get('deadline', 'No Deadline').split('T')[0]}" if task.get('deadline') else "No Deadline"
+            status_text = f"Status: {task.get('status', 'Active').title()}"
+            faculty_txt = f"Faculty: {task.get('faculty_name', 'Faculty')}"
+
         card = QFrame()
         card.setObjectName("card")
         card.setFixedHeight(200)
@@ -284,9 +400,9 @@ QFrame {
         title = QLabel(f"🧪 {name}")
         title.setStyleSheet("font-size:16px; font-weight:bold;")
 
-        subject = QLabel("Subject: OS Lab")
-        deadline = QLabel("Deadline: 20 Feb 2026")
-        status = QLabel("Status: Pending")
+        subject = QLabel(faculty_txt)
+        deadline = QLabel(deadline_text)
+        status = QLabel(status_text)
 
         view_btn = QPushButton("View Task")
         view_btn.setStyleSheet("""
@@ -301,6 +417,8 @@ QFrame {
             }
         """)
 
+        # Store task details to open submission page
+        # Passing 'name' for now, but should ideally pass full task ID
         view_btn.clicked.connect(lambda: self.open_submission_page(name))
 
         layout.addWidget(title)

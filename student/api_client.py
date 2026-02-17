@@ -1,6 +1,6 @@
 import requests
 
-BASE_URL = "http://127.0.0.1:8001/api/student/login/"
+API_BASE = "http://127.0.0.1:8000/api"
 
 ACCESS_TOKEN = None
 REFRESH_TOKEN = None
@@ -9,7 +9,7 @@ def login_student(student_id, password):
     global ACCESS_TOKEN, REFRESH_TOKEN
     try:
         response = requests.post(
-            BASE_URL,
+            f"{API_BASE}/student/login/",
             json={
                 "student_id": student_id,
                 "password": password
@@ -43,6 +43,30 @@ def auth_headers():
     return {
         "Authorization": f"Bearer {ACCESS_TOKEN}"
     }
+
+def get_student_tasks():
+    """Fetch tasks for the logged-in student"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/student/tasks/",
+            headers=auth_headers(),
+            timeout=5
+        )
+        
+        if response.status_code == 200:
+            return {
+                "success": True,
+                "tasks": response.json()
+            }
+        return {
+            "success": False,
+            "error": f"Failed to fetch tasks: {response.status_code}"
+        }
+    except Exception as e:
+        return {
+            "success": False,
+            "error": str(e)
+        }
 
 def logout_student():
     global ACCESS_TOKEN, REFRESH_TOKEN

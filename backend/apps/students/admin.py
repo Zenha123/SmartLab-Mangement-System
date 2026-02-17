@@ -17,7 +17,35 @@ class StudentAdmin(admin.ModelAdmin):
         ('Status', {'fields': ('status', 'current_mode', 'last_seen')}),
         ('Timestamps', {'fields': ('created_at', 'updated_at')}),
     )
-
+    
+    def save_model(self, request, obj, form, change):
+        """Auto-create User for the student if not selected"""
+        if not obj.pk and not getattr(obj, 'user', None):
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            
+            # Use student_id as the unique identifier (mapped to faculty_id in User model)
+            user_id = obj.student_id
+            
+            # Check if user exists
+            existing_user = User.objects.filter(faculty_id=user_id).first()
+            if existing_user:
+                obj.user = existing_user
+            else:
+                # Create new user
+                # Ensure email exists or create dummy
+                email = obj.email if obj.email else f"{user_id}@smartlab.local"
+                
+                obj.user = User.objects.create_user(
+                    faculty_id=user_id,
+                    email=email,
+                    password=user_id,  # Default password is the ID
+                    name=obj.name,
+                    is_active=True
+                )
+                self.message_user(request, f"Created new User account for {user_id} with password '{user_id}'")
+                
+        super().save_model(request, obj, form, change)
 
 @admin.register(Attendance)
 class AttendanceAdmin(admin.ModelAdmin):

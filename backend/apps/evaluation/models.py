@@ -95,6 +95,12 @@ class Task(models.Model):
     deadline = models.DateTimeField(null=True, blank=True)
     auto_delete = models.BooleanField(default=False, help_text='Auto-delete submissions after deadline')
     
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('archived', 'Archived'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
