@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import attendance_week_view, faculty_dashboard, login_view, mark_attendance, semester_list, semester_detail, logout_view
+from .views import attendance_week_view, faculty_dashboard, login_view, mark_attendance, semester_list, semester_detail, logout_view, mark_marks
 from .api_views import student_list
 
 urlpatterns = [
@@ -11,4 +11,11 @@ urlpatterns = [
     path('faculty/mark-attendance/', mark_attendance, name='mark_attendance'),  # Placeholder
     path('api/students/', student_list, name='api_students'),  # New API endpoint
     path('logout/', logout_view, name='logout'),  # Logout view
+    path(
+    "marks/<int:subject_id>/<int:semester_id>/",
+    mark_marks,
+    name="mark_marks"
+),
+
+
 ]
