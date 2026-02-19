@@ -384,6 +384,71 @@ def mark_marks(request, subject_id, semester_id):
         "subject": subject,
         "semester": semester,
     })
+@login_required
+def faculty_report(request, subject_id, semester_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    students = Student.objects.filter(semester=semester)
+
+    report_data = []
+
+    for student in students:
+
+        # ---------- ATTENDANCE CALCULATION ----------
+        sessions = AttendanceSession.objects.filter(
+            subject=subject,
+            semester=semester
+        )
+
+        total_classes = sessions.count()
+
+        present_count = AttendanceRecord.objects.filter(
+            session__in=sessions,
+            student=student,
+            is_present=True
+        ).count()
+
+        attendance_percentage = 0
+        if total_classes > 0:
+            attendance_percentage = (present_count / total_classes) * 100
+
+
+        # ---------- MARKS ----------
+        marks = Marks.objects.filter(
+            student=student,
+            subject=subject,
+            semester=semester
+        ).first()
+
+        total = marks.total_marks if marks else 0
+
+
+        # ---------- GRADE ----------
+        if total >= 90:
+            grade = "A+"
+        elif total >= 80:
+            grade = "A"
+        elif total >= 70:
+            grade = "B"
+        elif total >= 60:
+            grade = "C"
+        else:
+            grade = "F"
+
+        report_data.append({
+            "student": student,
+            "attendance": round(attendance_percentage, 2),
+            "total": total,
+            "grade": grade
+        })
+
+    return render(request, "faculty/report.html", {
+        "subject": subject,
+        "semester": semester,
+        "report_data": report_data
+    })
+
 
 
 
