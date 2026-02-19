@@ -70,9 +70,20 @@ class LoginPage(QWidget):
         layout.addStretch()
 
     def handle_login(self):
-        if self.username_input.text() == "student" and self.password_input.text() == "1234":
+        username = self.username_input.text()
+        password = self.password_input.text()
+        
+        if not username or not password:
+             QMessageBox.warning(self, "Validation Error", "Please enter username and password")
+             return
+
+        # Use API Client to login
+        import api_client
+        result = api_client.login_student(username, password)
+        
+        if result["success"]:
             if self.on_login_success:
-                self.on_login_success(self.username_input.text())
+                self.on_login_success(username)  # Pass username for dashboard title
             self.close()
         else:
-            QMessageBox.warning(self, "Login Failed", "Invalid credentials")
+            QMessageBox.warning(self, "Login Failed", result.get("error", "Unknown error"))

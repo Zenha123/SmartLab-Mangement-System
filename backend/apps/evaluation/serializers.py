@@ -68,7 +68,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'batch', 'batch_name', 'faculty', 'faculty_name',
             'title', 'description', 'deadline', 'auto_delete', 'submission_count',
-            'created_at', 'updated_at'
+            'status', 'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'faculty', 'created_at', 'updated_at']
     
@@ -81,14 +81,22 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.name', read_only=True)
     task_title = serializers.CharField(source='task.title', read_only=True)
     
+    file_path = serializers.SerializerMethodField()
+    
     class Meta:
         model = TaskSubmission
         fields = [
             'id', 'task', 'task_title', 'student', 'student_name',
-            'file_path', 'submitted_at', 'marks', 'feedback',
+            'file_path', 'submission_file', 'submitted_at', 'marks', 'feedback', 'status',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'submitted_at', 'created_at', 'updated_at']
+
+    def get_file_path(self, obj):
+        """Return relative path for backward compatibility"""
+        if obj.submission_file:
+            return obj.submission_file.name
+        return obj.file_path
     
     def validate_marks(self, value):
         """Validate marks are between 0 and 100"""

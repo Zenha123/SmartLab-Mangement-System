@@ -131,7 +131,7 @@ class MainWindow(QMainWindow):
         self.dashboard_screen = BatchDashboardScreen(parent=self)
         self.student_list_screen = StudentListScreen(parent=self)
         self.student_progress_screen = StudentProgressScreen()
-        self.evaluation_screen = EvaluationScreen()
+        self.evaluation_screen = EvaluationScreen(parent_window=self)
         self.live_monitor_screen = LiveMonitorScreen()
         self.single_student_screen = SingleStudentScreen()
         self.control_panel_screen = ControlPanelScreen()
