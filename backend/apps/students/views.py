@@ -7,6 +7,10 @@ from .serializers import StudentSerializer, AttendanceSerializer
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view, permission_classes
+
+
+
 
 class StudentViewSet(viewsets.ModelViewSet):
     """ViewSet for Student CRUD with real-time status"""
@@ -105,3 +109,23 @@ class StudentLoginView(APIView):
                 "batch": str(student.batch),
             }
         })
+
+
+class studentMeView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        student = Student.objects.get(user=request.user)
+        return Response({
+            "student_id": student.student_id,
+            "name": student.name,
+            "batch": str(student.batch),
+        })
+    
+'''@api_view(['GET'])
+@permission_classes([IsAuthenticated])  # faculty only later
+def online_students_count(request):
+    count = Student.objects.filter(status='online').count()
+    return Response({
+        "online_count": count
+    })'''
