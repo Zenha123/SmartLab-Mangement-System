@@ -96,6 +96,12 @@ class MonitorConsumer(AsyncWebsocketConsumer):
         Receive student status update from StudentConsumer
         """
         await self.send(text_data=json.dumps(event))
+
+    async def submission_event(self, event):
+        """
+        Receive submission event (submission_received)
+        """
+        await self.send(text_data=json.dumps(event))
     
     @database_sync_to_async
     def authenticate_token(self, token_string):
@@ -217,6 +223,10 @@ class StudentConsumer(AsyncWebsocketConsumer):
 
     async def task_event(self, event):
         """Receive task event (created, updated)"""
+        await self.send(text_data=json.dumps(event))
+
+    async def submission_event(self, event):
+        """Receive submission event (evaluation_done)"""
         await self.send(text_data=json.dumps(event))
 
     @database_sync_to_async

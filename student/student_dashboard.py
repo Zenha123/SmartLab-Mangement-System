@@ -1,9 +1,10 @@
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton,
     QVBoxLayout, QHBoxLayout, QFrame,
-    QGridLayout, QStackedWidget, QTextEdit
+    QGridLayout, QStackedWidget, QMessageBox
 )
 from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 import sys
 
 
@@ -33,6 +34,8 @@ class StudentDashboard(QWidget):
             self.update_session_ui(data)
         elif event_type == 'task_event':
             self.handle_task_event(data)
+        elif event_type == 'submission_event':
+            self.handle_submission_event(data)
 
     def update_session_ui(self, data):
         """Handle session status updates"""
@@ -57,6 +60,21 @@ class StudentDashboard(QWidget):
             self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
             self.session_status_label.show()
             # In a real app, use QTimer to hide it after few seconds
+
+    def handle_submission_event(self, data):
+        """Handle submission evaluation events"""
+        if data.get('event_type') == 'evaluation_done':
+            submission = data.get('submission', {})
+            task_title = submission.get('task_title', 'Task')
+            marks = submission.get('marks', 'N/A')
+            
+            # Show notification
+            self.session_status_label.setText(f"✅ EVALUATED: {task_title} - Marks: {marks}")
+            self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+            
+            # Optionally refresh tasks to show updated status
+            # self.load_tasks()
 
     def load_tasks(self):
         """Fetch tasks from API"""
@@ -418,8 +436,8 @@ QFrame {
         """)
 
         # Store task details to open submission page
-        # Passing 'name' for now, but should ideally pass full task ID
-        view_btn.clicked.connect(lambda: self.open_submission_page(name))
+        # Pass the full task object
+        view_btn.clicked.connect(lambda: self.open_submission_page(task))
 
         layout.addWidget(title)
         layout.addWidget(subject)
@@ -431,56 +449,192 @@ QFrame {
         return card
 
     # ================= SUBMISSION PAGE =================
-    def open_submission_page(self, experiment_name):
+    def open_submission_page(self, task):
+        """Open submission page for a task with file upload"""
+        if isinstance(task, str):
+            task_name = task
+            task_id = None
+        else:
+            task_name = task.get('title', 'Unknown Task')
+            task_id = task.get('id')
+        
         submission_page = QWidget()
         layout = QVBoxLayout(submission_page)
         layout.setContentsMargins(40, 40, 40, 40)
         layout.setSpacing(20)
 
         title = QLabel("Experiment Submission")
-        title.setStyleSheet("font-size:26px; font-weight:bold;")
+        title.setFont(QFont("Segoe UI", 24, QFont.Weight.Bold))
+        title.setStyleSheet("color: #1f2937;")
 
-        subtitle = QLabel(f"{experiment_name} - Write your code below and submit.")
-        subtitle.setStyleSheet("color:gray;")
-
-        code_editor = QTextEdit()
-        code_editor.setPlaceholderText("Write your code here...")
-        code_editor.setStyleSheet("""
-            QTextEdit {
+        subtitle = QLabel(f"Task: {task_name}")
+        subtitle.setFont(QFont("Segoe UI", 14))
+        subtitle.setStyleSheet("color: #6b7280; margin-bottom: 20px;")
+        
+        # --- File Upload Section ---
+        upload_container = QWidget()
+        upload_container.setStyleSheet("""
+            QWidget {
                 background-color: white;
+                border: 2px dashed #e5e7eb;
                 border-radius: 12px;
-                padding: 15px;
-                font-family: Consolas;
-                font-size: 14px;
             }
         """)
-
-        submit_btn = QPushButton("Submit Code")
-        submit_btn.setFixedHeight(45)
-        submit_btn.setStyleSheet("""
+        upload_layout = QVBoxLayout(upload_container)
+        upload_layout.setContentsMargins(40, 40, 40, 40)
+        upload_layout.setSpacing(15)
+        upload_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        
+        # Icon
+        icon_lbl = QLabel("📁")
+        icon_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        icon_lbl.setStyleSheet("font-size: 48px; border: none; background: transparent;")
+        
+        # Instruction
+        instruct_lbl = QLabel("Upload your solution file")
+        instruct_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        instruct_lbl.setStyleSheet("font-size: 16px; font-weight: bold; color: #374151; border: none; background: transparent;")
+        
+        # Allowed formats
+        formats_lbl = QLabel("Accepted formats: .py, .txt, .java, .c, .cpp, .pdf")
+        formats_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        formats_lbl.setStyleSheet("color: #9ca3af; border: none; background: transparent;")
+        
+        # File Display Label (Hidden initially)
+        self.file_path_label = QLabel("No file selected")
+        self.file_path_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.file_path_label.setStyleSheet("color: #6b7280; font-weight: bold; margin-top: 10px; border: none; background: transparent;")
+        self.selected_file_path = None
+        
+        # Choose File Button
+        choose_btn = QPushButton("Choose File")
+        choose_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        choose_btn.setFixedSize(150, 40)
+        choose_btn.setStyleSheet("""
             QPushButton {
-                background-color: #6366f1;
-                color: white;
-                border-radius: 10px;
-                font-size: 15px;
+                background-color: white;
+                color: #2563eb;
+                border: 2px solid #2563eb;
+                border-radius: 6px;
                 font-weight: 600;
             }
             QPushButton:hover {
-                background-color: #4f46e5;
+                background-color: #eff6ff;
             }
         """)
-
-        back_btn = QPushButton("← Back to Experiments")
-        back_btn.clicked.connect(lambda: self.switch_page(1, self.menu_buttons[1]))
-
+        choose_btn.clicked.connect(self.choose_file)
+        
+        upload_layout.addWidget(icon_lbl)
+        upload_layout.addWidget(instruct_lbl)
+        upload_layout.addWidget(formats_lbl)
+        upload_layout.addWidget(self.file_path_label)
+        upload_layout.addWidget(choose_btn)
+        
         layout.addWidget(title)
         layout.addWidget(subtitle)
-        layout.addWidget(code_editor)
-        layout.addWidget(submit_btn)
-        layout.addWidget(back_btn)
+        layout.addWidget(upload_container)
+        
+        # Buttons
+        btn_layout = QHBoxLayout()
+        
+        back_btn = QPushButton("Back")
+        back_btn.setFixedSize(120, 45)
+        back_btn.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #6b7280;
+                border: 1px solid #d1d5db;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #f3f4f6;
+                color: #374151;
+            }
+        """)
+        back_btn.clicked.connect(lambda: self.stack.setCurrentWidget(self.dashboard_page))
+
+        self.submit_btn = QPushButton("Submit Submission")
+        self.submit_btn.setFixedSize(180, 45)
+        self.submit_btn.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.submit_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #2563eb;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+            }
+            QPushButton:hover {
+                background-color: #1d4ed8;
+            }
+            QPushButton:disabled {
+                background-color: #9ca3af;
+                cursor: not-allowed;
+            }
+        """)
+        self.submit_btn.clicked.connect(lambda: self.submit_code(task_id))
+
+        btn_layout.addWidget(back_btn)
+        btn_layout.addStretch()
+        btn_layout.addWidget(self.submit_btn)
+
+        layout.addLayout(btn_layout)
+        layout.addStretch()
 
         self.stack.addWidget(submission_page)
         self.stack.setCurrentWidget(submission_page)
+    
+    def choose_file(self):
+        """Open file dialog to select submission file"""
+        from PyQt6.QtWidgets import QFileDialog
+        
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, 
+            "Select Submission File", 
+            "", 
+            "Code Files (*.py *.txt *.java *.c *.cpp *.pdf);;All Files (*)"
+        )
+        
+        if file_path:
+            self.selected_file_path = file_path
+            filename = file_path.split('/')[-1]
+            self.file_path_label.setText(f"Selected: {filename}")
+            self.file_path_label.setStyleSheet("color: #059669; font-weight: bold; margin-top: 10px; border: none; background: transparent;")
+
+    def submit_code(self, task_id):
+        """Submit the selected file"""
+        from PyQt6.QtWidgets import QMessageBox
+        
+        if not task_id:
+            QMessageBox.warning(self, "Error", "Invalid task ID")
+            return
+            
+        if not hasattr(self, 'selected_file_path') or not self.selected_file_path:
+            QMessageBox.warning(self, "Validation Error", "Please select a file to upload first.")
+            return
+
+        self.submit_btn.setText("Submitting...")
+        self.submit_btn.setEnabled(False)
+        
+        # Call API
+        try:
+            result = api_client.submit_task(task_id, self.selected_file_path)
+            
+            if result.get("success"):
+                QMessageBox.information(self, "Success", "File submitted successfully! 🚀")
+                # Go back to tasks page
+                self.switch_page(1, self.menu_buttons[1])
+            else:
+                QMessageBox.critical(self, "Error", f"Failed: {result.get('error')}")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error: {str(e)}")
+        finally:
+            if hasattr(self, 'submit_btn'):
+                self.submit_btn.setText("Submit Submission")
+                self.submit_btn.setEnabled(True)
 
     def create_exams_page(self):
         page = QWidget()

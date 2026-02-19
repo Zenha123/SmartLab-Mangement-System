@@ -48,8 +48,8 @@ class StyledTableWidget(QTableWidget):
             """
         )
         
-        self.setVerticalScrollMode(QTableWidget.ScrollMode.ScrollPerPixel)
-        self.setHorizontalScrollMode(QTableWidget.ScrollMode.ScrollPerPixel)
+        self.setVerticalScrollMode(QTableWidget.ScrollMode.ScrollPerItem)
+        self.setHorizontalScrollMode(QTableWidget.ScrollMode.ScrollPerItem)
         self.setSortingEnabled(False)
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)

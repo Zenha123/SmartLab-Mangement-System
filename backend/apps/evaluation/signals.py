@@ -30,3 +30,57 @@ def task_created(sender, instance, created, **kwargs):
                 }
             }
         )
+
+@receiver(post_save, sender='evaluation.TaskSubmission')
+def submission_event(sender, instance, created, **kwargs):
+    """
+    Trigger WebSocket events for task submissions.
+    - created: submission_received (to faculty)
+    - evaluated: evaluation_done (to student)
+    """
+    from apps.evaluation.models import TaskSubmission
+    
+    channel_layer = get_channel_layer()
+    
+    if created and instance.status == 'submitted':
+        # Broadcast to faculty monitoring this batch
+        batch_id = instance.task.batch.id
+        faculty_group = f'monitor_batch_{batch_id}'
+        
+        async_to_sync(channel_layer.group_send)(
+            faculty_group,
+            {
+                'type': 'submission_event',
+                'event_type': 'submission_received',
+                'submission': {
+                    'id': instance.id,
+                    'task_id': instance.task.id,
+                    'task_title': instance.task.title,
+                    'student_id': instance.student.id,
+                    'student_name': instance.student.name,
+                    'file_path': instance.file_path,
+                    'submitted_at': instance.submitted_at.isoformat(),
+                    'status': instance.status,
+                }
+            }
+        )
+    
+    elif instance.status == 'evaluated':
+        # Broadcast to specific student
+        student_group = f'student_{instance.student.id}'
+        
+        async_to_sync(channel_layer.group_send)(
+            student_group,
+            {
+                'type': 'submission_event',
+                'event_type': 'evaluation_done',
+                'submission': {
+                    'id': instance.id,
+                    'task_id': instance.task.id,
+                    'task_title': instance.task.title,
+                    'marks': instance.marks,
+                    'feedback': instance.feedback,
+                    'status': instance.status,
+                }
+            }
+        )
