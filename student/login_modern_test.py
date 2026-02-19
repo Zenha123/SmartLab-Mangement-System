@@ -3,6 +3,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QMessageBox
 )
 from PyQt6.QtCore import Qt
+import requests
+from api_client import login_student
 
 
 class LoginPage(QWidget):
@@ -70,9 +72,18 @@ class LoginPage(QWidget):
         layout.addStretch()
 
     def handle_login(self):
-        if self.username_input.text() == "student" and self.password_input.text() == "1234":
+        student_id = self.username_input.text().strip()
+        password = self.password_input.text().strip()
+
+        if not student_id or not password:
+            QMessageBox.warning(self, "Error", "Please enter all fields")
+            return
+
+        result = login_student(student_id, password)
+
+        if result["success"]:
             if self.on_login_success:
-                self.on_login_success(self.username_input.text())
+                self.on_login_success(result["student"]["name"])
             self.close()
         else:
-            QMessageBox.warning(self, "Login Failed", "Invalid credentials")
+            QMessageBox.warning(self, "Login Failed", result["error"])
