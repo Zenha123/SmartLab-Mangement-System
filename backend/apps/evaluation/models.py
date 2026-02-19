@@ -95,6 +95,12 @@ class Task(models.Model):
     deadline = models.DateTimeField(null=True, blank=True)
     auto_delete = models.BooleanField(default=False, help_text='Auto-delete submissions after deadline')
     
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('archived', 'Archived'),
+    ]
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -112,8 +118,16 @@ class TaskSubmission(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='submissions')
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name='task_submissions')
     
-    file_path = models.CharField(max_length=500, blank=True)  # Path to uploaded file
+    file_path = models.CharField(max_length=500, blank=True)  # Legacy/Compatibility path
+    submission_file = models.FileField(upload_to='submissions/', blank=True, null=True)
     submitted_at = models.DateTimeField(auto_now_add=True)
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('submitted', 'Submitted'),
+        ('evaluated', 'Evaluated'),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     
     marks = models.IntegerField(null=True, blank=True)
     feedback = models.TextField(blank=True)

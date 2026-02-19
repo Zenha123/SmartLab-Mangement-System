@@ -20,9 +20,12 @@ class LabSessionAdmin(admin.ModelAdmin):
     
     def duration_display(self, obj):
         """Display session duration in minutes"""
-        duration = obj.get_duration()
-        if duration:
-            return f"{duration} minutes"
+        try:
+            duration = obj.duration_minutes
+            if duration:
+                return f"{duration} minutes"
+        except Exception:
+            pass
         return "In Progress" if obj.status == 'active' else "N/A"
     duration_display.short_description = 'Duration'
     

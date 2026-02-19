@@ -5,7 +5,8 @@ body {
 }
 
 .container {
-  width: 900px;
+  width: 1000px;
+  max-width: 95%;
   margin: auto;
   background: white;
   padding: 30px;
@@ -30,4 +31,81 @@ input, select {
   padding: 7px;
   width: 100%;
   margin-bottom: 10px;
+}
+
+/* ---------------- Table Styling for Marks ---------------- */
+/* ---------------- Table Styling for Marks ---------------- */
+.marks-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 25px;
+    table-layout: fixed; /* important for proper alignment */
+    font-size: 15px;
+}
+
+.marks-table th,
+.marks-table td {
+    border: 1px solid #ddd;
+    padding: 12px 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Header */
+.marks-table th {
+    background-color: #f8f9fb;
+    font-weight: 600;
+}
+
+/* Column widths */
+.marks-table th:nth-child(1),
+.marks-table td:nth-child(1) {
+    width: 110px;
+}
+
+.marks-table th:nth-child(2),
+.marks-table td:nth-child(2) {
+    width: 180px;
+    text-align: left;
+    padding-left: 15px;
+}
+
+.marks-table th:nth-child(3),
+.marks-table th:nth-child(4),
+.marks-table th:nth-child(5),
+.marks-table td:nth-child(3),
+.marks-table td:nth-child(4),
+.marks-table td:nth-child(5) {
+    width: 110px;
+}
+
+.marks-table th:nth-child(6),
+.marks-table td:nth-child(6) {
+    width: 90px;
+    font-weight: bold;
+}
+
+/* Row stripes */
+.marks-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* Input styling */
+.marks-table input[type="number"] {
+    width: 80px;
+    padding: 6px 5px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: 0.2s ease;
+}
+
+.marks-table input[type="number"]:focus {
+    border-color: #444;
+    outline: none;
+}
+
+/* Hover effect */
+.marks-table tbody tr:hover {
+    background-color: #eef4ff;
 }
