@@ -131,6 +131,7 @@ class TaskSubmission(models.Model):
     
     marks = models.IntegerField(null=True, blank=True)
     feedback = models.TextField(blank=True)
+    is_published = models.BooleanField(default=False)  # Faculty must publish to make visible to student
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

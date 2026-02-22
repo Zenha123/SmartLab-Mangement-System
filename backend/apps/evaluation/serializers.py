@@ -87,7 +87,8 @@ class TaskSubmissionSerializer(serializers.ModelSerializer):
         model = TaskSubmission
         fields = [
             'id', 'task', 'task_title', 'student', 'student_name',
-            'file_path', 'submission_file', 'submitted_at', 'marks', 'feedback', 'status',
+            'file_path', 'submission_file', 'submitted_at',
+            'marks', 'feedback', 'is_published', 'status',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'submitted_at', 'created_at', 'updated_at']

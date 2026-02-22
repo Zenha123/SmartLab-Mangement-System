@@ -117,6 +117,48 @@ def submit_task(task_id, file_path):
             "error": str(e)
         }
 
+def get_my_results():
+    """Fetch published task evaluations for the student"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/student/tasks/my_results/",
+            headers=auth_headers(),
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {"success": True, "results": response.json().get('results', [])}
+        return {"success": False, "error": f"Failed: {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+def get_my_viva():
+    """Fetch student's viva records"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/student/tasks/my_viva/",
+            headers=auth_headers(),
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {"success": True, "viva": response.json().get('viva', [])}
+        return {"success": False, "error": f"Failed: {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+def get_my_exam():
+    """Fetch student's exam results"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/student/tasks/my_exam/",
+            headers=auth_headers(),
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {"success": True, "exam": response.json().get('exam', [])}
+        return {"success": False, "error": f"Failed: {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 def logout_student():
     global ACCESS_TOKEN, REFRESH_TOKEN
     ACCESS_TOKEN = None

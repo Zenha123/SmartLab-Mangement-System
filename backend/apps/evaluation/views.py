@@ -113,6 +113,66 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
         
         return queryset
 
+    @action(detail=True, methods=['post'])
+    def evaluate(self, request, pk=None):
+        """
+        Faculty publishes marks + feedback for a submission.
+        POST /api/submissions/<id>/evaluate/
+        Body: { "marks": 85, "feedback": "Good work." }
+        Sets is_published=True and fires WebSocket event to the student.
+        """
+        submission = self.get_object()
+        marks = request.data.get('marks')
+        feedback = request.data.get('feedback', '')
+
+        if marks is None:
+            return Response(
+                {'error': 'marks is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            marks = int(marks)
+            if not (0 <= marks <= 100):
+                raise ValueError
+        except (ValueError, TypeError):
+            return Response(
+                {'error': 'marks must be an integer between 0 and 100'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        submission.marks = marks
+        submission.feedback = feedback
+        submission.status = 'evaluated'
+        submission.is_published = True
+        submission.save()
+
+        # Fire WebSocket event to student's personal group
+        try:
+            from channels.layers import get_channel_layer
+            from asgiref.sync import async_to_sync
+
+            channel_layer = get_channel_layer()
+            student_group = f'student_{submission.student.id}'
+            async_to_sync(channel_layer.group_send)(
+                student_group,
+                {
+                    'type': 'submission_event',
+                    'event': 'evaluation_published',
+                    'submission_id': submission.id,
+                    'task_title': submission.task.title,
+                    'marks': marks,
+                    'feedback': feedback,
+                }
+            )
+        except Exception:
+            # Non-fatal: WebSocket broadcast failure shouldn't break the API response
+            pass
+
+        serializer = self.get_serializer(submission)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

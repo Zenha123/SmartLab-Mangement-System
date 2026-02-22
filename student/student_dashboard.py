@@ -1,10 +1,11 @@
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton,
     QVBoxLayout, QHBoxLayout, QFrame,
-    QGridLayout, QStackedWidget, QMessageBox
+    QGridLayout, QStackedWidget, QMessageBox,
+    QTableWidget, QTableWidgetItem, QHeaderView
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QFont, QColor
 import sys
 
 
@@ -63,18 +64,21 @@ class StudentDashboard(QWidget):
 
     def handle_submission_event(self, data):
         """Handle submission evaluation events"""
-        if data.get('event_type') == 'evaluation_done':
-            submission = data.get('submission', {})
-            task_title = submission.get('task_title', 'Task')
-            marks = submission.get('marks', 'N/A')
+        # Support both 'event' and 'event_type' for backward compatibility
+        event = data.get('event') or data.get('event_type')
+        
+        if event in ['evaluation_done', 'evaluation_published']:
+            task_title = data.get('task_title', 'Task')
+            marks = data.get('marks', 'N/A')
             
             # Show notification
             self.session_status_label.setText(f"✅ EVALUATED: {task_title} - Marks: {marks}")
             self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
             self.session_status_label.show()
             
-            # Optionally refresh tasks to show updated status
-            # self.load_tasks()
+            # Refresh Results if current page
+            if self.stack.currentIndex() == 3:
+                self.load_results()
 
     def load_tasks(self):
         """Fetch tasks from API"""
@@ -308,7 +312,21 @@ QFrame {
         main_layout.addWidget(sidebar)
         main_layout.addWidget(content_widget)
 
-        self.switch_page(0, btn_dashboard)
+    def switch_page(self, index, button):
+        self.stack.setCurrentIndex(index)
+        for btn in self.menu_buttons:
+            btn.setObjectName("menuBtn")
+            btn.setStyleSheet("")
+        button.setObjectName("activeBtn")
+        button.setStyleSheet("background-color: #2563eb; color: white;")
+        
+        # Load data specific to page
+        if index == 0:
+            self.load_tasks()
+        elif index == 1:
+            self.load_tasks()
+        elif index == 3:
+            self.load_results()
 
 
     # ================= DASHBOARD =================
@@ -729,60 +747,171 @@ QFrame {
         layout.setContentsMargins(40, 40, 40, 40)
         layout.setSpacing(25)
 
-        title = QLabel("Results")
-        title.setStyleSheet("font-size:26px; font-weight:bold;")
+        title = QLabel("📊 My Results")
+        title.setStyleSheet("font-size:26px; font-weight:bold; color: #111827;")
+        
+        subtitle = QLabel("Showing published evaluations and marks only")
+        subtitle.setStyleSheet("font-size:14px; color: #6b7280; margin-bottom: 10px;")
+
+        # --- Section 1: Task Evaluations (Table) ---
+        task_section_title = QLabel("📝 WEEKLY TASK EVALUATIONS")
+        task_section_title.setStyleSheet("font-size:14px; font-weight:800; color: #374151; letter-spacing: 1px;")
+        
+        self.results_table = QTableWidget(0, 4)
+        self.results_table.setHorizontalHeaderLabels(["Task Name", "Submitted At", "Marks", "Feedback"])
+        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.results_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        self.results_table.verticalHeader().setVisible(False)
+        self.results_table.setAlternatingRowColors(True)
+        self.results_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.results_table.setStyleSheet("""
+            QTableWidget {
+                background-color: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                gridline-color: #f3f4f6;
+            }
+            QHeaderView::section {
+                background-color: #f9fafb;
+                padding: 12px;
+                border: none;
+                border-bottom: 2px solid #e5e7eb;
+                font-weight: bold;
+                color: #374151;
+            }
+        """)
+        
+        # --- Section 2: Viva & Exam Marks (Cards) ---
+        exams_section_title = QLabel("🎯 VIVA & EXAM PERFORMANCE")
+        exams_section_title.setStyleSheet("font-size:14px; font-weight:800; color: #374151; letter-spacing: 1px; margin-top: 20px;")
+        
+        cards_layout = QHBoxLayout()
+        cards_layout.setSpacing(20)
+        
+        self.viva_result_card = self.create_result_card("🎤 Viva Marks", "Not conducted yet")
+        self.exam_result_card = self.create_result_card("📋 Exam Marks", "Not conducted yet")
+        
+        cards_layout.addWidget(self.viva_result_card)
+        cards_layout.addWidget(self.exam_result_card)
+
+        # --- Section 3: Summary Bar ---
+        self.overall_summary = QLabel("Loading summary...")
+        self.overall_summary.setStyleSheet("""
+            background-color: #eff6ff; 
+            color: #1e40af; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: bold;
+            margin-top: 20px;
+        """)
+
         layout.addWidget(title)
-
-        subjects = {
-            "Operating Systems": 85,
-            "DBMS": 90,
-            "Computer Networks": 78,
-            "Python Lab": 95
-        }
-
-        grid = QGridLayout()
-        grid.setSpacing(20)
-
-        total_marks = 0
-        total_subjects = len(subjects)
-
-        row = 0
-        col = 0
-
-        for subject, mark in subjects.items():
-            total_marks += mark
-
-            # Color Logic
-            if mark >= 85:
-                color = "#16a34a"   # Green
-            elif mark >= 60:
-                color = "#eab308"   # Yellow
-            else:
-                color = "#dc2626"   # Red
-
-            card = self.create_card(subject, f"{mark} / 100", color)
-            grid.addWidget(card, row, col)
-
-            col += 1
-            if col > 1:
-                col = 0
-                row += 1
-
-        # Calculate Percentage
-        percentage = total_marks / total_subjects
-
-        # GPA Calculation (simple 10 scale)
-        gpa = round((percentage / 100) * 10, 2)
-
-        layout.addLayout(grid)
-
-        summary = QLabel(f"Overall Percentage: {percentage:.2f}%     |     GPA: {gpa}")
-        summary.setStyleSheet("font-size:18px; font-weight:bold; color:#2563eb;")
-
-        layout.addWidget(summary)
+        layout.addWidget(subtitle)
+        layout.addWidget(task_section_title)
+        layout.addWidget(self.results_table, 2)
+        layout.addWidget(exams_section_title)
+        layout.addLayout(cards_layout)
+        layout.addWidget(self.overall_summary)
         layout.addStretch()
 
         return page
+
+    def create_result_card(self, title, status):
+        card = QFrame()
+        card.setObjectName("card")
+        card.setFixedHeight(140)
+        card.setMinimumWidth(300)
+        
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(20, 20, 20, 20)
+        
+        title_lbl = QLabel(title)
+        title_lbl.setStyleSheet("font-size:14px; color:#6b7280; font-weight: 500;")
+        
+        value_lbl = QLabel(status)
+        value_lbl.setObjectName("valueLabel")
+        value_lbl.setStyleSheet("font-size:24px; font-weight:bold; color:#111827; margin-top: 5px;")
+        
+        notes_lbl = QLabel("")
+        notes_lbl.setObjectName("notesLabel")
+        notes_lbl.setStyleSheet("font-size:12px; color:#9ca3af; font-style: italic;")
+        
+        layout.addWidget(title_lbl)
+        layout.addWidget(value_lbl)
+        layout.addWidget(notes_lbl)
+        layout.addStretch()
+        
+        return card
+
+    def load_results(self):
+        """Fetch all results and populate the UI"""
+        # 1. Fetch Task Results
+        task_res = api_client.get_my_results()
+        task_list = task_res.get('results', []) if task_res.get('success') else []
+        
+        self.results_table.setRowCount(len(task_list))
+        total_task_marks = 0
+        task_count = 0
+        
+        for i, res in enumerate(task_list):
+            self.results_table.setItem(i, 0, QTableWidgetItem(res.get('task_title', '-')))
+            date_str = res.get('submitted_at', '-').split('T')[0] if res.get('submitted_at') else '-'
+            self.results_table.setItem(i, 1, QTableWidgetItem(date_str))
+            
+            marks = res.get('marks')
+            marks_text = str(marks) if marks is not None else '-'
+            item_marks = QTableWidgetItem(f"{marks_text} / 100")
+            item_marks.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            if marks is not None:
+                total_task_marks += marks
+                task_count += 1
+                color = "#059669" if marks >= 80 else "#d97706" if marks >= 60 else "#dc2626"
+                item_marks.setForeground(QColor(color))
+            
+            self.results_table.setItem(i, 2, item_marks)
+            self.results_table.setItem(i, 3, QTableWidgetItem(res.get('feedback', '-')))
+            self.results_table.setRowHeight(i, 45)
+
+        # 2. Fetch Viva Results
+        viva_res = api_client.get_my_viva()
+        viva_list = viva_res.get('viva', []) if viva_res.get('success') else []
+        viva_marks = None
+        if viva_list:
+            v = viva_list[0]
+            viva_marks = v.get('marks')
+            self.viva_result_card.findChild(QLabel, "valueLabel").setText(f"{viva_marks} / 100")
+            self.viva_result_card.findChild(QLabel, "notesLabel").setText(v.get('notes', ''))
+        else:
+            self.viva_result_card.findChild(QLabel, "valueLabel").setText("Pending")
+
+        # 3. Fetch Exam Results
+        exam_res = api_client.get_my_exam()
+        exam_list = exam_res.get('exam', []) if exam_res.get('success') else []
+        exam_marks = None
+        if exam_list:
+            e = exam_list[0]
+            exam_marks = e.get('marks')
+            self.exam_result_card.findChild(QLabel, "valueLabel").setText(f"{exam_marks} / 100")
+            self.exam_result_card.findChild(QLabel, "notesLabel").setText(f"Type: {e.get('exam_type', 'N/A')}")
+        else:
+            self.exam_result_card.findChild(QLabel, "valueLabel").setText("Pending")
+
+        # 4. Summary Calculation
+        avg_tasks = (total_task_marks / task_count) if task_count > 0 else 0
+        overall_components = []
+        if task_count > 0: overall_components.append(avg_tasks)
+        if viva_marks is not None: overall_components.append(viva_marks)
+        if exam_marks is not None: overall_components.append(exam_marks)
+        
+        overall = sum(overall_components) / len(overall_components) if overall_components else 0
+        gpa = round((overall / 100) * 10, 2)
+        
+        self.overall_summary.setText(
+            f"📈 Average Task Mark: {avg_tasks:.1f}  |  "
+            f"Overall Percentage: {overall:.1f}%  |  "
+            f"GPA: {gpa}/10"
+        )
 
 
 
