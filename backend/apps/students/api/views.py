@@ -109,7 +109,8 @@ class StudentTaskViewSet(viewsets.ReadOnlyModelViewSet):
     def my_viva(self, request):
         """
         GET /api/student/tasks/my_viva/
-        Returns completed viva records for the logged-in student.
+        Returns PUBLISHED viva records for the logged-in student.
+        Only is_published=True records are returned.
         """
         user = request.user
         if not hasattr(user, 'student_profile'):
@@ -118,13 +119,14 @@ class StudentTaskViewSet(viewsets.ReadOnlyModelViewSet):
         student = user.student_profile
         from apps.evaluation.models import VivaRecord
         records = VivaRecord.objects.filter(
-            student=student, status='completed'
-        ).order_by('-conducted_at')
+            student=student, status='completed', is_published=True
+        ).select_related('viva_session').order_by('-conducted_at')
 
         data = []
         for r in records:
             data.append({
                 'id': r.id,
+                'subject': r.viva_session.subject if r.viva_session else 'Viva',
                 'marks': r.marks,
                 'notes': r.notes,
                 'conducted_at': r.conducted_at.isoformat() if r.conducted_at else None,
@@ -159,3 +161,35 @@ class StudentTaskViewSet(viewsets.ReadOnlyModelViewSet):
             })
 
         return Response({'exam': data})
+
+    @action(detail=False, methods=['get'], url_path='my_live_viva')
+    def my_live_viva(self, request):
+        """
+        GET /api/student/tasks/my_live_viva/
+        Returns the CURRENT active online viva session for the student's batch.
+        """
+        user = request.user
+        if not hasattr(user, 'student_profile'):
+            return Response({'error': 'Student profile not found'}, status=400)
+        
+        student = user.student_profile
+        from apps.evaluation.models import VivaSession
+        session = VivaSession.objects.filter(
+            batch=student.batch,
+            viva_type='online',
+            status='live'
+        ).order_by('-created_at').first()
+        
+        if not session:
+            return Response({'session': None})
+            
+        return Response({
+            'session': {
+                'id': session.id,
+                'subject': session.subject,
+                'platform_name': session.platform_name,  # Correct model field name
+                'join_code': session.join_code,           # Correct model field name
+                'join_link': session.join_link,           # Correct model field name
+                'instructions': session.instructions
+            }
+        })

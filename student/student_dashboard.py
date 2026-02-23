@@ -37,6 +37,8 @@ class StudentDashboard(QWidget):
             self.handle_task_event(data)
         elif event_type == 'submission_event':
             self.handle_submission_event(data)
+        elif event_type == 'viva_event':
+            self.handle_viva_event(data)
 
     def update_session_ui(self, data):
         """Handle session status updates"""
@@ -79,6 +81,34 @@ class StudentDashboard(QWidget):
             # Refresh Results if current page
             if self.stack.currentIndex() == 3:
                 self.load_results()
+
+    def handle_viva_event(self, data):
+        """Handle viva events (online published or evaluated)"""
+        event = data.get('event')
+        
+        if event == 'viva_online_published':
+            # Always refresh live viva card — it must update instantly
+            self.load_viva_status()
+            
+            # Show notification banner
+            subject = data.get('subject', 'Viva')
+            platform = data.get('platform', data.get('platform_name', 'N/A'))
+            self.session_status_label.setText(f"🎤 LIVE VIVA: {subject} on {platform}")
+            self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+        
+        elif event == 'viva_evaluated':
+            # Always preload results so they are ready when student switches pages
+            self.load_results()
+            # If already on results page, it will have refreshed live above
+            
+            # Show notification banner
+            subject = data.get('subject', 'Viva')
+            marks = data.get('marks', 'N/A')
+            self.session_status_label.setText(f"✅ VIVA RESULT: {subject} — Marks: {marks}")
+            self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+
 
     def load_tasks(self):
         """Fetch tasks from API"""
@@ -242,6 +272,9 @@ QFrame {
         btn_tasks.clicked.connect(lambda: self.switch_page(1, btn_tasks))
         btn_exams.clicked.connect(lambda: self.switch_page(2, btn_exams))
         btn_results.clicked.connect(lambda: self.switch_page(3, btn_results))
+        
+        # Initial load of viva status
+        self.load_viva_status()
 
         # ================= MAIN LAYOUT =================
         # ================= TOP BAR =================
@@ -339,6 +372,49 @@ QFrame {
         header = QLabel(f"Welcome back, {self.username} 👋")
         header.setStyleSheet("font-size:24px; font-weight:bold;")
 
+        # --- Live Viva Card (Hidden by default) ---
+        self.viva_card_widget = QFrame()
+        self.viva_card_widget.setObjectName("vivaCard")
+        self.viva_card_widget.setStyleSheet("""
+            QFrame#vivaCard {
+                background-color: #eff6ff;
+                border: 2px solid #3b82f6;
+                border-radius: 12px;
+            }
+        """)
+        viva_layout = QVBoxLayout(self.viva_card_widget)
+        viva_title = QLabel("🎤 LIVE VIVA AVAILABLE")
+        viva_title.setStyleSheet("color: #1e40af; font-weight: 800; font-size: 14px;")
+        
+        self.viva_info = QLabel("Subject: Operating Systems | Platform: Quizizz")
+        self.viva_info.setStyleSheet("color: #1e3a8a; font-size: 18px; font-weight: 600;")
+        
+        self.viva_creds = QLabel("Code: 123456")
+        self.viva_creds.setStyleSheet("color: #1e40af; font-size: 14px;")
+        
+        self.join_viva_btn = QPushButton("Join Viva Now")
+        self.join_viva_btn.setFixedWidth(150)
+        self.join_viva_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #3b82f6;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 10px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #2563eb; }
+        """)
+        self.join_viva_btn.clicked.connect(self.on_join_viva_clicked)
+        
+        viva_layout.addWidget(viva_title)
+        viva_layout.addWidget(self.viva_info)
+        viva_layout.addWidget(self.viva_creds)
+        viva_layout.addWidget(self.join_viva_btn)
+        
+        layout.addWidget(self.viva_card_widget)
+        self.viva_card_widget.hide()
+
         grid = QGridLayout()
         grid.setSpacing(20)
 
@@ -367,6 +443,25 @@ QFrame {
 
         return page
 
+    def load_viva_status(self):
+        """Check if there's an active live viva"""
+        res = api_client.get_my_live_viva()
+        if res.get('success') and res.get('session'):
+            session = res['session']
+            if session:
+                self.viva_info.setText(f"Subject: {session.get('subject')} | Platform: {session.get('platform_name')}")
+                self.viva_creds.setText(f"Code: {session.get('join_code')}")
+                # Use dynamic property to store link
+                self.join_viva_btn.setProperty("url", session.get('join_link'))
+                self.viva_card_widget.show()
+                return
+        self.viva_card_widget.hide()
+
+    def on_join_viva_clicked(self):
+        url = self.join_viva_btn.property("url")
+        if url:
+            import webbrowser
+            webbrowser.open(url)
 
     def create_card(self, title, value, color="#111827"):
         card = QFrame()
@@ -590,7 +685,6 @@ QFrame {
             }
             QPushButton:disabled {
                 background-color: #9ca3af;
-                cursor: not-allowed;
             }
         """)
         self.submit_btn.clicked.connect(lambda: self.submit_code(task_id))
@@ -880,10 +974,12 @@ QFrame {
         if viva_list:
             v = viva_list[0]
             viva_marks = v.get('marks')
-            self.viva_result_card.findChild(QLabel, "valueLabel").setText(f"{viva_marks} / 100")
+            marks_display = f"{viva_marks} / 100" if viva_marks is not None else "Pending"
+            self.viva_result_card.findChild(QLabel, "valueLabel").setText(marks_display)
             self.viva_result_card.findChild(QLabel, "notesLabel").setText(v.get('notes', ''))
         else:
-            self.viva_result_card.findChild(QLabel, "valueLabel").setText("Pending")
+            self.viva_result_card.findChild(QLabel, "valueLabel").setText("Not conducted")
+            self.viva_result_card.findChild(QLabel, "notesLabel").setText("")
 
         # 3. Fetch Exam Results
         exam_res = api_client.get_my_exam()

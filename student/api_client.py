@@ -159,6 +159,20 @@ def get_my_exam():
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+def get_my_live_viva():
+    """Fetch active online viva session for student"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/live-viva/",
+            headers=auth_headers(),
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {"success": True, "session": response.json()}
+        return {"success": False, "error": f"Failed: {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 def logout_student():
     global ACCESS_TOKEN, REFRESH_TOKEN
     ACCESS_TOKEN = None

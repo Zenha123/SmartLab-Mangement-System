@@ -71,7 +71,7 @@ class BatchDashboardScreen(QWidget):
         other_actions = [
             ("📝 Start Exam Mode", Theme.danger, self._show_placeholder),
             ("📤 Distribute Task", Theme.primary, self._show_placeholder),
-            ("🎤 Start Viva Mode", Theme.secondary, self._show_placeholder),
+            ("🎤 Start Viva Mode", Theme.secondary, self.open_viva_screen),
             ("📊 View Reports", Theme.info, self._show_placeholder),
         ]
         
@@ -266,4 +266,11 @@ class BatchDashboardScreen(QWidget):
 
     def _show_placeholder(self):
         QMessageBox.information(self, "Coming Soon", "This feature will be implemented next.")
+
+    def open_viva_screen(self):
+        """Navigate to the specialized Viva screen"""
+        from ui.screens.viva import VivaScreen
+        # In main.py, VivaScreen is already registered but we can steer it
+        # Actually in main.py, it's index 10.
+        self.parent_window.show_screen("viva")
 

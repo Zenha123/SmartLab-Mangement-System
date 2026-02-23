@@ -1,17 +1,51 @@
 from rest_framework import serializers
-from .models import VivaRecord, ExamSession, ExamResult, Task, TaskSubmission
+from .models import VivaRecord, VivaSession, ExamSession, ExamResult, Task, TaskSubmission
+
+
+class VivaSessionSerializer(serializers.ModelSerializer):
+    """Serializer for Viva Session"""
+    batch_name = serializers.CharField(source='batch.name', read_only=True)
+    faculty_name = serializers.CharField(source='faculty.name', read_only=True)
+    # Explicit field types to prevent "Expected a date, but got a datetime" errors
+    date = serializers.DateField(required=False, default=None)  # Auto-set in model if blank
+    start_time = serializers.DateTimeField(
+        required=False, allow_null=True, format='iso-8601', input_formats=['iso-8601']
+    )
+    created_at = serializers.DateTimeField(read_only=True, format='iso-8601')
+    updated_at = serializers.DateTimeField(read_only=True, format='iso-8601')
+    
+    class Meta:
+        model = VivaSession
+        fields = [
+            'id', 'faculty', 'faculty_name', 'batch', 'batch_name', 'subject',
+            'viva_type', 'status', 'date', 'platform_name', 'join_code',
+            'join_link', 'start_time', 'instructions', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'faculty', 'created_at', 'updated_at']
+
+    def validate(self, attrs):
+        """Set today's date if not provided"""
+        from django.utils import timezone
+        if not attrs.get('date'):
+            attrs['date'] = timezone.now().date()
+        return attrs
 
 
 class VivaRecordSerializer(serializers.ModelSerializer):
     """Serializer for Viva Record"""
     student_name = serializers.CharField(source='student.name', read_only=True)
+    student_roll = serializers.CharField(source='student.register_number', read_only=True)
     faculty_name = serializers.CharField(source='faculty.name', read_only=True)
+    conducted_at = serializers.DateTimeField(read_only=True, allow_null=True)
+    created_at = serializers.DateTimeField(read_only=True)
+    updated_at = serializers.DateTimeField(read_only=True)
     
     class Meta:
         model = VivaRecord
         fields = [
-            'id', 'student', 'student_name', 'session', 'faculty', 'faculty_name',
-            'marks', 'notes', 'status', 'conducted_at',
+            'id', 'student', 'student_name', 'student_roll',
+            'viva_session', 'session', 'faculty', 'faculty_name',
+            'marks', 'notes', 'is_published', 'status', 'conducted_at',
             'created_at', 'updated_at'
         ]
         read_only_fields = ['id', 'faculty', 'created_at', 'updated_at']

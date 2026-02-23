@@ -2,6 +2,44 @@ from django.db import models
 from django.utils import timezone
 
 
+class VivaSession(models.Model):
+    """Configuration for a Viva session (Online or Offline)"""
+    VIVA_TYPE_CHOICES = [
+        ('offline', 'Offline (Face-to-Face)'),
+        ('online', 'Online (Platform Based)'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('live', 'Live'),
+        ('completed', 'Completed'),
+    ]
+
+    faculty = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='viva_sessions')
+    batch = models.ForeignKey('core.Batch', on_delete=models.CASCADE, related_name='viva_sessions')
+    subject = models.CharField(max_length=100)
+    viva_type = models.CharField(max_length=10, choices=VIVA_TYPE_CHOICES, default='offline')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
+    date = models.DateField(default=timezone.now)
+    
+    # Online Specific Fields
+    platform_name = models.CharField(max_length=100, blank=True, null=True)
+    join_code = models.CharField(max_length=50, blank=True, null=True)
+    join_link = models.URLField(max_length=500, blank=True, null=True)
+    start_time = models.DateTimeField(blank=True, null=True)
+    instructions = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'viva_sessions'
+        ordering = ['-date', '-created_at']
+
+    def __str__(self):
+        return f"{self.subject} - {self.get_viva_type_display()} ({self.batch.name})"
+
+
 class VivaRecord(models.Model):
     """Viva evaluation records"""
     
@@ -12,11 +50,13 @@ class VivaRecord(models.Model):
     ]
     
     student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name='viva_records')
-    session = models.ForeignKey('lab_sessions.LabSession', on_delete=models.CASCADE, related_name='viva_records')
+    viva_session = models.ForeignKey(VivaSession, on_delete=models.CASCADE, related_name='records', null=True, blank=True)
+    session = models.ForeignKey('lab_sessions.LabSession', on_delete=models.CASCADE, related_name='viva_records', null=True, blank=True)
     faculty = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='viva_records')
     
     marks = models.IntegerField(null=True, blank=True)  # 0-100
     notes = models.TextField(blank=True)
+    is_published = models.BooleanField(default=False)  # Faculty publishes for student to see
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='waiting')
     
     conducted_at = models.DateTimeField(null=True, blank=True)
@@ -26,7 +66,7 @@ class VivaRecord(models.Model):
     class Meta:
         db_table = 'viva_records'
         ordering = ['-conducted_at']
-        unique_together = ['student', 'session']
+        unique_together = [('student', 'viva_session')]
     
     def __str__(self):
         return f"Viva: {self.student.name} - {self.marks if self.marks else 'Pending'}"
