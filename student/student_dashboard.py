@@ -2,7 +2,8 @@ from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton,
     QVBoxLayout, QHBoxLayout, QFrame,
     QGridLayout, QStackedWidget, QMessageBox,
-    QTableWidget, QTableWidgetItem, QHeaderView
+    QTableWidget, QTableWidgetItem, QHeaderView,
+    QAbstractItemView
 )
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QFont, QColor
@@ -39,6 +40,49 @@ class StudentDashboard(QWidget):
             self.handle_submission_event(data)
         elif event_type == 'viva_event':
             self.handle_viva_event(data)
+
+    def handle_viva_event(self, data):
+        """Handle viva AND exam events (both use viva_event channel type)"""
+        event = data.get('event')
+
+        if event == 'viva_online_published':
+            self.load_viva_status()
+            subject = data.get('subject', 'Viva')
+            platform = data.get('platform', data.get('platform_name', 'N/A'))
+            self.session_status_label.setText(f"\U0001f3a4 LIVE VIVA: {subject} on {platform}")
+            self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+
+        elif event == 'viva_evaluated':
+            self.load_results()
+            subject = data.get('subject', 'Viva')
+            marks = data.get('marks', 'N/A')
+            self.session_status_label.setText(f"\u2705 VIVA RESULT: {subject} \u2014 Marks: {marks}")
+            self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+
+        elif event == 'exam_started':
+            title = data.get('title', 'Exam')
+            self.session_status_label.setText(f"\U0001f6a8 EXAM STARTED: {title} \u2014 Click Exams tab!")
+            self.session_status_label.setStyleSheet("background-color: #DC2626; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+            # Pre-load exam data
+            self.load_exams()
+
+        elif event == 'exam_ended':
+            title = data.get('title', 'Exam')
+            self.session_status_label.setText(f"\u23f0 EXAM ENDED: {title} \u2014 Submissions are now closed.")
+            self.session_status_label.setStyleSheet("background-color: #6B7280; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+            self.load_exams()
+
+        elif event == 'exam_evaluated':
+            title = data.get('session_title', 'Exam')
+            marks = data.get('marks', 'N/A')
+            self.session_status_label.setText(f"\u2705 EXAM RESULT: {title} \u2014 Marks: {marks}")
+            self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+            self.load_results()
 
     def update_session_ui(self, data):
         """Handle session status updates"""
@@ -358,6 +402,8 @@ QFrame {
             self.load_tasks()
         elif index == 1:
             self.load_tasks()
+        elif index == 2:
+            self.load_exams()
         elif index == 3:
             self.load_results()
 
@@ -748,88 +794,248 @@ QFrame {
                 self.submit_btn.setText("Submit Submission")
                 self.submit_btn.setEnabled(True)
 
+    # =========================================================================
+    # EXAMS PAGE — Live exam with table, questions, and file upload
+    # =========================================================================
     def create_exams_page(self):
         page = QWidget()
         layout = QVBoxLayout(page)
         layout.setContentsMargins(40, 40, 40, 40)
-        layout.setSpacing(25)
+        layout.setSpacing(20)
 
-        title = QLabel("Exams")
-        title.setStyleSheet("font-size:26px; font-weight:bold;")
-        layout.addWidget(title)
-
-        grid = QGridLayout()
-        grid.setSpacing(20)
-
-        # Viva Card
-        grid.addWidget(self.create_exam_card(
-            "🎤 Viva Exam",
-            "Subject: Operating Systems",
-            "Date: 25 Feb 2026",
-            "Status: Scheduled"
-        ), 0, 0)
-
-        # Practical Card
-        grid.addWidget(self.create_exam_card(
-            "🧪 Practical Exam",
-            "Subject: Python Lab",
-            "Date: 28 Feb 2026",
-            "Status: Upcoming"
-        ), 0, 1)
-
-        layout.addLayout(grid)
-        layout.addStretch()
-
-        return page
-    
-    def create_exam_card(self, title_text, subject, date, status_text):
-        card = QFrame()
-        card.setObjectName("card")
-        card.setFixedHeight(220)
-
-        layout = QVBoxLayout(card)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(10)
-
-        title = QLabel(title_text)
-        title.setStyleSheet("font-size:16px; font-weight:bold;")
-
-        subject_label = QLabel(subject)
-        date_label = QLabel(date)
-
-        status_label = QLabel(status_text)
-        status_label.setStyleSheet("color:#eab308; font-weight:600;")
-
-        # ✅ Start Button (hidden initially)
-        start_btn = QPushButton("Start Exam")
-        start_btn.setFixedHeight(40)
-        start_btn.setStyleSheet("""
+        title_row = QHBoxLayout()
+        title = QLabel("\U0001f4cb Active Exams")
+        title.setStyleSheet("font-size:24px; font-weight:bold; color: #111827;")
+        title_row.addWidget(title)
+        title_row.addStretch()
+        refresh_btn = QPushButton("\u21bb Refresh")
+        refresh_btn.setFixedSize(100, 36)
+        refresh_btn.setStyleSheet("""
             QPushButton {
-                background-color: #2563eb;
-                color: white;
-                border-radius: 8px;
-                font-weight: 600;
+                background-color: #6B7280; color: white;
+                border: none; border-radius: 8px; font-weight: bold;
             }
-            QPushButton:hover {
-                background-color: #1e40af;
+            QPushButton:hover { background-color: #4B5563; }
+        """)
+        refresh_btn.clicked.connect(self.load_exams)
+        title_row.addWidget(refresh_btn)
+        layout.addLayout(title_row)
+
+        # Active exams table
+        self.exams_table = QTableWidget()
+        self.exams_table.setColumnCount(4)
+        self.exams_table.setHorizontalHeaderLabels(["Exam Title", "Duration", "Status", "Action"])
+        self.exams_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self.exams_table.verticalHeader().setVisible(False)
+        self.exams_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.exams_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.exams_table.setAlternatingRowColors(True)
+        self.exams_table.setStyleSheet("""
+            QTableWidget {
+                border: 1px solid #e5e7eb; border-radius: 8px;
+                background-color: white; gridline-color: #f3f4f6;
+                font-size: 13px;
+            }
+            QHeaderView::section {
+                background-color: #f9fafb; padding: 10px 8px;
+                border: none; border-bottom: 1px solid #e5e7eb;
+                font-weight: bold; color: #374151;
             }
         """)
-        start_btn.hide()  # 👈 Hidden initially
+        self.exams_table.setFixedHeight(240)
+        layout.addWidget(self.exams_table)
 
-        # 🔥 Show button when card is clicked
-        def show_start():
-            start_btn.show()
+        # Exam detail view (shown when an exam is selected)
+        self.exam_detail_frame = QFrame()
+        self.exam_detail_frame.setStyleSheet("""
+            QFrame {
+                background-color: #fefefe;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+            }
+        """)
+        detail_layout = QVBoxLayout(self.exam_detail_frame)
+        detail_layout.setContentsMargins(24, 20, 24, 20)
+        detail_layout.setSpacing(14)
 
-        card.mousePressEvent = lambda event: show_start()
+        self.exam_detail_title = QLabel("Select an exam above to view your questions")
+        self.exam_detail_title.setStyleSheet("font-size:18px; font-weight:bold; color: #111827;")
+        detail_layout.addWidget(self.exam_detail_title)
 
-        layout.addWidget(title)
-        layout.addWidget(subject_label)
-        layout.addWidget(date_label)
-        layout.addWidget(status_label)
+        self.exam_questions_container = QWidget()
+        self.exam_questions_layout = QVBoxLayout(self.exam_questions_container)
+        self.exam_questions_layout.setSpacing(10)
+        detail_layout.addWidget(self.exam_questions_container)
+
+        # File upload row
+        upload_row = QHBoxLayout()
+        self.exam_file_label = QLabel("No file selected")
+        self.exam_file_label.setStyleSheet("color: #6B7280; font-size: 13px;")
+        choose_file_btn = QPushButton("\U0001f4c2 Choose File")
+        choose_file_btn.setFixedHeight(38)
+        choose_file_btn.setStyleSheet("""
+            QPushButton {
+                background-color: white; color: #2563eb;
+                border: 2px solid #2563eb; border-radius: 8px;
+                padding: 6px 16px; font-weight: 600;
+            }
+            QPushButton:hover { background-color: #eff6ff; }
+        """)
+        choose_file_btn.clicked.connect(self.choose_exam_file)
+
+        self.exam_submit_btn = QPushButton("\U0001f680 Submit Exam")
+        self.exam_submit_btn.setFixedHeight(38)
+        self.exam_submit_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #059669; color: white;
+                border: none; border-radius: 8px;
+                padding: 6px 20px; font-weight: bold;
+            }
+            QPushButton:hover { background-color: #047857; }
+            QPushButton:disabled { background-color: #9ca3af; }
+        """)
+        self.exam_submit_btn.clicked.connect(self.submit_exam)
+
+        upload_row.addWidget(self.exam_file_label)
+        upload_row.addStretch()
+        upload_row.addWidget(choose_file_btn)
+        upload_row.addWidget(self.exam_submit_btn)
+        detail_layout.addLayout(upload_row)
+
+        layout.addWidget(self.exam_detail_frame)
         layout.addStretch()
-        layout.addWidget(start_btn)
 
-        return card
+        self.exam_detail_frame.hide()
+        self._current_exam_rec_id = None
+        self._exam_file_path = None
+
+        return page
+
+    def load_exams(self):
+        """Load active exam sessions from API"""
+        result = api_client.get_active_exams()
+        sessions = result.get('sessions', []) if result.get('success') else []
+        self._exam_sessions = sessions
+
+        self.exams_table.setRowCount(0)
+        if not sessions:
+            self.exams_table.insertRow(0)
+            self.exams_table.setItem(0, 0, QTableWidgetItem("No active exams right now"))
+            return
+
+        for s in sessions:
+            row = self.exams_table.rowCount()
+            self.exams_table.insertRow(row)
+            self.exams_table.setItem(row, 0, QTableWidgetItem(s['title']))
+            self.exams_table.setItem(row, 1, QTableWidgetItem(f"{s['duration_minutes']} min"))
+
+            status = s.get('status', 'pending')
+            status_item = QTableWidgetItem(status.capitalize())
+            colors = {'pending': '#EAB308', 'submitted': '#3B82F6', 'evaluated': '#10B981'}
+            status_item.setForeground(QColor(colors.get(status, '#6B7280')))
+            self.exams_table.setItem(row, 2, status_item)
+
+            view_btn = QPushButton("View Questions")
+            view_btn.setFixedHeight(30)
+            view_btn.setStyleSheet("""
+                QPushButton { background: #2563eb; color: white; border: none;
+                              border-radius: 6px; font-weight: bold; }
+                QPushButton:hover { background: #1d4ed8; }
+            """)
+            view_btn.clicked.connect(lambda _, sid=s['session_id']: self.open_exam_detail(sid))
+            self.exams_table.setCellWidget(row, 3, view_btn)
+
+    def open_exam_detail(self, session_id):
+        """Load and show assigned questions for this exam"""
+        result = api_client.get_exam_detail(session_id)
+        if not result.get('success'):
+            QMessageBox.critical(self, "Error", result.get('error', 'Failed to load exam'))
+            return
+
+        exam = result.get('exam', {})
+        self._current_exam_rec_id = exam.get('exam_rec_id')
+        session_status = exam.get('session_status', 'active')
+        student_status = exam.get('status', 'pending')
+
+        self.exam_detail_title.setText(
+            f"\U0001f4cb {exam.get('title')} \u2014 {exam.get('duration_minutes')} min "
+            f"| Your status: {student_status.upper()}"
+        )
+
+        # Clear previous questions
+        while self.exam_questions_layout.count():
+            child = self.exam_questions_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        questions = exam.get('questions', [])
+        for i, q in enumerate(questions, 1):
+            q_frame = QFrame()
+            q_frame.setStyleSheet("""
+                QFrame { background: #f0f9ff; border: 1px solid #bae6fd;
+                         border-radius: 10px; }
+            """)
+            q_v = QVBoxLayout(q_frame)
+            q_v.setContentsMargins(16, 12, 16, 12)
+
+            q_head = QLabel(f"Q{i}: {q.get('title')}  [{q.get('marks')} marks | {q.get('difficulty', 'medium').capitalize()}]")
+            q_head.setStyleSheet("font-weight: bold; color: #0369a1; font-size: 14px;")
+            q_head.setWordWrap(True)
+
+            q_desc = QLabel(q.get('description', ''))
+            q_desc.setWordWrap(True)
+            q_desc.setStyleSheet("color: #1e3a5f; font-size: 13px;")
+
+            q_v.addWidget(q_head)
+            q_v.addWidget(q_desc)
+            self.exam_questions_layout.addWidget(q_frame)
+
+        # Show/hide submit area based on status
+        if session_status == 'completed':
+            self.exam_submit_btn.setText("Exam Ended")
+            self.exam_submit_btn.setEnabled(False)
+        elif student_status == 'submitted':
+            self.exam_submit_btn.setText("\u2705 Submitted")
+            self.exam_submit_btn.setEnabled(False)
+        else:
+            self.exam_submit_btn.setText("\U0001f680 Submit Exam")
+            self.exam_submit_btn.setEnabled(True)
+
+        self.exam_detail_frame.show()
+
+    def choose_exam_file(self):
+        from PyQt6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Select Exam File", "",
+            "All Files (*);;Python (*.py);;PDF (*.pdf);;Java (*.java)"
+        )
+        if path:
+            self._exam_file_path = path
+            self.exam_file_label.setText(f"\U0001f4ce {path.split('/')[-1].split(chr(92))[-1]}")
+            self.exam_file_label.setStyleSheet("color: #059669; font-weight: bold;")
+
+    def submit_exam(self):
+        if not self._current_exam_rec_id:
+            QMessageBox.warning(self, "Error", "No exam selected.")
+            return
+        if not self._exam_file_path:
+            QMessageBox.warning(self, "No File", "Please choose a file to submit.")
+            return
+        self.exam_submit_btn.setText("Submitting...")
+        self.exam_submit_btn.setEnabled(False)
+        try:
+            result = api_client.submit_exam_file(self._current_exam_rec_id, self._exam_file_path)
+            if result.get('success'):
+                QMessageBox.information(self, "Submitted", "Exam submitted successfully! \U0001f680")
+                self.exam_submit_btn.setText("\u2705 Submitted")
+            else:
+                QMessageBox.critical(self, "Error", result.get('error', 'Failed'))
+                self.exam_submit_btn.setText("\U0001f680 Submit Exam")
+                self.exam_submit_btn.setEnabled(True)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+            self.exam_submit_btn.setText("\U0001f680 Submit Exam")
+            self.exam_submit_btn.setEnabled(True)
 
 
 
@@ -981,17 +1187,27 @@ QFrame {
             self.viva_result_card.findChild(QLabel, "valueLabel").setText("Not conducted")
             self.viva_result_card.findChild(QLabel, "notesLabel").setText("")
 
-        # 3. Fetch Exam Results
-        exam_res = api_client.get_my_exam()
-        exam_list = exam_res.get('exam', []) if exam_res.get('success') else []
+        # 3. Fetch Exam Results (use new my-exam endpoint)
+        exam_res = api_client.get_active_exams()
+        exam_sessions = exam_res.get('sessions', []) if exam_res.get('success') else []
         exam_marks = None
-        if exam_list:
-            e = exam_list[0]
-            exam_marks = e.get('marks')
-            self.exam_result_card.findChild(QLabel, "valueLabel").setText(f"{exam_marks} / 100")
-            self.exam_result_card.findChild(QLabel, "notesLabel").setText(f"Type: {e.get('exam_type', 'N/A')}")
-        else:
+        if exam_sessions:
+            # Show most recent evaluated exam result
+            for s in exam_sessions:
+                if s.get('status') == 'evaluated':
+                    detail = api_client.get_exam_detail(s['session_id'])
+                    if detail.get('success'):
+                        exam_data = detail.get('exam', {})
+                        exam_marks = exam_data.get('marks')
+                        exam_title = exam_data.get('title', 'Exam')
+                        self.exam_result_card.findChild(QLabel, "valueLabel").setText(
+                            f"{exam_marks} / 100" if exam_marks is not None else "Pending"
+                        )
+                        self.exam_result_card.findChild(QLabel, "notesLabel").setText(exam_title)
+                        break
+        if exam_marks is None:
             self.exam_result_card.findChild(QLabel, "valueLabel").setText("Pending")
+            self.exam_result_card.findChild(QLabel, "notesLabel").setText("Not evaluated yet")
 
         # 4. Summary Calculation
         avg_tasks = (total_task_marks / task_count) if task_count > 0 else 0

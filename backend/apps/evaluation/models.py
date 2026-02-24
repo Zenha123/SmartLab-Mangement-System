@@ -81,47 +81,87 @@ class VivaRecord(models.Model):
 
 
 class ExamSession(models.Model):
-    """Exam session configuration and results"""
+    """Lab Exam session — standalone, created directly by faculty"""
     
-    lab_session = models.OneToOneField('lab_sessions.LabSession', on_delete=models.CASCADE, related_name='exam_session')
-    exam_type = models.CharField(max_length=50, default='practical')
+    STATUS_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('active', 'Active'),
+        ('completed', 'Completed'),
+    ]
+    
+    title = models.CharField(max_length=200, default='Lab Exam')
+    batch = models.ForeignKey('core.Batch', on_delete=models.CASCADE, related_name='exam_sessions')
+    faculty = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='exam_sessions')
     duration_minutes = models.IntegerField(default=120)
-    
-    # Allowed applications during exam (stored as JSON-like text)
-    allowed_apps = models.TextField(blank=True, help_text='Comma-separated list of allowed apps')
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='scheduled')
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
         db_table = 'exam_sessions'
+        ordering = ['-created_at']
     
     def __str__(self):
-        return f"Exam: {self.lab_session.batch} - {self.exam_type}"
+        return f"{self.title} — {self.batch.name} ({self.status})"
 
 
-class ExamResult(models.Model):
-    """Individual student exam results"""
+class ExamQuestion(models.Model):
+    """Question bank per exam session"""
     
-    student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name='exam_results')
-    exam_session = models.ForeignKey(ExamSession, on_delete=models.CASCADE, related_name='results')
+    DIFFICULTY_CHOICES = [
+        ('easy', 'Easy'),
+        ('medium', 'Medium'),
+        ('hard', 'Hard'),
+    ]
+    
+    session = models.ForeignKey(ExamSession, on_delete=models.CASCADE, related_name='questions')
+    title = models.CharField(max_length=300)
+    description = models.TextField()
+    marks = models.IntegerField(default=10)
+    difficulty = models.CharField(max_length=10, choices=DIFFICULTY_CHOICES, default='medium', blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        db_table = 'exam_questions'
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return f"Q: {self.title[:50]} [{self.session.title}]"
+
+
+class StudentExam(models.Model):
+    """Per-student exam record: assigned questions, submission, evaluation"""
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('submitted', 'Submitted'),
+        ('evaluated', 'Evaluated'),
+    ]
+    
+    session = models.ForeignKey(ExamSession, on_delete=models.CASCADE, related_name='student_exams')
+    student = models.ForeignKey('students.Student', on_delete=models.CASCADE, related_name='student_exams')
+    assigned_questions = models.ManyToManyField(ExamQuestion, blank=True, related_name='student_exams')
+    
+    submission_file = models.FileField(upload_to='exam_submissions/', blank=True, null=True)
+    submitted_at = models.DateTimeField(null=True, blank=True)
     
     marks = models.IntegerField(null=True, blank=True)
-    duration_minutes = models.IntegerField(default=0)
-    
-    started_at = models.DateTimeField(null=True, blank=True)
-    submitted_at = models.DateTimeField(null=True, blank=True)
+    feedback = models.TextField(blank=True)
+    status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='pending')
+    is_published = models.BooleanField(default=False)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     class Meta:
-        db_table = 'exam_results'
+        db_table = 'student_exams'
         ordering = ['-created_at']
-        unique_together = ['student', 'exam_session']
+        unique_together = ['session', 'student']
     
     def __str__(self):
-        return f"{self.student.name} - {self.exam_session.exam_type} - {self.marks if self.marks else 'Pending'}"
+        return f"{self.student.name} — {self.session.title} ({self.status})"
 
 
 class Task(models.Model):

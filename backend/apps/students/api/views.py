@@ -139,24 +139,27 @@ class StudentTaskViewSet(viewsets.ReadOnlyModelViewSet):
         """
         GET /api/student/tasks/my_exam/
         Returns exam results for the logged-in student.
+        Updated to use the new StudentExam model.
         """
         user = request.user
         if not hasattr(user, 'student_profile'):
             return Response({'error': 'Student profile not found'}, status=400)
 
         student = user.student_profile
-        from apps.evaluation.models import ExamResult
-        results = ExamResult.objects.filter(
-            student=student
-        ).select_related('exam_session').order_by('-submitted_at')
+        from apps.evaluation.models import StudentExam
+        results = StudentExam.objects.filter(
+            student=student,
+            is_published=True
+        ).select_related('session').order_by('-submitted_at')
 
         data = []
         for r in results:
             data.append({
                 'id': r.id,
-                'exam_type': r.exam_session.exam_type,
+                'title': r.session.title,
                 'marks': r.marks,
-                'duration_minutes': r.duration_minutes,
+                'status': r.status,
+                'feedback': r.feedback,
                 'submitted_at': r.submitted_at.isoformat() if r.submitted_at else None,
             })
 

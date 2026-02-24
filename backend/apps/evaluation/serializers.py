@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import VivaRecord, VivaSession, ExamSession, ExamResult, Task, TaskSubmission
+from .models import VivaRecord, VivaSession, ExamSession, ExamQuestion, StudentExam, Task, TaskSubmission
 
 
 class VivaSessionSerializer(serializers.ModelSerializer):
@@ -58,37 +58,57 @@ class VivaRecordSerializer(serializers.ModelSerializer):
 
 
 class ExamSessionSerializer(serializers.ModelSerializer):
-    """Serializer for Exam Session"""
-    batch_name = serializers.CharField(source='lab_session.batch.__str__', read_only=True)
-    
+    """Serializer for the new standalone ExamSession"""
+    batch_name = serializers.CharField(source='batch.name', read_only=True)
+    faculty_name = serializers.CharField(source='faculty.name', read_only=True)
+    question_count = serializers.IntegerField(source='questions.count', read_only=True)
+    submission_count = serializers.IntegerField(source='student_exams.count', read_only=True)
+    created_at = serializers.DateTimeField(read_only=True, format='iso-8601')
+
     class Meta:
         model = ExamSession
         fields = [
-            'id', 'lab_session', 'batch_name', 'exam_type', 'duration_minutes',
-            'allowed_apps', 'created_at', 'updated_at'
+            'id', 'title', 'batch', 'batch_name', 'faculty', 'faculty_name',
+            'duration_minutes', 'status', 'question_count', 'submission_count', 'created_at',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'faculty', 'created_at']
 
 
-class ExamResultSerializer(serializers.ModelSerializer):
-    """Serializer for Exam Result"""
-    student_name = serializers.CharField(source='student.name', read_only=True)
-    exam_type = serializers.CharField(source='exam_session.exam_type', read_only=True)
-    
+class ExamQuestionSerializer(serializers.ModelSerializer):
+    """Serializer for ExamQuestion"""
     class Meta:
-        model = ExamResult
+        model = ExamQuestion
+        fields = ['id', 'session', 'title', 'description', 'marks', 'difficulty', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+
+class StudentExamSerializer(serializers.ModelSerializer):
+    """Serializer for StudentExam (faculty view — includes file URL)"""
+    student_name = serializers.CharField(source='student.name', read_only=True)
+    student_roll = serializers.CharField(source='student.register_number', read_only=True)
+    session_title = serializers.CharField(source='session.title', read_only=True)
+    assigned_questions = ExamQuestionSerializer(many=True, read_only=True)
+    file_url = serializers.SerializerMethodField()
+    submitted_at = serializers.DateTimeField(read_only=True, format='iso-8601', allow_null=True)
+
+    class Meta:
+        model = StudentExam
         fields = [
-            'id', 'student', 'student_name', 'exam_session', 'exam_type',
-            'marks', 'duration_minutes', 'started_at', 'submitted_at',
-            'created_at', 'updated_at'
+            'id', 'session', 'session_title', 'student', 'student_name', 'student_roll',
+            'assigned_questions', 'submission_file', 'file_url', 'submitted_at',
+            'marks', 'feedback', 'status', 'is_published', 'created_at',
         ]
-        read_only_fields = ['id', 'created_at', 'updated_at']
-    
-    def validate_marks(self, value):
-        """Validate marks are between 0 and 100"""
-        if value is not None and (value < 0 or value > 100):
-            raise serializers.ValidationError("Marks must be between 0 and 100")
-        return value
+        read_only_fields = ['id', 'student', 'session', 'submitted_at', 'created_at']
+
+    def get_file_url(self, obj):
+        if obj.submission_file:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.submission_file.url)
+            return obj.submission_file.url
+        return None
+
+
 
 
 class TaskSerializer(serializers.ModelSerializer):

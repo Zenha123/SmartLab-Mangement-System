@@ -4,10 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils import timezone
 from rest_framework.views import APIView
-from .models import VivaRecord, VivaSession, ExamSession, ExamResult, Task, TaskSubmission
+from .models import VivaRecord, VivaSession, ExamSession, ExamQuestion, StudentExam, Task, TaskSubmission
 from .serializers import (
-    VivaRecordSerializer, VivaSessionSerializer, ExamSessionSerializer,
-    ExamResultSerializer, TaskSerializer, TaskSubmissionSerializer
+    VivaRecordSerializer, VivaSessionSerializer,
+    ExamSessionSerializer, ExamQuestionSerializer, StudentExamSerializer,
+    TaskSerializer, TaskSubmissionSerializer
 )
 
 
@@ -269,38 +270,317 @@ class LiveVivaView(APIView):
         return Response({}) # Return empty if no live viva
 
 
+# ===========================================================================
+# EXAM MODULE — Clean, simplified implementation
+# ===========================================================================
+
 class ExamSessionViewSet(viewsets.ModelViewSet):
-    """ViewSet for Exam Session management"""
+    """Faculty: Create and manage exam sessions.
+    GET  /api/exam-sessions/?batch=<id>
+    POST /api/exam-sessions/
+    """
     queryset = ExamSession.objects.all()
     serializer_class = ExamSessionSerializer
     permission_classes = [IsAuthenticated]
-    
-    @action(detail=True, methods=['get'])
-    def results(self, request, pk=None):
-        """Get all results for this exam session"""
-        exam_session = self.get_object()
-        results = exam_session.results.all()
-        serializer = ExamResultSerializer(results, many=True)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        batch_id = self.request.query_params.get('batch')
+        if batch_id:
+            qs = qs.filter(batch_id=batch_id)
+        return qs
+
+    def perform_create(self, serializer):
+        serializer.save(faculty=self.request.user)
+
+
+class ExamQuestionViewSet(viewsets.ModelViewSet):
+    """Faculty: Add / edit / delete questions per session.
+    GET  /api/exam-questions/?session=<id>
+    POST /api/exam-questions/
+    """
+    queryset = ExamQuestion.objects.all()
+    serializer_class = ExamQuestionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        session_id = self.request.query_params.get('session')
+        if session_id:
+            qs = qs.filter(session_id=session_id)
+        return qs
+
+
+class ExamStartView(APIView):
+    """Faculty: Start an exam session — randomly assigns questions to all students.
+    POST /api/exam-start/  body: { session_id: <id> }
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        import random
+        session_id = request.data.get('session_id')
+        if not session_id:
+            return Response({'error': 'session_id required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            session = ExamSession.objects.get(id=session_id)
+        except ExamSession.DoesNotExist:
+            return Response({'error': 'Exam session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if session.status == 'active':
+            return Response({'error': 'Exam already active'}, status=status.HTTP_400_BAD_REQUEST)
+
+        questions = list(session.questions.all())
+        if not questions:
+            return Response({'error': 'Add at least one question before starting'}, status=status.HTTP_400_BAD_REQUEST)
+
+        from apps.students.models import Student
+        students = list(Student.objects.filter(batch=session.batch))
+        if not students:
+            return Response({'error': 'No students found in batch'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Random assignment — each student gets 1 or 2 questions
+        random.shuffle(questions)
+        assigned_count = 0
+        for i, student in enumerate(students):
+            exam_rec, created = StudentExam.objects.get_or_create(
+                session=session, student=student
+            )
+            if created or exam_rec.assigned_questions.count() == 0:
+                # Cycle through questions list
+                start = i % len(questions)
+                end = start + min(2, len(questions))
+                assigned = (questions + questions)[start:end]  # wrap-around
+                exam_rec.assigned_questions.set(assigned)
+                exam_rec.save()
+            assigned_count += 1
+
+        # Mark session active
+        session.status = 'active'
+        session.save()
+
+        # Notify all students via WebSocket
+        try:
+            from channels.layers import get_channel_layer
+            from asgiref.sync import async_to_sync
+            channel_layer = get_channel_layer()
+            batch_group = f'batch_{session.batch.id}'
+            async_to_sync(channel_layer.group_send)(
+                batch_group,
+                {
+                    'type': 'viva_event',  # reuse channel handler
+                    'event': 'exam_started',
+                    'session_id': session.id,
+                    'title': session.title,
+                    'duration_minutes': session.duration_minutes,
+                }
+            )
+        except Exception:
+            pass
+
+        return Response({
+            'status': 'active',
+            'session_id': session.id,
+            'students_assigned': assigned_count,
+        }, status=status.HTTP_200_OK)
+
+
+class ExamEndView(APIView):
+    """Faculty: End an exam — marks completed and blocks submissions.
+    POST /api/exam-end/  body: { session_id: <id> }
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        session_id = request.data.get('session_id')
+        if not session_id:
+            return Response({'error': 'session_id required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            session = ExamSession.objects.get(id=session_id)
+        except ExamSession.DoesNotExist:
+            return Response({'error': 'Exam session not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        session.status = 'completed'
+        session.save()
+
+        # Notify all students — time is over
+        try:
+            from channels.layers import get_channel_layer
+            from asgiref.sync import async_to_sync
+            channel_layer = get_channel_layer()
+            batch_group = f'batch_{session.batch.id}'
+            async_to_sync(channel_layer.group_send)(
+                batch_group,
+                {
+                    'type': 'viva_event',
+                    'event': 'exam_ended',
+                    'session_id': session.id,
+                    'title': session.title,
+                }
+            )
+        except Exception:
+            pass
+
+        return Response({'status': 'completed', 'session_id': session.id})
+
+
+class ExamSubmissionsView(APIView):
+    """Faculty: List all student submissions for an exam session.
+    GET /api/exam-submissions/?session_id=<id>
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        session_id = request.query_params.get('session_id')
+        if not session_id:
+            return Response({'error': 'session_id required'}, status=status.HTTP_400_BAD_REQUEST)
+        submissions = StudentExam.objects.filter(
+            session_id=session_id
+        ).select_related('student', 'session').prefetch_related('assigned_questions')
+        serializer = StudentExamSerializer(submissions, many=True, context={'request': request})
         return Response(serializer.data)
 
 
-class ExamResultViewSet(viewsets.ModelViewSet):
-    """ViewSet for Exam Result management"""
-    queryset = ExamResult.objects.all()
-    serializer_class = ExamResultSerializer
+class ExamEvaluateView(APIView):
+    """Faculty: Save marks and feedback for a student's exam submission.
+    POST /api/exam-evaluate/  body: { student_exam_id, marks, feedback }
+    """
     permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        exam_session_id = self.request.query_params.get('exam_session', None)
-        student_id = self.request.query_params.get('student', None)
-        
-        if exam_session_id:
-            queryset = queryset.filter(exam_session_id=exam_session_id)
-        if student_id:
-            queryset = queryset.filter(student_id=student_id)
-        
-        return queryset
+
+    def post(self, request):
+        exam_id = request.data.get('student_exam_id')
+        marks = request.data.get('marks')
+        feedback = request.data.get('feedback', '')
+
+        if exam_id is None or marks is None:
+            return Response({'error': 'student_exam_id and marks are required'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            marks = int(marks)
+        except (ValueError, TypeError):
+            return Response({'error': 'marks must be an integer'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            exam_rec = StudentExam.objects.get(id=exam_id)
+        except StudentExam.DoesNotExist:
+            return Response({'error': 'StudentExam not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        exam_rec.marks = marks
+        exam_rec.feedback = feedback
+        exam_rec.status = 'evaluated'
+        exam_rec.is_published = True
+        exam_rec.save()
+
+        # Notify student
+        try:
+            from channels.layers import get_channel_layer
+            from asgiref.sync import async_to_sync
+            channel_layer = get_channel_layer()
+            student_group = f'student_{exam_rec.student.id}'
+            async_to_sync(channel_layer.group_send)(
+                student_group,
+                {
+                    'type': 'viva_event',
+                    'event': 'exam_evaluated',
+                    'exam_id': exam_rec.id,
+                    'session_title': exam_rec.session.title,
+                    'marks': marks,
+                    'feedback': feedback,
+                }
+            )
+        except Exception:
+            pass
+
+        return Response({'status': 'evaluated', 'marks': marks})
+
+
+class MyExamView(APIView):
+    """Student: Get their assigned exam questions for the active session.
+    GET /api/my-exam/?session_id=<id>
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        student = getattr(request.user, 'student_profile', None)
+        if not student:
+            return Response({'error': 'Not a student'}, status=status.HTTP_403_FORBIDDEN)
+
+        session_id = request.query_params.get('session_id')
+        # If no session_id, return all active exam sessions for their batch
+        if not session_id:
+            sessions = ExamSession.objects.filter(
+                batch=student.batch, status='active'
+            ).order_by('-created_at')
+            data = []
+            for s in sessions:
+                try:
+                    exam_rec = StudentExam.objects.get(session=s, student=student)
+                    data.append({
+                        'session_id': s.id,
+                        'title': s.title,
+                        'duration_minutes': s.duration_minutes,
+                        'status': exam_rec.status,
+                        'exam_rec_id': exam_rec.id,
+                    })
+                except StudentExam.DoesNotExist:
+                    pass
+            return Response({'sessions': data})
+
+        try:
+            exam_rec = StudentExam.objects.get(
+                session_id=session_id, student=student
+            )
+        except StudentExam.DoesNotExist:
+            return Response({'error': 'No exam record found'}, status=status.HTTP_404_NOT_FOUND)
+
+        questions = ExamQuestionSerializer(exam_rec.assigned_questions.all(), many=True).data
+        return Response({
+            'exam_rec_id': exam_rec.id,
+            'session_id': exam_rec.session.id,
+            'title': exam_rec.session.title,
+            'duration_minutes': exam_rec.session.duration_minutes,
+            'session_status': exam_rec.session.status,
+            'status': exam_rec.status,
+            'marks': exam_rec.marks,
+            'feedback': exam_rec.feedback,
+            'questions': questions,
+        })
+
+
+class SubmitExamView(APIView):
+    """Student: Submit exam file.
+    POST /api/submit-exam/  multipart: { exam_rec_id, file }
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        student = getattr(request.user, 'student_profile', None)
+        if not student:
+            return Response({'error': 'Not a student'}, status=status.HTTP_403_FORBIDDEN)
+
+        exam_rec_id = request.data.get('exam_rec_id')
+        if not exam_rec_id:
+            return Response({'error': 'exam_rec_id required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            exam_rec = StudentExam.objects.get(id=exam_rec_id, student=student)
+        except StudentExam.DoesNotExist:
+            return Response({'error': 'Exam record not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Block if exam ended
+        if exam_rec.session.status == 'completed':
+            return Response({'error': 'Exam has ended. Submissions are closed.'}, status=status.HTTP_403_FORBIDDEN)
+
+        uploaded_file = request.FILES.get('file')
+        if not uploaded_file:
+            return Response({'error': 'No file uploaded'}, status=status.HTTP_400_BAD_REQUEST)
+
+        exam_rec.submission_file = uploaded_file
+        exam_rec.submitted_at = timezone.now()
+        exam_rec.status = 'submitted'
+        exam_rec.save()
+
+        return Response({'status': 'submitted', 'exam_rec_id': exam_rec.id}, status=status.HTTP_200_OK)
 
 
 class TaskViewSet(viewsets.ModelViewSet):

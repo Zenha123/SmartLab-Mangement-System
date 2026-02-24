@@ -70,7 +70,7 @@ def app_stylesheet() -> str:
     /* Buttons */
     QPushButton {{
         background: {Theme.primary};
-        color: white;
+        color: blue;
         border: none;
         border-radius: 8px;
         padding: 10px 18px;
@@ -306,6 +306,67 @@ def app_stylesheet() -> str:
         background: {Theme.card_bg};
         border-top: 1px solid {Theme.border};
         color: {Theme.text_secondary};
+    }}
+
+    /* ── Dialogs ── */
+    QDialog {{
+        background: {Theme.card_bg};
+    }}
+
+    /* All buttons inside QDialogButtonBox / QMessageBox */
+    QDialogButtonBox QPushButton,
+    QMessageBox QPushButton {{
+        background: {Theme.primary};
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 20px;
+        font-weight: 600;
+        font-size: 13px;
+        min-width: 80px;
+    }}
+    QDialogButtonBox QPushButton:hover,
+    QMessageBox QPushButton:hover {{
+        background: {Theme.primary_hover};
+    }}
+    QDialogButtonBox QPushButton:pressed,
+    QMessageBox QPushButton:pressed {{
+        background: {Theme.primary_light};
+    }}
+
+    /* "Cancel" / "No" / "Close" — grey accent */
+    QDialogButtonBox QPushButton[text="Cancel"],
+    QDialogButtonBox QPushButton[text="No"],
+    QDialogButtonBox QPushButton[text="Close"],
+    QMessageBox QPushButton[text="Cancel"],
+    QMessageBox QPushButton[text="No"],
+    QMessageBox QPushButton[text="Close"] {{
+        background: #6B7280;
+    }}
+    QDialogButtonBox QPushButton[text="Cancel"]:hover,
+    QDialogButtonBox QPushButton[text="No"]:hover,
+    QDialogButtonBox QPushButton[text="Close"]:hover,
+    QMessageBox QPushButton[text="Cancel"]:hover,
+    QMessageBox QPushButton[text="No"]:hover,
+    QMessageBox QPushButton[text="Close"]:hover {{
+        background: #4B5563;
+    }}
+
+    /* "Delete" / destructive actions — red */
+    QDialogButtonBox QPushButton[text="Delete"],
+    QMessageBox QPushButton[text="Delete"] {{
+        background: {Theme.danger};
+    }}
+    QDialogButtonBox QPushButton[text="Delete"]:hover,
+    QMessageBox QPushButton[text="Delete"]:hover {{
+        background: #DC2626;
+    }}
+
+    /* QMessageBox label text */
+    QMessageBox QLabel {{
+        background: transparent;
+        color: {Theme.text_primary};
+        font-size: 14px;
     }}
     """
 
