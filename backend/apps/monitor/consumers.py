@@ -102,6 +102,13 @@ class MonitorConsumer(AsyncWebsocketConsumer):
         Receive submission event (submission_received)
         """
         await self.send(text_data=json.dumps(event))
+
+    async def viva_event(self, event):
+        """
+        Receive viva event (viva_evaluated, viva_online_published).
+        Called by channel_layer.group_send with type='viva_event'.
+        """
+        await self.send(text_data=json.dumps(event))
     
     @database_sync_to_async
     def authenticate_token(self, token_string):
@@ -227,6 +234,14 @@ class StudentConsumer(AsyncWebsocketConsumer):
 
     async def submission_event(self, event):
         """Receive submission event (evaluation_done)"""
+        await self.send(text_data=json.dumps(event))
+
+    async def viva_event(self, event):
+        """
+        Receive viva event (viva_evaluated, viva_online_published).
+        Called by channel_layer.group_send with type='viva_event'.
+        Both batch group (online publish) and personal student group (result evaluated) use this.
+        """
         await self.send(text_data=json.dumps(event))
 
     @database_sync_to_async

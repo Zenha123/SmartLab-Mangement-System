@@ -169,19 +169,6 @@ class StudentProgressScreen(QWidget):
             item.setSizeHint(item_widget.sizeHint())
             risk_list.addItem(item)
             risk_list.setItemWidget(item, item_widget)
-        
-        risk_card.layout.addWidget(risk_list)
-        
-        # View all link
-        view_all = QLabel("View all →")
-        view_all.setFont(body_font(11))
-        view_all.setStyleSheet(f"color: {Theme.primary}; text-decoration: underline; cursor: pointer;")
-        view_all.setAlignment(Qt.AlignmentFlag.AlignRight)
-        risk_layout.addWidget(view_all)
-        
-        side.addWidget(risk_card)
-
-        content.addLayout(side, stretch=1)
         root.addStretch(1)
 
     def _progress_cell(self, visited: int, pct: int):

@@ -378,12 +378,11 @@ class EvaluationScreen(QWidget):
             return
         
         try:
-            response = requests.patch(
-                f"http://localhost:8000/api/submissions/{submission_id}/",
+            response = requests.post(
+                f"http://localhost:8000/api/submissions/{submission_id}/evaluate/",
                 json={
                     "marks": marks,
-                    "feedback": feedback_text,
-                    "status": "evaluated"
+                    "feedback": feedback_text
                 },
                 headers={"Authorization": f"Bearer {api_client.access_token}"},
                 timeout=5

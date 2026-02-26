@@ -22,6 +22,42 @@ class APIClient:
         if self.access_token:
             headers["Authorization"] = f"Bearer {self.access_token}"
         return headers
+
+    def _request(self, method: str, endpoint: str, **kwargs) -> requests.Response:
+        """Generic request handler with auto-refresh token support"""
+        url = f"{self.base_url.rstrip('/')}/{endpoint.lstrip('/')}"
+        headers = self._get_headers()
+        
+        try:
+            response = requests.request(method, url, headers=headers, timeout=10, **kwargs)
+            
+            # If 401, try to refresh token and retry
+            if response.status_code == 401 and self.refresh_token:
+                if self.refresh_access_token():
+                    headers = self._get_headers()
+                    response = requests.request(method, url, headers=headers, timeout=10, **kwargs)
+            
+            return response
+        except requests.exceptions.RequestException as e:
+            # Create a dummy response object for errors if needed, 
+            # or let the caller handle the exception. 
+            # For consistency with how I used it in viva.py, returning the response.
+            raise e
+
+    def get(self, endpoint: str, params: Optional[Dict] = None) -> requests.Response:
+        return self._request("GET", endpoint, params=params)
+
+    def post(self, endpoint: str, data: Optional[Dict] = None) -> requests.Response:
+        return self._request("POST", endpoint, json=data)
+
+    def patch(self, endpoint: str, data: Optional[Dict] = None) -> requests.Response:
+        return self._request("PATCH", endpoint, json=data)
+
+    def put(self, endpoint: str, data: Optional[Dict] = None) -> requests.Response:
+        return self._request("PUT", endpoint, json=data)
+
+    def delete(self, endpoint: str) -> requests.Response:
+        return self._request("DELETE", endpoint)
     
     def login(self, faculty_id: str, password: str) -> Dict[str, Any]:
         """

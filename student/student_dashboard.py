@@ -1,10 +1,12 @@
 from PyQt6.QtWidgets import (
     QApplication, QWidget, QLabel, QPushButton,
     QVBoxLayout, QHBoxLayout, QFrame,
-    QGridLayout, QStackedWidget, QMessageBox
+    QGridLayout, QStackedWidget, QMessageBox,
+    QTableWidget, QTableWidgetItem, QHeaderView,
+    QAbstractItemView
 )
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QFont, QColor
 import sys
 
 
@@ -36,6 +38,51 @@ class StudentDashboard(QWidget):
             self.handle_task_event(data)
         elif event_type == 'submission_event':
             self.handle_submission_event(data)
+        elif event_type == 'viva_event':
+            self.handle_viva_event(data)
+
+    def handle_viva_event(self, data):
+        """Handle viva AND exam events (both use viva_event channel type)"""
+        event = data.get('event')
+
+        if event == 'viva_online_published':
+            self.load_viva_status()
+            subject = data.get('subject', 'Viva')
+            platform = data.get('platform', data.get('platform_name', 'N/A'))
+            self.session_status_label.setText(f"\U0001f3a4 LIVE VIVA: {subject} on {platform}")
+            self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+
+        elif event == 'viva_evaluated':
+            self.load_results()
+            subject = data.get('subject', 'Viva')
+            marks = data.get('marks', 'N/A')
+            self.session_status_label.setText(f"\u2705 VIVA RESULT: {subject} \u2014 Marks: {marks}")
+            self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+
+        elif event == 'exam_started':
+            title = data.get('title', 'Exam')
+            self.session_status_label.setText(f"\U0001f6a8 EXAM STARTED: {title} \u2014 Click Exams tab!")
+            self.session_status_label.setStyleSheet("background-color: #DC2626; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+            # Pre-load exam data
+            self.load_exams()
+
+        elif event == 'exam_ended':
+            title = data.get('title', 'Exam')
+            self.session_status_label.setText(f"\u23f0 EXAM ENDED: {title} \u2014 Submissions are now closed.")
+            self.session_status_label.setStyleSheet("background-color: #6B7280; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+            self.load_exams()
+
+        elif event == 'exam_evaluated':
+            title = data.get('session_title', 'Exam')
+            marks = data.get('marks', 'N/A')
+            self.session_status_label.setText(f"\u2705 EXAM RESULT: {title} \u2014 Marks: {marks}")
+            self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+            self.load_results()
 
     def update_session_ui(self, data):
         """Handle session status updates"""
@@ -63,18 +110,49 @@ class StudentDashboard(QWidget):
 
     def handle_submission_event(self, data):
         """Handle submission evaluation events"""
-        if data.get('event_type') == 'evaluation_done':
-            submission = data.get('submission', {})
-            task_title = submission.get('task_title', 'Task')
-            marks = submission.get('marks', 'N/A')
+        # Support both 'event' and 'event_type' for backward compatibility
+        event = data.get('event') or data.get('event_type')
+        
+        if event in ['evaluation_done', 'evaluation_published']:
+            task_title = data.get('task_title', 'Task')
+            marks = data.get('marks', 'N/A')
             
             # Show notification
             self.session_status_label.setText(f"✅ EVALUATED: {task_title} - Marks: {marks}")
             self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
             self.session_status_label.show()
             
-            # Optionally refresh tasks to show updated status
-            # self.load_tasks()
+            # Refresh Results if current page
+            if self.stack.currentIndex() == 3:
+                self.load_results()
+
+    def handle_viva_event(self, data):
+        """Handle viva events (online published or evaluated)"""
+        event = data.get('event')
+        
+        if event == 'viva_online_published':
+            # Always refresh live viva card — it must update instantly
+            self.load_viva_status()
+            
+            # Show notification banner
+            subject = data.get('subject', 'Viva')
+            platform = data.get('platform', data.get('platform_name', 'N/A'))
+            self.session_status_label.setText(f"🎤 LIVE VIVA: {subject} on {platform}")
+            self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+        
+        elif event == 'viva_evaluated':
+            # Always preload results so they are ready when student switches pages
+            self.load_results()
+            # If already on results page, it will have refreshed live above
+            
+            # Show notification banner
+            subject = data.get('subject', 'Viva')
+            marks = data.get('marks', 'N/A')
+            self.session_status_label.setText(f"✅ VIVA RESULT: {subject} — Marks: {marks}")
+            self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+
 
     def load_tasks(self):
         """Fetch tasks from API"""
@@ -238,6 +316,9 @@ QFrame {
         btn_tasks.clicked.connect(lambda: self.switch_page(1, btn_tasks))
         btn_exams.clicked.connect(lambda: self.switch_page(2, btn_exams))
         btn_results.clicked.connect(lambda: self.switch_page(3, btn_results))
+        
+        # Initial load of viva status
+        self.load_viva_status()
 
         # ================= MAIN LAYOUT =================
         # ================= TOP BAR =================
@@ -308,7 +389,23 @@ QFrame {
         main_layout.addWidget(sidebar)
         main_layout.addWidget(content_widget)
 
-        self.switch_page(0, btn_dashboard)
+    def switch_page(self, index, button):
+        self.stack.setCurrentIndex(index)
+        for btn in self.menu_buttons:
+            btn.setObjectName("menuBtn")
+            btn.setStyleSheet("")
+        button.setObjectName("activeBtn")
+        button.setStyleSheet("background-color: #2563eb; color: white;")
+        
+        # Load data specific to page
+        if index == 0:
+            self.load_tasks()
+        elif index == 1:
+            self.load_tasks()
+        elif index == 2:
+            self.load_exams()
+        elif index == 3:
+            self.load_results()
 
 
     # ================= DASHBOARD =================
@@ -320,6 +417,49 @@ QFrame {
 
         header = QLabel(f"Welcome back, {self.username} 👋")
         header.setStyleSheet("font-size:24px; font-weight:bold;")
+
+        # --- Live Viva Card (Hidden by default) ---
+        self.viva_card_widget = QFrame()
+        self.viva_card_widget.setObjectName("vivaCard")
+        self.viva_card_widget.setStyleSheet("""
+            QFrame#vivaCard {
+                background-color: #eff6ff;
+                border: 2px solid #3b82f6;
+                border-radius: 12px;
+            }
+        """)
+        viva_layout = QVBoxLayout(self.viva_card_widget)
+        viva_title = QLabel("🎤 LIVE VIVA AVAILABLE")
+        viva_title.setStyleSheet("color: #1e40af; font-weight: 800; font-size: 14px;")
+        
+        self.viva_info = QLabel("Subject: Operating Systems | Platform: Quizizz")
+        self.viva_info.setStyleSheet("color: #1e3a8a; font-size: 18px; font-weight: 600;")
+        
+        self.viva_creds = QLabel("Code: 123456")
+        self.viva_creds.setStyleSheet("color: #1e40af; font-size: 14px;")
+        
+        self.join_viva_btn = QPushButton("Join Viva Now")
+        self.join_viva_btn.setFixedWidth(150)
+        self.join_viva_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #3b82f6;
+                color: white;
+                border: none;
+                border-radius: 6px;
+                padding: 10px;
+                font-weight: bold;
+            }
+            QPushButton:hover { background-color: #2563eb; }
+        """)
+        self.join_viva_btn.clicked.connect(self.on_join_viva_clicked)
+        
+        viva_layout.addWidget(viva_title)
+        viva_layout.addWidget(self.viva_info)
+        viva_layout.addWidget(self.viva_creds)
+        viva_layout.addWidget(self.join_viva_btn)
+        
+        layout.addWidget(self.viva_card_widget)
+        self.viva_card_widget.hide()
 
         grid = QGridLayout()
         grid.setSpacing(20)
@@ -349,6 +489,25 @@ QFrame {
 
         return page
 
+    def load_viva_status(self):
+        """Check if there's an active live viva"""
+        res = api_client.get_my_live_viva()
+        if res.get('success') and res.get('session'):
+            session = res['session']
+            if session:
+                self.viva_info.setText(f"Subject: {session.get('subject')} | Platform: {session.get('platform_name')}")
+                self.viva_creds.setText(f"Code: {session.get('join_code')}")
+                # Use dynamic property to store link
+                self.join_viva_btn.setProperty("url", session.get('join_link'))
+                self.viva_card_widget.show()
+                return
+        self.viva_card_widget.hide()
+
+    def on_join_viva_clicked(self):
+        url = self.join_viva_btn.property("url")
+        if url:
+            import webbrowser
+            webbrowser.open(url)
 
     def create_card(self, title, value, color="#111827"):
         card = QFrame()
@@ -572,7 +731,6 @@ QFrame {
             }
             QPushButton:disabled {
                 background-color: #9ca3af;
-                cursor: not-allowed;
             }
         """)
         self.submit_btn.clicked.connect(lambda: self.submit_code(task_id))
@@ -636,88 +794,248 @@ QFrame {
                 self.submit_btn.setText("Submit Submission")
                 self.submit_btn.setEnabled(True)
 
+    # =========================================================================
+    # EXAMS PAGE — Live exam with table, questions, and file upload
+    # =========================================================================
     def create_exams_page(self):
         page = QWidget()
         layout = QVBoxLayout(page)
         layout.setContentsMargins(40, 40, 40, 40)
-        layout.setSpacing(25)
+        layout.setSpacing(20)
 
-        title = QLabel("Exams")
-        title.setStyleSheet("font-size:26px; font-weight:bold;")
-        layout.addWidget(title)
-
-        grid = QGridLayout()
-        grid.setSpacing(20)
-
-        # Viva Card
-        grid.addWidget(self.create_exam_card(
-            "🎤 Viva Exam",
-            "Subject: Operating Systems",
-            "Date: 25 Feb 2026",
-            "Status: Scheduled"
-        ), 0, 0)
-
-        # Practical Card
-        grid.addWidget(self.create_exam_card(
-            "🧪 Practical Exam",
-            "Subject: Python Lab",
-            "Date: 28 Feb 2026",
-            "Status: Upcoming"
-        ), 0, 1)
-
-        layout.addLayout(grid)
-        layout.addStretch()
-
-        return page
-    
-    def create_exam_card(self, title_text, subject, date, status_text):
-        card = QFrame()
-        card.setObjectName("card")
-        card.setFixedHeight(220)
-
-        layout = QVBoxLayout(card)
-        layout.setContentsMargins(20, 20, 20, 20)
-        layout.setSpacing(10)
-
-        title = QLabel(title_text)
-        title.setStyleSheet("font-size:16px; font-weight:bold;")
-
-        subject_label = QLabel(subject)
-        date_label = QLabel(date)
-
-        status_label = QLabel(status_text)
-        status_label.setStyleSheet("color:#eab308; font-weight:600;")
-
-        # ✅ Start Button (hidden initially)
-        start_btn = QPushButton("Start Exam")
-        start_btn.setFixedHeight(40)
-        start_btn.setStyleSheet("""
+        title_row = QHBoxLayout()
+        title = QLabel("\U0001f4cb Active Exams")
+        title.setStyleSheet("font-size:24px; font-weight:bold; color: #111827;")
+        title_row.addWidget(title)
+        title_row.addStretch()
+        refresh_btn = QPushButton("\u21bb Refresh")
+        refresh_btn.setFixedSize(100, 36)
+        refresh_btn.setStyleSheet("""
             QPushButton {
-                background-color: #2563eb;
-                color: white;
-                border-radius: 8px;
-                font-weight: 600;
+                background-color: #6B7280; color: white;
+                border: none; border-radius: 8px; font-weight: bold;
             }
-            QPushButton:hover {
-                background-color: #1e40af;
+            QPushButton:hover { background-color: #4B5563; }
+        """)
+        refresh_btn.clicked.connect(self.load_exams)
+        title_row.addWidget(refresh_btn)
+        layout.addLayout(title_row)
+
+        # Active exams table
+        self.exams_table = QTableWidget()
+        self.exams_table.setColumnCount(4)
+        self.exams_table.setHorizontalHeaderLabels(["Exam Title", "Duration", "Status", "Action"])
+        self.exams_table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        self.exams_table.verticalHeader().setVisible(False)
+        self.exams_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.exams_table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
+        self.exams_table.setAlternatingRowColors(True)
+        self.exams_table.setStyleSheet("""
+            QTableWidget {
+                border: 1px solid #e5e7eb; border-radius: 8px;
+                background-color: white; gridline-color: #f3f4f6;
+                font-size: 13px;
+            }
+            QHeaderView::section {
+                background-color: #f9fafb; padding: 10px 8px;
+                border: none; border-bottom: 1px solid #e5e7eb;
+                font-weight: bold; color: #374151;
             }
         """)
-        start_btn.hide()  # 👈 Hidden initially
+        self.exams_table.setFixedHeight(240)
+        layout.addWidget(self.exams_table)
 
-        # 🔥 Show button when card is clicked
-        def show_start():
-            start_btn.show()
+        # Exam detail view (shown when an exam is selected)
+        self.exam_detail_frame = QFrame()
+        self.exam_detail_frame.setStyleSheet("""
+            QFrame {
+                background-color: #fefefe;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+            }
+        """)
+        detail_layout = QVBoxLayout(self.exam_detail_frame)
+        detail_layout.setContentsMargins(24, 20, 24, 20)
+        detail_layout.setSpacing(14)
 
-        card.mousePressEvent = lambda event: show_start()
+        self.exam_detail_title = QLabel("Select an exam above to view your questions")
+        self.exam_detail_title.setStyleSheet("font-size:18px; font-weight:bold; color: #111827;")
+        detail_layout.addWidget(self.exam_detail_title)
 
-        layout.addWidget(title)
-        layout.addWidget(subject_label)
-        layout.addWidget(date_label)
-        layout.addWidget(status_label)
+        self.exam_questions_container = QWidget()
+        self.exam_questions_layout = QVBoxLayout(self.exam_questions_container)
+        self.exam_questions_layout.setSpacing(10)
+        detail_layout.addWidget(self.exam_questions_container)
+
+        # File upload row
+        upload_row = QHBoxLayout()
+        self.exam_file_label = QLabel("No file selected")
+        self.exam_file_label.setStyleSheet("color: #6B7280; font-size: 13px;")
+        choose_file_btn = QPushButton("\U0001f4c2 Choose File")
+        choose_file_btn.setFixedHeight(38)
+        choose_file_btn.setStyleSheet("""
+            QPushButton {
+                background-color: white; color: #2563eb;
+                border: 2px solid #2563eb; border-radius: 8px;
+                padding: 6px 16px; font-weight: 600;
+            }
+            QPushButton:hover { background-color: #eff6ff; }
+        """)
+        choose_file_btn.clicked.connect(self.choose_exam_file)
+
+        self.exam_submit_btn = QPushButton("\U0001f680 Submit Exam")
+        self.exam_submit_btn.setFixedHeight(38)
+        self.exam_submit_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #059669; color: white;
+                border: none; border-radius: 8px;
+                padding: 6px 20px; font-weight: bold;
+            }
+            QPushButton:hover { background-color: #047857; }
+            QPushButton:disabled { background-color: #9ca3af; }
+        """)
+        self.exam_submit_btn.clicked.connect(self.submit_exam)
+
+        upload_row.addWidget(self.exam_file_label)
+        upload_row.addStretch()
+        upload_row.addWidget(choose_file_btn)
+        upload_row.addWidget(self.exam_submit_btn)
+        detail_layout.addLayout(upload_row)
+
+        layout.addWidget(self.exam_detail_frame)
         layout.addStretch()
-        layout.addWidget(start_btn)
 
-        return card
+        self.exam_detail_frame.hide()
+        self._current_exam_rec_id = None
+        self._exam_file_path = None
+
+        return page
+
+    def load_exams(self):
+        """Load active exam sessions from API"""
+        result = api_client.get_active_exams()
+        sessions = result.get('sessions', []) if result.get('success') else []
+        self._exam_sessions = sessions
+
+        self.exams_table.setRowCount(0)
+        if not sessions:
+            self.exams_table.insertRow(0)
+            self.exams_table.setItem(0, 0, QTableWidgetItem("No active exams right now"))
+            return
+
+        for s in sessions:
+            row = self.exams_table.rowCount()
+            self.exams_table.insertRow(row)
+            self.exams_table.setItem(row, 0, QTableWidgetItem(s['title']))
+            self.exams_table.setItem(row, 1, QTableWidgetItem(f"{s['duration_minutes']} min"))
+
+            status = s.get('status', 'pending')
+            status_item = QTableWidgetItem(status.capitalize())
+            colors = {'pending': '#EAB308', 'submitted': '#3B82F6', 'evaluated': '#10B981'}
+            status_item.setForeground(QColor(colors.get(status, '#6B7280')))
+            self.exams_table.setItem(row, 2, status_item)
+
+            view_btn = QPushButton("View Questions")
+            view_btn.setFixedHeight(30)
+            view_btn.setStyleSheet("""
+                QPushButton { background: #2563eb; color: white; border: none;
+                              border-radius: 6px; font-weight: bold; }
+                QPushButton:hover { background: #1d4ed8; }
+            """)
+            view_btn.clicked.connect(lambda _, sid=s['session_id']: self.open_exam_detail(sid))
+            self.exams_table.setCellWidget(row, 3, view_btn)
+
+    def open_exam_detail(self, session_id):
+        """Load and show assigned questions for this exam"""
+        result = api_client.get_exam_detail(session_id)
+        if not result.get('success'):
+            QMessageBox.critical(self, "Error", result.get('error', 'Failed to load exam'))
+            return
+
+        exam = result.get('exam', {})
+        self._current_exam_rec_id = exam.get('exam_rec_id')
+        session_status = exam.get('session_status', 'active')
+        student_status = exam.get('status', 'pending')
+
+        self.exam_detail_title.setText(
+            f"\U0001f4cb {exam.get('title')} \u2014 {exam.get('duration_minutes')} min "
+            f"| Your status: {student_status.upper()}"
+        )
+
+        # Clear previous questions
+        while self.exam_questions_layout.count():
+            child = self.exam_questions_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+
+        questions = exam.get('questions', [])
+        for i, q in enumerate(questions, 1):
+            q_frame = QFrame()
+            q_frame.setStyleSheet("""
+                QFrame { background: #f0f9ff; border: 1px solid #bae6fd;
+                         border-radius: 10px; }
+            """)
+            q_v = QVBoxLayout(q_frame)
+            q_v.setContentsMargins(16, 12, 16, 12)
+
+            q_head = QLabel(f"Q{i}: {q.get('title')}  [{q.get('marks')} marks | {q.get('difficulty', 'medium').capitalize()}]")
+            q_head.setStyleSheet("font-weight: bold; color: #0369a1; font-size: 14px;")
+            q_head.setWordWrap(True)
+
+            q_desc = QLabel(q.get('description', ''))
+            q_desc.setWordWrap(True)
+            q_desc.setStyleSheet("color: #1e3a5f; font-size: 13px;")
+
+            q_v.addWidget(q_head)
+            q_v.addWidget(q_desc)
+            self.exam_questions_layout.addWidget(q_frame)
+
+        # Show/hide submit area based on status
+        if session_status == 'completed':
+            self.exam_submit_btn.setText("Exam Ended")
+            self.exam_submit_btn.setEnabled(False)
+        elif student_status == 'submitted':
+            self.exam_submit_btn.setText("\u2705 Submitted")
+            self.exam_submit_btn.setEnabled(False)
+        else:
+            self.exam_submit_btn.setText("\U0001f680 Submit Exam")
+            self.exam_submit_btn.setEnabled(True)
+
+        self.exam_detail_frame.show()
+
+    def choose_exam_file(self):
+        from PyQt6.QtWidgets import QFileDialog
+        path, _ = QFileDialog.getOpenFileName(
+            self, "Select Exam File", "",
+            "All Files (*);;Python (*.py);;PDF (*.pdf);;Java (*.java)"
+        )
+        if path:
+            self._exam_file_path = path
+            self.exam_file_label.setText(f"\U0001f4ce {path.split('/')[-1].split(chr(92))[-1]}")
+            self.exam_file_label.setStyleSheet("color: #059669; font-weight: bold;")
+
+    def submit_exam(self):
+        if not self._current_exam_rec_id:
+            QMessageBox.warning(self, "Error", "No exam selected.")
+            return
+        if not self._exam_file_path:
+            QMessageBox.warning(self, "No File", "Please choose a file to submit.")
+            return
+        self.exam_submit_btn.setText("Submitting...")
+        self.exam_submit_btn.setEnabled(False)
+        try:
+            result = api_client.submit_exam_file(self._current_exam_rec_id, self._exam_file_path)
+            if result.get('success'):
+                QMessageBox.information(self, "Submitted", "Exam submitted successfully! \U0001f680")
+                self.exam_submit_btn.setText("\u2705 Submitted")
+            else:
+                QMessageBox.critical(self, "Error", result.get('error', 'Failed'))
+                self.exam_submit_btn.setText("\U0001f680 Submit Exam")
+                self.exam_submit_btn.setEnabled(True)
+        except Exception as e:
+            QMessageBox.critical(self, "Error", str(e))
+            self.exam_submit_btn.setText("\U0001f680 Submit Exam")
+            self.exam_submit_btn.setEnabled(True)
 
 
 
@@ -729,60 +1047,183 @@ QFrame {
         layout.setContentsMargins(40, 40, 40, 40)
         layout.setSpacing(25)
 
-        title = QLabel("Results")
-        title.setStyleSheet("font-size:26px; font-weight:bold;")
+        title = QLabel("📊 My Results")
+        title.setStyleSheet("font-size:26px; font-weight:bold; color: #111827;")
+        
+        subtitle = QLabel("Showing published evaluations and marks only")
+        subtitle.setStyleSheet("font-size:14px; color: #6b7280; margin-bottom: 10px;")
+
+        # --- Section 1: Task Evaluations (Table) ---
+        task_section_title = QLabel("📝 WEEKLY TASK EVALUATIONS")
+        task_section_title.setStyleSheet("font-size:14px; font-weight:800; color: #374151; letter-spacing: 1px;")
+        
+        self.results_table = QTableWidget(0, 4)
+        self.results_table.setHorizontalHeaderLabels(["Task Name", "Submitted At", "Marks", "Feedback"])
+        self.results_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        self.results_table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        self.results_table.verticalHeader().setVisible(False)
+        self.results_table.setAlternatingRowColors(True)
+        self.results_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.results_table.setStyleSheet("""
+            QTableWidget {
+                background-color: white;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+                gridline-color: #f3f4f6;
+            }
+            QHeaderView::section {
+                background-color: #f9fafb;
+                padding: 12px;
+                border: none;
+                border-bottom: 2px solid #e5e7eb;
+                font-weight: bold;
+                color: #374151;
+            }
+        """)
+        
+        # --- Section 2: Viva & Exam Marks (Cards) ---
+        exams_section_title = QLabel("🎯 VIVA & EXAM PERFORMANCE")
+        exams_section_title.setStyleSheet("font-size:14px; font-weight:800; color: #374151; letter-spacing: 1px; margin-top: 20px;")
+        
+        cards_layout = QHBoxLayout()
+        cards_layout.setSpacing(20)
+        
+        self.viva_result_card = self.create_result_card("🎤 Viva Marks", "Not conducted yet")
+        self.exam_result_card = self.create_result_card("📋 Exam Marks", "Not conducted yet")
+        
+        cards_layout.addWidget(self.viva_result_card)
+        cards_layout.addWidget(self.exam_result_card)
+
+        # --- Section 3: Summary Bar ---
+        self.overall_summary = QLabel("Loading summary...")
+        self.overall_summary.setStyleSheet("""
+            background-color: #eff6ff; 
+            color: #1e40af; 
+            padding: 15px; 
+            border-radius: 8px; 
+            font-size: 16px; 
+            font-weight: bold;
+            margin-top: 20px;
+        """)
+
         layout.addWidget(title)
-
-        subjects = {
-            "Operating Systems": 85,
-            "DBMS": 90,
-            "Computer Networks": 78,
-            "Python Lab": 95
-        }
-
-        grid = QGridLayout()
-        grid.setSpacing(20)
-
-        total_marks = 0
-        total_subjects = len(subjects)
-
-        row = 0
-        col = 0
-
-        for subject, mark in subjects.items():
-            total_marks += mark
-
-            # Color Logic
-            if mark >= 85:
-                color = "#16a34a"   # Green
-            elif mark >= 60:
-                color = "#eab308"   # Yellow
-            else:
-                color = "#dc2626"   # Red
-
-            card = self.create_card(subject, f"{mark} / 100", color)
-            grid.addWidget(card, row, col)
-
-            col += 1
-            if col > 1:
-                col = 0
-                row += 1
-
-        # Calculate Percentage
-        percentage = total_marks / total_subjects
-
-        # GPA Calculation (simple 10 scale)
-        gpa = round((percentage / 100) * 10, 2)
-
-        layout.addLayout(grid)
-
-        summary = QLabel(f"Overall Percentage: {percentage:.2f}%     |     GPA: {gpa}")
-        summary.setStyleSheet("font-size:18px; font-weight:bold; color:#2563eb;")
-
-        layout.addWidget(summary)
+        layout.addWidget(subtitle)
+        layout.addWidget(task_section_title)
+        layout.addWidget(self.results_table, 2)
+        layout.addWidget(exams_section_title)
+        layout.addLayout(cards_layout)
+        layout.addWidget(self.overall_summary)
         layout.addStretch()
 
         return page
+
+    def create_result_card(self, title, status):
+        card = QFrame()
+        card.setObjectName("card")
+        card.setFixedHeight(140)
+        card.setMinimumWidth(300)
+        
+        layout = QVBoxLayout(card)
+        layout.setContentsMargins(20, 20, 20, 20)
+        
+        title_lbl = QLabel(title)
+        title_lbl.setStyleSheet("font-size:14px; color:#6b7280; font-weight: 500;")
+        
+        value_lbl = QLabel(status)
+        value_lbl.setObjectName("valueLabel")
+        value_lbl.setStyleSheet("font-size:24px; font-weight:bold; color:#111827; margin-top: 5px;")
+        
+        notes_lbl = QLabel("")
+        notes_lbl.setObjectName("notesLabel")
+        notes_lbl.setStyleSheet("font-size:12px; color:#9ca3af; font-style: italic;")
+        
+        layout.addWidget(title_lbl)
+        layout.addWidget(value_lbl)
+        layout.addWidget(notes_lbl)
+        layout.addStretch()
+        
+        return card
+
+    def load_results(self):
+        """Fetch all results and populate the UI"""
+        # 1. Fetch Task Results
+        task_res = api_client.get_my_results()
+        task_list = task_res.get('results', []) if task_res.get('success') else []
+        
+        self.results_table.setRowCount(len(task_list))
+        total_task_marks = 0
+        task_count = 0
+        
+        for i, res in enumerate(task_list):
+            self.results_table.setItem(i, 0, QTableWidgetItem(res.get('task_title', '-')))
+            date_str = res.get('submitted_at', '-').split('T')[0] if res.get('submitted_at') else '-'
+            self.results_table.setItem(i, 1, QTableWidgetItem(date_str))
+            
+            marks = res.get('marks')
+            marks_text = str(marks) if marks is not None else '-'
+            item_marks = QTableWidgetItem(f"{marks_text} / 100")
+            item_marks.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+            if marks is not None:
+                total_task_marks += marks
+                task_count += 1
+                color = "#059669" if marks >= 80 else "#d97706" if marks >= 60 else "#dc2626"
+                item_marks.setForeground(QColor(color))
+            
+            self.results_table.setItem(i, 2, item_marks)
+            self.results_table.setItem(i, 3, QTableWidgetItem(res.get('feedback', '-')))
+            self.results_table.setRowHeight(i, 45)
+
+        # 2. Fetch Viva Results
+        viva_res = api_client.get_my_viva()
+        viva_list = viva_res.get('viva', []) if viva_res.get('success') else []
+        viva_marks = None
+        if viva_list:
+            v = viva_list[0]
+            viva_marks = v.get('marks')
+            marks_display = f"{viva_marks} / 100" if viva_marks is not None else "Pending"
+            self.viva_result_card.findChild(QLabel, "valueLabel").setText(marks_display)
+            self.viva_result_card.findChild(QLabel, "notesLabel").setText(v.get('notes', ''))
+        else:
+            self.viva_result_card.findChild(QLabel, "valueLabel").setText("Not conducted")
+            self.viva_result_card.findChild(QLabel, "notesLabel").setText("")
+
+        # 3. Fetch Exam Results (use new my-exam endpoint)
+        exam_res = api_client.get_active_exams()
+        exam_sessions = exam_res.get('sessions', []) if exam_res.get('success') else []
+        exam_marks = None
+        if exam_sessions:
+            # Show most recent evaluated exam result
+            for s in exam_sessions:
+                if s.get('status') == 'evaluated':
+                    detail = api_client.get_exam_detail(s['session_id'])
+                    if detail.get('success'):
+                        exam_data = detail.get('exam', {})
+                        exam_marks = exam_data.get('marks')
+                        exam_title = exam_data.get('title', 'Exam')
+                        self.exam_result_card.findChild(QLabel, "valueLabel").setText(
+                            f"{exam_marks} / 100" if exam_marks is not None else "Pending"
+                        )
+                        self.exam_result_card.findChild(QLabel, "notesLabel").setText(exam_title)
+                        break
+        if exam_marks is None:
+            self.exam_result_card.findChild(QLabel, "valueLabel").setText("Pending")
+            self.exam_result_card.findChild(QLabel, "notesLabel").setText("Not evaluated yet")
+
+        # 4. Summary Calculation
+        avg_tasks = (total_task_marks / task_count) if task_count > 0 else 0
+        overall_components = []
+        if task_count > 0: overall_components.append(avg_tasks)
+        if viva_marks is not None: overall_components.append(viva_marks)
+        if exam_marks is not None: overall_components.append(exam_marks)
+        
+        overall = sum(overall_components) / len(overall_components) if overall_components else 0
+        gpa = round((overall / 100) * 10, 2)
+        
+        self.overall_summary.setText(
+            f"📈 Average Task Mark: {avg_tasks:.1f}  |  "
+            f"Overall Percentage: {overall:.1f}%  |  "
+            f"GPA: {gpa}/10"
+        )
 
 
 
