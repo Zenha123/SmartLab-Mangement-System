@@ -5,6 +5,7 @@ from PyQt6.QtGui import QFont
 from ui.common.cards import CardFrame, KeyValueRow
 from ui.common.badges import StatusDot
 from ui.theme import heading_font, Theme, body_font
+from PyQt6.QtGui import QImage, QPixmap
 
 
 class SingleStudentScreen(QWidget):
@@ -28,10 +29,10 @@ class SingleStudentScreen(QWidget):
         # Live view area
         viewer = CardFrame(padding=20)
         viewer.setMinimumHeight(400)
-        viewer_label = QLabel("📺 Live Screen View\n(Placeholder)")
-        viewer_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        viewer_label.setFont(body_font(16))
-        viewer_label.setStyleSheet(
+        self.viewer_label = QLabel("📺 Live Screen View\n(Placeholder)")
+        self.viewer_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.viewer_label.setFont(body_font(16))
+        self.viewer_label.setStyleSheet(
             f"""
             QLabel {{
                 background: {Theme.background};
@@ -42,7 +43,7 @@ class SingleStudentScreen(QWidget):
             }}
             """
         )
-        viewer.layout.addWidget(viewer_label)
+        viewer.layout.addWidget(self.viewer_label)
         viewer.layout.addStretch(1)
         main.addWidget(viewer, stretch=3)
 
@@ -125,3 +126,27 @@ class SingleStudentScreen(QWidget):
         root.addWidget(notes)
         root.addStretch(1)
 
+    
+
+    def update_video_frame(self, student_id, frame):
+
+        height, width, channel = frame.shape
+        bytes_per_line = channel * width
+
+        qt_img = QImage(
+            frame.copy().data,
+            width,
+            height,
+            bytes_per_line,
+            QImage.Format.Format_BGR888
+        )
+
+        pixmap = QPixmap.fromImage(qt_img)
+
+        self.viewer_label.setPixmap(
+            pixmap.scaled(
+                self.viewer_label.size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
+        )

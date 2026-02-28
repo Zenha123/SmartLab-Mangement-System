@@ -3,6 +3,10 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth import get_user_model
+from aiortc import RTCPeerConnection, RTCSessionDescription
+
+from .webrtc.screen_track import ScreenVideoTrack
+
 
 User = get_user_model()
 
@@ -76,8 +80,68 @@ class MonitorConsumer(AsyncWebsocketConsumer):
                         'student_data': student_data
                     }
                 )
+            elif message_type == "monitor_offer":
+                student_id = data.get("student_id")
+
+                await self.channel_layer.group_send(
+                    f"student_{student_id}",
+                    {
+                        "type": "monitor_offer",
+                        "offer": data.get("offer"),
+                        "faculty_channel": self.channel_name,
+                        "student_id": student_id
+                    }
+                )
+
+            elif message_type == "monitor_answer":
+                faculty_channel = data.get("faculty_channel")
+
+                await self.channel_layer.send(
+                    faculty_channel,
+                    {
+                        "type": "monitor_answer",
+                        "answer": data.get("answer"),
+                        "student_id": data.get("student_id")
+                    }
+                )
+
+            elif message_type == "monitor_ice":
+                target_channel = data.get("target_channel")
+
+                await self.channel_layer.send(
+                    target_channel,
+                    {
+                        "type": "monitor_ice",
+                        "candidate": data.get("candidate"),
+                        "student_id": data.get("student_id")
+                    }
+                )
+
+            elif message_type == "monitor_stop":
+                student_id = data.get("student_id")
+
+                await self.channel_layer.group_send(
+                    f"student_{student_id}",
+                    {
+                        "type": "monitor_stop"
+                    }
+                )
         except json.JSONDecodeError:
             pass
+
+    async def monitor_answer(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "monitor_answer",
+            "answer": event["answer"],
+            "student_id": event["student_id"]
+        }))
+
+    async def monitor_ice(self, event):
+        await self.send(text_data=json.dumps({
+            "type": "monitor_ice",
+            "candidate": event["candidate"],
+            "student_id": event["student_id"]
+        }))
     
     async def status_broadcast(self, event):
         """
@@ -158,13 +222,15 @@ class StudentConsumer(AsyncWebsocketConsumer):
     WebSocket consumer for Students.
     Receives live updates for Lab Sessions, Tasks, Viva, Exams.
     """
-    
+
     async def connect(self):
         """Handle WebSocket connection"""
+
         # Authenticate user via JWT token
         token = self.scope['query_string'].decode().split('token=')[-1]
         user = await self.authenticate_token(token)
         
+
         if not user:
             await self.close()
             return
@@ -195,6 +261,8 @@ class StudentConsumer(AsyncWebsocketConsumer):
         )
         
         await self.accept()
+        self.pc=None
+        self.faculty_channel = None
         
         # Mark as Online and Broadcast
         await self.broadcast_status('online')
@@ -280,3 +348,66 @@ class StudentConsumer(AsyncWebsocketConsumer):
                     'last_seen': student.last_seen.isoformat() if student.last_seen else None
                 }
             )
+    async def monitor_offer(self, event):
+        '''await self.send(text_data=json.dumps({
+            "type": "monitor_offer",
+            "offer": event["offer"],
+            "student_id": event["student_id"]
+        }))'''
+        
+        offer = event["offer"]
+        faculty_channel = event["faculty_channel"]
+        
+        print("Received monitor_offer:", offer)
+
+        # Create PeerConnection
+        self.pc = RTCPeerConnection()
+
+        # Add screen track
+        
+
+        # Handle ICE candidates
+        @self.pc.on("icecandidate")
+        async def on_icecandidate(candidate):
+            if candidate:
+                await self.channel_layer.send(
+                    faculty_channel,
+                    {
+                        "type": "monitor_ice",
+                        "candidate": {
+                            "candidate": candidate.to_sdp(),
+                            "sdpMid": candidate.sdpMid,
+                            "sdpMLineIndex": candidate.sdpMLineIndex,
+                        },
+                        "student_id": self.student_id,
+                    },
+                )
+
+        # Set remote description (offer)
+        await self.pc.setRemoteDescription(
+            RTCSessionDescription(
+                sdp=offer["sdp"],
+                type=offer["type"],
+            )
+        )
+
+        self.pc.addTrack(ScreenVideoTrack())
+
+        # Create answer
+        answer = await self.pc.createAnswer()
+        await self.pc.setLocalDescription(answer)
+
+        print("Sending monitor_answer")
+
+        # Send answer back to faculty
+        await self.channel_layer.send(
+            faculty_channel,
+            {
+                "type": "monitor_answer",
+                "answer": {
+                    "sdp": self.pc.localDescription.sdp,
+                    "type": self.pc.localDescription.type,
+                },
+                "student_id": self.student_id,
+            },
+        )
