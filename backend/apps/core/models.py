@@ -50,3 +50,4 @@ class PCMapping(models.Model):
     def __str__(self):
         student_name = self.student.name if self.student else "Unassigned"
         return f"{self.pc_id} - {student_name}"
+    #
