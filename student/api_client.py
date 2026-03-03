@@ -161,6 +161,97 @@ def submit_task(task_id, file_path):
             "error": str(e)
         }
 
+def get_my_results():
+    """Fetch published task evaluations for the student"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/student/tasks/my_results/",
+            headers=auth_headers(),
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {"success": True, "results": response.json().get('results', [])}
+        return {"success": False, "error": f"Failed: {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+def get_my_viva():
+    """Fetch student's viva records"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/student/tasks/my_viva/",
+            headers=auth_headers(),
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {"success": True, "viva": response.json().get('viva', [])}
+        return {"success": False, "error": f"Failed: {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+def get_active_exams():
+    """Fetch active exam sessions for student = GET /api/my-exam/"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/my-exam/",
+            headers=auth_headers(),
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {"success": True, "sessions": response.json().get('sessions', [])}
+        return {"success": False, "error": f"Failed: {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def get_exam_detail(session_id):
+    """Fetch assigned questions for a specific exam session = GET /api/my-exam/?session_id=X"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/my-exam/?session_id={session_id}",
+            headers=auth_headers(),
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {"success": True, "exam": response.json()}
+        return {"success": False, "error": f"Failed: {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+def submit_exam_file(exam_rec_id, file_path):
+    """Submit exam file = POST /api/submit-exam/ multipart"""
+    try:
+        with open(file_path, 'rb') as f:
+            response = requests.post(
+                f"{API_BASE}/submit-exam/",
+                headers=auth_headers(),
+                data={"exam_rec_id": exam_rec_id},
+                files={"file": f},
+                timeout=15
+            )
+        if response.status_code == 200:
+            return {"success": True}
+        return {"success": False, "error": response.text}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+
+def get_my_live_viva():
+    """Fetch active online viva session for student"""
+    try:
+        response = requests.get(
+            f"{API_BASE}/live-viva/",
+            headers=auth_headers(),
+            timeout=5
+        )
+        if response.status_code == 200:
+            return {"success": True, "session": response.json()}
+        return {"success": False, "error": f"Failed: {response.status_code}"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
 def logout_student():
     global ACCESS_TOKEN, REFRESH_TOKEN
     ACCESS_TOKEN = None

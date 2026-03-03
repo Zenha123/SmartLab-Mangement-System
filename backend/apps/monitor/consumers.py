@@ -143,6 +143,15 @@ class MonitorConsumer(AsyncWebsocketConsumer):
     async def submission_event(self, event):
         await self.send(text_data=json.dumps(event))
 
+
+    async def viva_event(self, event):
+        """
+        Receive viva event (viva_evaluated, viva_online_published).
+        Called by channel_layer.group_send with type='viva_event'.
+        """
+        await self.send(text_data=json.dumps(event))
+    
+
     @database_sync_to_async
     def authenticate_token(self, token_string):
         try:
@@ -270,8 +279,7 @@ class StudentConsumer(AsyncWebsocketConsumer):
             "student_id": event["student_id"]
         }))
 
-    # FIX 4: StudentConsumer was missing this handler entirely.
-    # Without it, ICE candidates routed to student_{id} were silently dropped.
+    
     async def monitor_ice(self, event):
         """Forward ICE candidate down to the student's WebSocket client"""
         await self.send(text_data=json.dumps({

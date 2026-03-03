@@ -143,7 +143,7 @@ class MainWindow(QMainWindow):
         self.control_panel_screen = ControlPanelScreen()
         self.tasks_screen = TasksScreen(parent=self)
         self.viva_screen = VivaScreen(parent=self)
-        self.exam_screen = ExamScreen()
+        self.exam_screen = ExamScreen(parent=self)
         self.reports_screen = ReportsScreen(parent=self)
         self.settings_screen = SettingsScreen()
 

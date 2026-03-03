@@ -1,0 +1,30 @@
+{% extends "faculty/dashboard.html" %}
+
+{% block content %}
+
+<h2>Subject Report</h2>
+
+<table class="marks-table">
+    <thead>
+        <tr>
+            <th>Reg No</th>
+            <th>Name</th>
+            <th>Attendance %</th>
+            <th>Total</th>
+            <th>Grade</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in report_data %}
+        <tr>
+            <td>{{ item.student.reg_number }}</td>
+            <td>{{ item.student.name }}</td>
+            <td>{{ item.attendance }}%</td>
+            <td>{{ item.total }}</td>
+            <td>{{ item.grade }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
