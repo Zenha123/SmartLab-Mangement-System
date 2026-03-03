@@ -6,8 +6,8 @@ from PyQt6.QtCore import QThread, pyqtSignal
 from api_client import ACCESS_TOKEN
 
 # WS_URL should match your backend routing
-# WS_URL = "ws://127.0.0.1:8000/ws/student/"
-WS_URL = "ws://172.16.15.63:8000/ws/student/"
+WS_URL = "ws://127.0.0.1:8000/ws/student/"
+
 class WebSocketClient(QThread):
     message_signal = pyqtSignal(dict)  # Generic signal for all events
     

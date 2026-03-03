@@ -1,8 +1,8 @@
 import requests
 import os
 
-# API_BASE = "http://127.0.0.1:8000/api"
-API_BASE = "http://172.16.15.63:8000/api"
+API_BASE = "http://127.0.0.1:8000/api"
+
 
 
 ACCESS_TOKEN = None
