@@ -41,10 +41,10 @@ def test_upload():
         print(f"File Path stored: {file_path}")
         
         if file_path and 'submissions' in file_path:
-             print("✅ File path looks correct")
+            print("✅ File path looks correct")
         else:
-             print("⚠️ File path format unexpected")
-             
+            print("⚠️ File path format unexpected")
+            
     else:
         print(f"❌ Upload Failed: {result.get('error')}")
     

@@ -28,7 +28,7 @@ async def verify_signal():
 
     # 2. Create a specific channel to listen
     # In a real test, we'd add a consumer, but here we can't easily "listen" without a consumer 
-    # hooked up to the layer. 
+    # hooked up to the layer.
     # However, we can simulate being in the group?
     # Actually, channels_redis allows receiving from a channel if we know its name.
     # But groups broadcast to *specific channels* that joined the group.
@@ -54,10 +54,10 @@ async def verify_signal():
         print(json.dumps(message, indent=2))
         
         if message.get('type') == 'session_status' and message.get('status') == 'session_started':
-             print("\n✅ SUCCESS: Signal fired and message delivered via Redis!")
+            print("\n✅ SUCCESS: Signal fired and message delivered via Redis!")
         else:
-             print("\n⚠️ WARNING: Message received but content unexpected.")
-             
+            print("\n⚠️ WARNING: Message received but content unexpected.")
+        
     except asyncio.TimeoutError:
         print("\n❌ TIMEOUT: No message received in 5 seconds. Signal might not be firing.")
 

@@ -1,0 +1,81 @@
+{% extends "faculty/base.html" %}
+
+{% block content %}
+
+<h2>Enter Marks - {{ subject.subject_name }}</h2>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <table class="marks-table">
+        <thead>
+            <tr>
+                <th>Reg No</th>
+                <th>Name</th>
+                <th>Internal</th>
+                <th>Assignment</th>
+                <th>Lab</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.reg_number }}</td>
+                <td>{{ student.name }}</td>
+                <td>
+                    <input type="number"
+                           name="internal_{{ student.reg_number }}"
+                           min="0" max="100"
+                           value="{{ student.marks.internal_marks|default:'' }}">
+                </td>
+
+                <td>
+                    <input type="number"
+                           name="assignment_{{ student.reg_number }}"
+                           min="0" max="100"
+                           value="{{ student.marks.assignment_marks|default:'' }}">
+                </td>
+
+                <td>
+                    <input type="number"
+                           name="lab_{{ student.reg_number }}"
+                           min="0" max="100"
+                           value="{{ student.marks.lab_marks|default:'' }}">
+                </td>
+
+                <td>{{ student.marks.total_marks|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <br>
+    <button type="submit" class="save-btn">Save Marks</button>
+</form>
+
+<script>
+document.querySelectorAll('tr').forEach(row => {
+    const internalInput = row.querySelector('input[name^="internal_"]');
+    const assignmentInput = row.querySelector('input[name^="assignment_"]');
+    const labInput = row.querySelector('input[name^="lab_"]');
+    const totalCell = row.querySelector('td:last-child');
+
+    if (internalInput && assignmentInput && labInput && totalCell) {
+        function updateTotal() {
+            const total = 
+                (parseInt(internalInput.value) || 0) +
+                (parseInt(assignmentInput.value) || 0) +
+                (parseInt(labInput.value) || 0);
+            totalCell.textContent = total;
+        }
+        internalInput.addEventListener('input', updateTotal);
+        assignmentInput.addEventListener('input', updateTotal);
+        labInput.addEventListener('input', updateTotal);
+        updateTotal();
+    }
+});
+</script>
+
+
+{% endblock %}

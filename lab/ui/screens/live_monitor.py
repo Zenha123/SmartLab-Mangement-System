@@ -1,18 +1,21 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QFrame, QHBoxLayout, QPushButton, QComboBox
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont,QImage, QPixmap
 
 from ui.theme import heading_font, Theme, body_font
 from ui.common.cards import CardFrame
 from ui.common.badges import StatusDot, ModeBadge
-
-
+from api.global_client import api_client
+from monitor.webrtc_manager import FacultyWebRTCManager
 class LiveMonitorScreen(QWidget):
     def __init__(self):
         super().__init__()
         root = QVBoxLayout(self)
         root.setContentsMargins(24, 24, 24, 24)
         root.setSpacing(20)
+
+        self.video_labels = {}
+        self.webrtc_manager = None
 
         # Header with view selector
         header = QHBoxLayout()
@@ -47,14 +50,39 @@ class LiveMonitorScreen(QWidget):
         grid = QGridLayout()
         grid.setSpacing(16)
         # Default 3x3 concept tiles
-        for i in range(9):
-            tile = self._tile(f"Student {i+1}", f"PC-{i+1:02d}", "Online" if i % 3 else "Offline")
-            grid.addWidget(tile, i // 3, i % 3)
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setSpacing(16)
+        grid_card.layout.addLayout(self.grid_layout)
+
+        self.students_data = []
+
         grid_card.layout.addLayout(grid)
         root.addWidget(grid_card)
         root.addStretch(1)
 
-    def _tile(self, name: str, pc: str, status: str):
+    def update_video_frame(self, student_id, frame):
+        if student_id not in self.video_labels:
+            return
+
+        height, width, channel = frame.shape
+        bytes_per_line = channel * width
+        qt_img = QImage(frame.data, width, height, bytes_per_line, QImage.Format.Format_BGR888)
+        pixmap = QPixmap.fromImage(qt_img)
+
+        self.video_labels[student_id].setPixmap(
+            pixmap.scaled(
+                self.video_labels[student_id].size(),
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
+        )
+
+    def _tile(self, student: dict):
+        student_db_id = student.get("id")
+        name = student.get("name", "Unknown")
+        pc = student.get("student_id", "N/A")
+        status = student.get("status", "offline").capitalize()
+
         frame = QFrame()
         frame.setObjectName("monitorTile")
         frame.setStyleSheet(
@@ -94,6 +122,8 @@ class LiveMonitorScreen(QWidget):
         
         # Placeholder for screen view
         screen_placeholder = QLabel("📺")
+        screen_placeholder.setMinimumHeight(150)
+        screen_placeholder.setMinimumWidth(200)
         screen_placeholder.setAlignment(Qt.AlignmentFlag.AlignCenter)
         screen_placeholder.setStyleSheet(
             f"""
@@ -106,6 +136,8 @@ class LiveMonitorScreen(QWidget):
             }}
             """
         )
+
+        self.video_labels[student_db_id] = screen_placeholder
         layout.addWidget(screen_placeholder)
         
         # Student info
@@ -123,6 +155,7 @@ class LiveMonitorScreen(QWidget):
         
         # Open view button
         btn = QPushButton("👁️ View")
+        btn.clicked.connect(lambda _, s=student: self.start_monitor(s))
         btn.setProperty("class", "primary")
         btn.setStyleSheet(
             f"""
@@ -143,3 +176,72 @@ class LiveMonitorScreen(QWidget):
         layout.addWidget(btn)
         return frame
 
+    def set_websocket_client(self, ws_client):
+        self.websocket_client = ws_client
+    
+    def start_monitor(self, student: dict):
+        """Open single-student view. Accepts the full student dict."""
+        student_id = student.get("id")
+
+        main_window = self.window()
+
+        ws_client = main_window.dashboard_screen.ws_client
+
+        if not ws_client or not ws_client.connected:
+            print("WebSocket client not available")
+            return
+
+        if not hasattr(main_window, "webrtc_manager"):
+            main_window.webrtc_manager = FacultyWebRTCManager(
+                ws_client,
+                main_window.single_student_screen.update_video_frame
+            )
+
+        # Populate the single-student screen with real data BEFORE switching
+        single_screen = main_window.single_student_screen
+        single_screen.student_id = student_id
+        single_screen.set_webrtc_manager(main_window.webrtc_manager)
+        single_screen.load_student_data(student)   # fills side panel with real data
+
+        main_window.stack.setCurrentWidget(single_screen)
+        main_window.webrtc_manager.start_monitoring(student_id)
+        
+    def showEvent(self, event):
+        super().showEvent(event)
+        self.load_students()
+
+
+    def load_students(self):
+    # Get batch_id from parent main window
+        main_window = self.window()
+
+        if not hasattr(main_window, "current_batch_id") or main_window.current_batch_id is None:
+            return
+
+        batch_id = main_window.current_batch_id
+
+        result = api_client.get_students(batch_id=batch_id)
+
+        if not result["success"]:
+            print("Failed to load students")
+            return
+
+        self.students_data = result["data"]
+        self._rebuild_grid()
+
+        print("Batch ID:", main_window.current_batch_id)
+    
+    def _rebuild_grid(self):
+    # Clear old tiles
+        while self.grid_layout.count():
+            item = self.grid_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        for index, student in enumerate(self.students_data):
+            tile = self._tile(student)
+            
+
+            row = index // 3
+            col = index % 3
+            self.grid_layout.addWidget(tile, row, col)

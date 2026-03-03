@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+import requests
 
 from .utils import faculty_sidebar_context
 from .models import Student, Timetable, Faculty, Semester, Subject, AttendanceSession, AttendanceRecord
@@ -60,6 +61,7 @@ DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 HOURS = [1, 2, 3, 4, 5, 6]
 
 def semester_detail(request, sem):
+
     semester = get_object_or_404(Semester, number=sem)
     subjects = Subject.objects.all()
     students = Student.objects.filter(semester=semester)
@@ -104,7 +106,6 @@ def semester_detail(request, sem):
                         )
 
             return redirect('semester_detail', sem=semester.id)
-
     # BUILD GRID
     grid = {}
     for day in DAYS:
@@ -284,7 +285,7 @@ def attendance_week_view(request, subject_id):
 
     return render(request, 'faculty/attendance_week.html', context)
 
-
+from .models import Student, Timetable, Faculty, Semester, Subject, AttendanceSession, AttendanceRecord, Marks
 @login_required
 def mark_attendance(request):
     subject_id = request.GET.get("subject")
@@ -337,3 +338,119 @@ def mark_attendance(request):
         "attendance_map": attendance_map,
         "date": attendance_date,
     })
+@login_required
+def mark_marks(request, subject_id, semester_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    students = Student.objects.filter(semester=semester)
+    faculty = request.user.faculty
+
+    # -------- SAVE MARKS --------
+    if request.method == "POST":
+        for student in students:
+            internal = request.POST.get(f"internal_{student.reg_number}")
+            assignment = request.POST.get(f"assignment_{student.reg_number}")
+            lab = request.POST.get(f"lab_{student.reg_number}")
+
+            Marks.objects.update_or_create(
+                student=student,
+                subject=subject,
+                semester=semester,
+                defaults={
+                    "internal_marks": int(internal or 0),
+                    "assignment_marks": int(assignment or 0),
+                    "lab_marks": int(lab or 0),
+                    "faculty": faculty
+                }
+            )
+
+        messages.success(request, "Marks saved successfully.")
+        return redirect("faculty_dashboard")
+
+    # -------- LOAD EXISTING MARKS --------
+    marks_dict = {
+        m.student.reg_number: m
+        for m in Marks.objects.filter(
+            subject=subject,
+            semester=semester
+        )
+    }
+
+    for student in students:
+        student.marks = marks_dict.get(student.reg_number)
+
+    return render(request, "faculty/mark_marks.html", {
+        "students": students,
+        "subject": subject,
+        "semester": semester,
+    })
+@login_required
+def faculty_report(request, subject_id, semester_id):
+    subject = get_object_or_404(Subject, id=subject_id)
+    semester = get_object_or_404(Semester, id=semester_id)
+
+    students = Student.objects.filter(semester=semester)
+
+    report_data = []
+
+    for student in students:
+
+        # ---------- ATTENDANCE CALCULATION ----------
+        sessions = AttendanceSession.objects.filter(
+            subject=subject,
+            semester=semester
+        )
+
+        total_classes = sessions.count()
+
+        present_count = AttendanceRecord.objects.filter(
+            session__in=sessions,
+            student=student,
+            is_present=True
+        ).count()
+
+        attendance_percentage = 0
+        if total_classes > 0:
+            attendance_percentage = (present_count / total_classes) * 100
+
+
+        # ---------- MARKS ----------
+        marks = Marks.objects.filter(
+            student=student,
+            subject=subject,
+            semester=semester
+        ).first()
+
+        total = marks.total_marks if marks else 0
+
+
+        # ---------- GRADE ----------
+        if total >= 90:
+            grade = "A+"
+        elif total >= 80:
+            grade = "A"
+        elif total >= 70:
+            grade = "B"
+        elif total >= 60:
+            grade = "C"
+        else:
+            grade = "F"
+
+        report_data.append({
+            "student": student,
+            "attendance": round(attendance_percentage, 2),
+            "total": total,
+            "grade": grade
+        })
+
+    return render(request, "faculty/report.html", {
+        "subject": subject,
+        "semester": semester,
+        "report_data": report_data
+    })
+
+
+
+
+

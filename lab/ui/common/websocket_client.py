@@ -6,10 +6,12 @@ from PyQt6.QtCore import QThread, pyqtSignal
 
 # WS_URL should match your backend routing
 WS_URL = "ws://127.0.0.1:8000/ws/monitor/"
+ # Generic signal for all events
 
 class FacultyWebSocketClient(QThread):
     student_status_signal = pyqtSignal(dict)  # Signal for student online/offline
-    
+    monitor_signal = pyqtSignal(dict)  # Signal for all monitor events
+
     def __init__(self, batch_id, token):
         super().__init__()
         self.batch_id = batch_id
@@ -17,6 +19,8 @@ class FacultyWebSocketClient(QThread):
         self.ws = None
         self.is_running = True
         self.reconnect_delay = 5
+
+        self.connected = False
 
     def run(self):
         """Main thread loop"""
@@ -47,7 +51,17 @@ class FacultyWebSocketClient(QThread):
                 time.sleep(self.reconnect_delay)
 
     def on_open(self, ws):
-        print(f"WebSocket Connected to Batch {self.batch_id}")
+        print(f"WebSocket Connected to batch {self.batch_id}")
+        self.connected = True
+
+    def send_json(self, data):
+        if self.ws and self.connected:
+            try:
+                self.ws.send(json.dumps(data))
+            except Exception as e:
+                print(f"Error sending message: {e}")
+        else:
+            print("WebSocket is not connected. Cannot send message.")
 
     def on_message(self, ws, message):
         """Handle incoming messages"""
@@ -55,12 +69,15 @@ class FacultyWebSocketClient(QThread):
             data = json.loads(message)
             event_type = data.get('type')
             
+            print("Faculty received message:", data)
+
             if event_type == 'student_status':
                 self.student_status_signal.emit(data)
             elif event_type == 'status_broadcast':
-                 # Handle generic status broadcast if used
-                 self.student_status_signal.emit(data)
-                
+                # Handle generic status broadcast if used
+                self.student_status_signal.emit(data)
+            elif event_type in ['monitor_answer', 'monitor_ice']:
+                self.monitor_signal.emit(data)
         except json.JSONDecodeError:
             pass
 

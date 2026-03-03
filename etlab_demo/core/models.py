@@ -129,3 +129,31 @@ class AttendanceRecord(models.Model):
     session = models.ForeignKey(AttendanceSession, on_delete=models.CASCADE, related_name="records")
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     is_present = models.BooleanField(default=False)
+
+# ---------------- MARKS ----------------
+class Marks(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    semester = models.ForeignKey(Semester, on_delete=models.CASCADE)
+
+    internal_marks = models.IntegerField(default=0)
+    assignment_marks = models.IntegerField(default=0)
+    lab_marks = models.IntegerField(default=0)
+
+    total_marks = models.IntegerField(default=0)
+
+    faculty = models.ForeignKey(Faculty, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ('student', 'subject', 'semester')
+
+    def save(self, *args, **kwargs):
+        self.total_marks = (
+            self.internal_marks +
+            self.assignment_marks +
+            self.lab_marks
+        )
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.student} - {self.subject}"

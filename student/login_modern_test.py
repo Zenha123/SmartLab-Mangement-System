@@ -3,6 +3,8 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QMessageBox
 )
 from PyQt6.QtCore import Qt
+import requests
+from api_client import login_student
 
 
 class LoginPage(QWidget):
@@ -74,8 +76,8 @@ class LoginPage(QWidget):
         password = self.password_input.text()
         
         if not username or not password:
-             QMessageBox.warning(self, "Validation Error", "Please enter username and password")
-             return
+            QMessageBox.warning(self, "Validation Error", "Please enter username and password")
+            return
 
         # Use API Client to login
         import api_client
@@ -87,3 +89,4 @@ class LoginPage(QWidget):
             self.close()
         else:
             QMessageBox.warning(self, "Login Failed", result.get("error", "Unknown error"))
+
