@@ -16,6 +16,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon, QFont, QColor
 
+from lab.ui.common.websocket_client import FacultyWebSocketClient
 from ui.theme import app_stylesheet, Theme
 from ui.screens import (
     LoginScreen,
@@ -33,7 +34,10 @@ from ui.screens import (
     ReportsScreen,
     SettingsScreen,
 )
+import asyncio
 
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -105,6 +109,8 @@ class MainWindow(QMainWindow):
         self.current_batch_id = None
         self.current_semester = ""
         self.current_batch = ""
+
+        self.websocket_client = None  # Will be initialized after batch selection
 
     def _build_toolbar(self) -> QToolBar:
         tb = QToolBar("Top Bar")

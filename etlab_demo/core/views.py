@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+import requests
 
 from .utils import faculty_sidebar_context
 from .models import Student, Timetable, Faculty, Semester, Subject, AttendanceSession, AttendanceRecord
@@ -60,6 +61,7 @@ DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 HOURS = [1, 2, 3, 4, 5, 6]
 
 def semester_detail(request, sem):
+
     semester = get_object_or_404(Semester, number=sem)
     subjects = Subject.objects.all()
     students = Student.objects.filter(semester=semester)
@@ -104,7 +106,6 @@ def semester_detail(request, sem):
                         )
 
             return redirect('semester_detail', sem=semester.id)
-
     # BUILD GRID
     grid = {}
     for day in DAYS:

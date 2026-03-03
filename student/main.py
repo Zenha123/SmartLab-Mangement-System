@@ -2,7 +2,10 @@ import sys
 from PyQt6.QtWidgets import QApplication
 from login_modern_test import LoginPage
 from student_dashboard import StudentDashboard
+import asyncio
 
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 class AppController:
     def __init__(self):

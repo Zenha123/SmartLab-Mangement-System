@@ -290,3 +290,10 @@ celerybeat.pid
 Thumbs.db
 ehthumbs.db
 Desktop.ini
+
+
+#testing
+webrtc_monitor_test/
+webrtc_monitor_test/venv/
+
+etlab_demo/db.sqlite3
