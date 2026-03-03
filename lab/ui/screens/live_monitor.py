@@ -155,7 +155,7 @@ class LiveMonitorScreen(QWidget):
         
         # Open view button
         btn = QPushButton("👁️ View")
-        btn.clicked.connect(lambda _, sid=student_db_id: self.start_monitor(sid))
+        btn.clicked.connect(lambda _, s=student: self.start_monitor(s))
         btn.setProperty("class", "primary")
         btn.setStyleSheet(
             f"""
@@ -179,28 +179,31 @@ class LiveMonitorScreen(QWidget):
     def set_websocket_client(self, ws_client):
         self.websocket_client = ws_client
     
-    def start_monitor(self, student_id):
+    def start_monitor(self, student: dict):
+        """Open single-student view. Accepts the full student dict."""
+        student_id = student.get("id")
 
         main_window = self.window()
 
-        # Switch to Single Student screen
-        single_screen = main_window.single_student_screen
-        main_window.stack.setCurrentWidget(single_screen)
-
-        # Get websocket from dashboard
         ws_client = main_window.dashboard_screen.ws_client
 
         if not ws_client or not ws_client.connected:
             print("WebSocket client not available")
             return
 
-        # Create manager if not exists
         if not hasattr(main_window, "webrtc_manager"):
             main_window.webrtc_manager = FacultyWebRTCManager(
                 ws_client,
-                single_screen.update_video_frame
+                main_window.single_student_screen.update_video_frame
             )
 
+        # Populate the single-student screen with real data BEFORE switching
+        single_screen = main_window.single_student_screen
+        single_screen.student_id = student_id
+        single_screen.set_webrtc_manager(main_window.webrtc_manager)
+        single_screen.load_student_data(student)   # fills side panel with real data
+
+        main_window.stack.setCurrentWidget(single_screen)
         main_window.webrtc_manager.start_monitoring(student_id)
         
     def showEvent(self, event):
@@ -242,4 +245,3 @@ class LiveMonitorScreen(QWidget):
             row = index // 3
             col = index % 3
             self.grid_layout.addWidget(tile, row, col)
-

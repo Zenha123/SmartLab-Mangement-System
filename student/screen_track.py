@@ -16,17 +16,24 @@ class ScreenVideoTrack(VideoStreamTrack):
         self.sct = mss.mss()
 
         # Capture full primary monitor
-        self.monitor = self.sct.monitors[0]
+        self.monitor = self.sct.monitors[1]
+        self.fps=15
 
     async def recv(self):
+        #print("Producing frame")
         pts, time_base = await self.next_timestamp()
 
-        img = np.array(self.sct.grab(self.monitor))
+        #img = np.array(self.sct.grab(self.monitor))
         #frame = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
-        frame = np.zeros((480, 640, 3), dtype=np.uint8)
-        frame[:] = (0, 0, 255)  # red screen
-        saved = cv2.imwrite("C:/Users/shadi/Desktop/test_capture.jpg", frame)  # Debugging
-        print("saved:", saved)
+        #frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        #frame[:] = (0, 0, 255)  # red screen
+        #saved = cv2.imwrite("C:/Users/shadi/Desktop/test_capture.jpg", frame)  # Debugging
+        #print("saved:", saved)
+
+        img = self.sct.grab(self.monitor)
+        frame = np.array(img)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+        frame = cv2.resize(frame, (1280, 720))
 
         video_frame = VideoFrame.from_ndarray(frame, format="bgr24")
         video_frame.pts = pts

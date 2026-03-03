@@ -34,7 +34,10 @@ from ui.screens import (
     ReportsScreen,
     SettingsScreen,
 )
+import asyncio
 
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 class MainWindow(QMainWindow):
     def __init__(self):
