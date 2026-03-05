@@ -1,6 +1,6 @@
 # config.py
 
-SERVER_IP = "10.218.51.204"
+SERVER_IP = "127.0.0.1"
 PORT = "8000"
 
 BASE_HTTP = f"http://{SERVER_IP}:{PORT}"

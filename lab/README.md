@@ -23,3 +23,12 @@ python main.py
 - Actions use placeholders/status messages to illustrate flows for viva/presentation.
 - Styling sticks to indigo/teal with light backgrounds and status colors.
 
+
+
+login credential for faculty -
+--facultyid
+--facultyid@123
+
+
+
+

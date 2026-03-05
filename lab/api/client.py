@@ -5,11 +5,11 @@ Handles all HTTP requests to Django backend with JWT authentication
 import requests
 from typing import Dict, List, Optional, Any
 import json
-from lab.config import BASE_HTTP
+
 class APIClient:
     """HTTP API client with JWT authentication"""
     
-    def __init__(self, base_url: str = f"{BASE_HTTP}/api"):
+    def __init__(self, base_url: str = "http://localhost:8000/api"):
         self.base_url = base_url
         self.access_token: Optional[str] = None
         self.refresh_token: Optional[str] = None

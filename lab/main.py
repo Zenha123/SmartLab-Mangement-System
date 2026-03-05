@@ -16,7 +16,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QIcon, QFont, QColor
 
-from lab.ui.common.websocket_client import FacultyWebSocketClient
+from ui.common.websocket_client import FacultyWebSocketClient
 from ui.theme import app_stylesheet, Theme
 from ui.screens import (
     LoginScreen,

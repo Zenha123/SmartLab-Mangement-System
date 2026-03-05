@@ -12,5 +12,7 @@ urlpatterns = [
     path('api/student/login/', views.StudentLoginView.as_view(), name='student-login'),
     path("logout/", StudentLogoutAPIView.as_view(), name="student-logout"),
     path("student/me/", views.studentMeView.as_view(), name="student-me"),
+    path("sync/faculty/", views.sync_faculty_now, name="sync-faculty-now"),
+    path("sync/students/", views.sync_students_now, name="sync-students-now"),
     #path("student/online_count/", views.online_students_count, name="online-students-count"),
 ]
