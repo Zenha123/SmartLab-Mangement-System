@@ -12,6 +12,28 @@
     </button>
 </form>
 
+  <form method="post" action="{% url 'sync_faculty_now' %}" style="margin: 12px 0;">
+    {% csrf_token %}
+    <button type="submit">Sync Faculty Now</button>
+  </form>
+
+  <form method="post" action="{% url 'sync_students_now' %}" style="margin: 12px 0;">
+    {% csrf_token %}
+    <button type="submit">Sync Students Now</button>
+  </form>
+
+  <form method="post" action="{% url 'upload_faculty_csv' %}" enctype="multipart/form-data" style="margin: 12px 0;">
+    {% csrf_token %}
+    <input type="file" name="faculty_csv" accept=".csv" required>
+    <button type="submit">Upload Faculty CSV</button>
+  </form>
+
+  {% if messages %}
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+
   {% for s in semesters %}
     <p>
     <a href="{% url 'semester_detail' s.number %}">{{ s.semester_name }}</a>

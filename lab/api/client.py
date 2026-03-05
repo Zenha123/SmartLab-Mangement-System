@@ -6,7 +6,6 @@ import requests
 from typing import Dict, List, Optional, Any
 import json
 
-
 class APIClient:
     """HTTP API client with JWT authentication"""
     

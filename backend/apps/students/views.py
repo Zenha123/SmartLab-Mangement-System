@@ -1,14 +1,35 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import authentication_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .models import Student, Attendance
 from .serializers import StudentSerializer, AttendanceSerializer
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
+from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
+from .services.etlab_sync import sync_faculty_from_etlab, sync_students_from_etlab
 
+
+def _is_valid_service_token(request):
+    expected = (settings.ETLAB_SERVICE_TOKEN or "").strip()
+
+    auth_header = request.headers.get("Authorization", "")
+    parts = auth_header.strip().split()
+    if len(parts) == 2:
+        scheme, token = parts
+        if scheme.lower() == "bearer" and token.strip() == expected:
+            return True, None
+
+    fallback = (request.headers.get("X-Service-Token", "") or "").strip()
+    if fallback and fallback == expected:
+        return True, None
+
+    if not auth_header and not fallback:
+        return False, "Missing service token"
+    return False, "Invalid service token"
 
 
 
@@ -129,3 +150,27 @@ def online_students_count(request):
     return Response({
         "online_count": count
     })'''
+
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def sync_faculty_now(request):
+    ok, reason = _is_valid_service_token(request)
+    if not ok:
+        return Response({"detail": reason}, status=status.HTTP_401_UNAUTHORIZED)
+
+    result = sync_faculty_from_etlab()
+    return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def sync_students_now(request):
+    ok, reason = _is_valid_service_token(request)
+    if not ok:
+        return Response({"detail": reason}, status=status.HTTP_401_UNAUTHORIZED)
+
+    result = sync_students_from_etlab()
+    return Response(result, status=status.HTTP_200_OK)

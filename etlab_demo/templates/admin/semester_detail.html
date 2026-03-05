@@ -18,6 +18,12 @@
 <div class="container">
   <h2>Semester {{ sem }}</h2>
 
+  {% if messages %}
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
+
 
 
   <!-- ================= STUDENTS ================= -->
@@ -47,6 +53,39 @@
     <input name="name" placeholder="Name" required>
     <button name="add_student">Add Student</button>
   </form>
+
+  <h4>Add Subject</h4>
+  <form method="post">
+    {% csrf_token %}
+    <input name="subject_name" placeholder="Subject Name" required>
+    <button name="add_subject">Add Subject</button>
+  </form>
+
+  {% if subjects %}
+  <table>
+    <tr>
+      <th>Available Subjects</th>
+    </tr>
+    {% for subject in subjects %}
+    <tr>
+      <td>{{ subject.subject_name }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+
+  <h4>Upload Students CSV</h4>
+  <form method="post" action="{% url 'upload_students_csv' semester.number %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="students_csv" accept=".csv" required>
+    <button type="submit">Upload CSV</button>
+  </form>
+
+  {% if messages %}
+    {% for message in messages %}
+      <p>{{ message }}</p>
+    {% endfor %}
+  {% endif %}
 
   <hr>
 

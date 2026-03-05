@@ -1,14 +1,32 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.views.decorators.http import require_POST
+import csv
+import io
 import requests
+from django.conf import settings
+from django.http import HttpResponseForbidden
 
 from .utils import faculty_sidebar_context
 from .models import Student, Timetable, Faculty, Semester, Subject, AttendanceSession, AttendanceRecord
 from django.contrib.auth.decorators import login_required
 from datetime import date, timedelta, datetime
+
+
+def _require_etlab_admin(request):
+    try:
+        return request.user.faculty.is_admin()
+    except Exception:
+        return False
+
+
+def _default_faculty_password(name, faculty_id):
+    normalized_name = (name or "").strip().replace(" ", "").lower()
+    normalized_faculty_id = (faculty_id or "").strip().lower()
+    return f"{normalized_name}_{normalized_faculty_id}"
 
 @require_POST
 def logout_view(request):
@@ -51,6 +69,9 @@ def logout_view(request):
 # ADMIN: semester list
 @login_required
 def semester_list(request):
+    if not _require_etlab_admin(request):
+        return HttpResponseForbidden("Only ETLab admin users can access this page.")
+
     semesters = Semester.objects.all()
     return render(request, 'admin/semester_list.html', {'semesters': semesters})
 
@@ -61,6 +82,8 @@ DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 HOURS = [1, 2, 3, 4, 5, 6]
 
 def semester_detail(request, sem):
+    if not _require_etlab_admin(request):
+        return HttpResponseForbidden("Only ETLab admin users can access this page.")
 
     semester = get_object_or_404(Semester, number=sem)
     subjects = Subject.objects.all()
@@ -80,6 +103,19 @@ def semester_detail(request, sem):
                 semester=semester   # ✅ instance
             )
             return redirect('semester_detail', sem=semester.id)
+
+        # ADD SUBJECT
+        if 'add_subject' in request.POST:
+            subject_name = request.POST.get('subject_name', '').strip()
+            if not subject_name:
+                messages.error(request, "Subject name is required.")
+            else:
+                _, created = Subject.objects.get_or_create(subject_name=subject_name)
+                if created:
+                    messages.success(request, f"Subject '{subject_name}' added.")
+                else:
+                    messages.info(request, f"Subject '{subject_name}' already exists.")
+            return redirect('semester_detail', sem=semester.number)
 
         # ADD / EDIT TIMETABLE
         if 'save_timetable' in request.POST:
@@ -449,6 +485,243 @@ def faculty_report(request, subject_id, semester_id):
         "semester": semester,
         "report_data": report_data
     })
+
+
+@require_POST
+@login_required
+def sync_faculty_now(request):
+    if not _require_etlab_admin(request):
+        return HttpResponseForbidden("Only ETLab admin users can sync faculty.")
+
+    headers = {
+        "Authorization": f"Bearer {settings.ETLAB_SERVICE_TOKEN}",
+        "X-Service-Token": settings.ETLAB_SERVICE_TOKEN,
+    }
+
+    try:
+        response = requests.post(
+            settings.SMARTLAB_SYNC_FACULTY_URL,
+            headers=headers,
+            timeout=15,
+        )
+
+        if response.status_code == 200:
+            payload = response.json()
+            synced = payload.get("synced", 0)
+            created = payload.get("created", 0)
+            updated = payload.get("updated", 0)
+            messages.success(
+                request,
+                f"Faculty sync completed. Synced: {synced}, Created: {created}, Updated: {updated}.",
+            )
+        else:
+            detail = response.text.strip()
+            messages.error(
+                request,
+                f"Sync failed: SmartLab returned HTTP {response.status_code}. {detail}",
+            )
+
+    except requests.RequestException as exc:
+        messages.error(request, f"Sync failed: {exc}")
+
+    return redirect("semester_list")
+
+
+@require_POST
+@login_required
+def sync_students_now(request):
+    if not _require_etlab_admin(request):
+        return HttpResponseForbidden("Only ETLab admin users can sync students.")
+
+    headers = {
+        "Authorization": f"Bearer {settings.ETLAB_SERVICE_TOKEN}",
+        "X-Service-Token": settings.ETLAB_SERVICE_TOKEN,
+    }
+
+    try:
+        response = requests.post(
+            settings.SMARTLAB_SYNC_STUDENT_URL,
+            headers=headers,
+            timeout=20,
+        )
+
+        if response.status_code == 200:
+            payload = response.json()
+            synced = payload.get("synced", 0)
+            created = payload.get("created", 0)
+            updated = payload.get("updated", 0)
+            messages.success(
+                request,
+                f"Student sync completed. Synced: {synced}, Created: {created}, Updated: {updated}.",
+            )
+        else:
+            detail = response.text.strip()
+            messages.error(
+                request,
+                f"Student sync failed: SmartLab returned HTTP {response.status_code}. {detail}",
+            )
+
+    except requests.RequestException as exc:
+        messages.error(request, f"Student sync failed: {exc}")
+
+    return redirect("semester_list")
+
+
+@require_POST
+@login_required
+def upload_faculty_csv(request):
+    if not _require_etlab_admin(request):
+        return HttpResponseForbidden("Only ETLab admin users can upload faculty CSV.")
+
+    csv_file = request.FILES.get("faculty_csv")
+    if not csv_file:
+        messages.error(request, "Please choose a CSV file.")
+        return redirect("semester_list")
+
+    if not csv_file.name.lower().endswith(".csv"):
+        messages.error(request, "Invalid file type. Please upload a .csv file.")
+        return redirect("semester_list")
+
+    try:
+        decoded = csv_file.read().decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(decoded))
+    except Exception as exc:
+        messages.error(request, f"Unable to read CSV file: {exc}")
+        return redirect("semester_list")
+
+    created_count = 0
+    updated_count = 0
+    skipped_count = 0
+
+    for row in reader:
+        normalized_row = {
+            (k or "").strip().lower().replace(" ", "_"): (v or "").strip()
+            for k, v in row.items()
+        }
+
+        name = normalized_row.get("faculty_name") or normalized_row.get("name")
+        faculty_id = normalized_row.get("faculty_id")
+        email = normalized_row.get("email") or ""
+
+        if not name or not faculty_id:
+            skipped_count += 1
+            continue
+
+        faculty_id = faculty_id.upper()
+
+        default_email = f"{faculty_id.lower()}@faculty.local"
+        user_defaults = {
+            "email": email or default_email,
+            "first_name": name,
+        }
+        user, _ = User.objects.get_or_create(username=faculty_id, defaults=user_defaults)
+
+        user.first_name = name
+        user.email = email or user.email or default_email
+        user.set_password(_default_faculty_password(name, faculty_id))
+        user.save()
+
+        faculty, faculty_created = Faculty.objects.get_or_create(
+            user=user,
+            defaults={
+                "faculty_id": faculty_id,
+                "name": name,
+                "role": "FACULTY",
+            },
+        )
+
+        if faculty_created:
+            created_count += 1
+        else:
+            changed = False
+            if faculty.faculty_id != faculty_id:
+                faculty.faculty_id = faculty_id
+                changed = True
+            if faculty.name != name:
+                faculty.name = name
+                changed = True
+            if changed:
+                faculty.save(update_fields=["faculty_id", "name"])
+            updated_count += 1
+
+    messages.success(
+        request,
+        f"Faculty CSV processed. Created: {created_count}, Updated: {updated_count}, Skipped: {skipped_count}.",
+    )
+    return redirect("semester_list")
+
+
+@require_POST
+@login_required
+def upload_students_csv(request, sem):
+    if not _require_etlab_admin(request):
+        return HttpResponseForbidden("Only ETLab admin users can upload student CSV.")
+
+    semester = get_object_or_404(Semester, number=sem)
+    csv_file = request.FILES.get("students_csv")
+
+    if not csv_file:
+        messages.error(request, "Please choose a CSV file.")
+        return redirect("semester_detail", sem=semester.number)
+
+    if not csv_file.name.lower().endswith(".csv"):
+        messages.error(request, "Invalid file type. Please upload a .csv file.")
+        return redirect("semester_detail", sem=semester.number)
+
+    try:
+        decoded = csv_file.read().decode("utf-8-sig")
+        reader = csv.DictReader(io.StringIO(decoded))
+    except Exception as exc:
+        messages.error(request, f"Unable to read CSV file: {exc}")
+        return redirect("semester_detail", sem=semester.number)
+
+    created_count = 0
+    updated_count = 0
+    skipped_count = 0
+
+    for row in reader:
+        normalized_row = {
+            (k or "").strip().lower().replace(" ", "_"): (v or "").strip()
+            for k, v in row.items()
+        }
+
+        reg_number = normalized_row.get("reg_number") or normalized_row.get("roll_no")
+        name = normalized_row.get("name")
+        semester_number = normalized_row.get("semester_number")
+
+        if not reg_number or not name:
+            skipped_count += 1
+            continue
+
+        reg_number = reg_number.upper()
+
+        if semester_number:
+            try:
+                if int(semester_number) != semester.number:
+                    skipped_count += 1
+                    continue
+            except ValueError:
+                skipped_count += 1
+                continue
+
+        _, created = Student.objects.update_or_create(
+            reg_number=reg_number,
+            defaults={
+                "name": name,
+                "semester": semester,
+            },
+        )
+
+        if created:
+            created_count += 1
+        else:
+            updated_count += 1
+
+    messages.success(
+        request,
+        f"Student CSV processed for Semester {semester.number}. Created: {created_count}, Updated: {updated_count}, Skipped: {skipped_count}.",
+    )
+    return redirect("semester_detail", sem=semester.number)
 
 
 
