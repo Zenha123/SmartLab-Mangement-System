@@ -22,6 +22,7 @@ def task_created(sender, instance, created, **kwargs):
                     'id': instance.id,
                     'title': instance.title,
                     'description': instance.description,
+                    'subject_name': instance.subject_name,
                     'status': instance.status,
                     'batch_id': instance.batch.id,
                     'created_at': instance.created_at.isoformat(),
@@ -105,8 +106,10 @@ def exam_session_update(sender, instance, created, **kwargs):
                 'event': event_type,
                 'session_id': instance.id,
                 'title': instance.title,
+                'subject_name': instance.subject_name,
                 'duration': instance.duration_minutes,
             }
+
         )
 
 @receiver(post_save, sender=VivaSession)
@@ -159,6 +162,7 @@ def exam_evaluate_event(sender, instance, created, **kwargs):
                 'type': 'viva_event',
                 'event': 'exam_evaluated',
                 'session_title': instance.session.title,
+                'subject_name': instance.session.subject_name,
                 'marks': instance.marks,
             }
         )

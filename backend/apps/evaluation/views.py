@@ -484,6 +484,7 @@ class ExamEvaluateView(APIView):
                     'event': 'exam_evaluated',
                     'exam_id': exam_rec.id,
                     'session_title': exam_rec.session.title,
+                    'subject_name': exam_rec.session.subject_name,
                     'marks': marks,
                     'feedback': feedback,
                 }
@@ -677,6 +678,7 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
                     'event': 'evaluation_published',
                     'submission_id': submission.id,
                     'task_title': submission.task.title,
+                    'subject_name': submission.task.subject_name,
                     'marks': marks,
                     'feedback': feedback,
                 }

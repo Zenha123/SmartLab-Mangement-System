@@ -479,6 +479,7 @@ class ExamScreen(QWidget):
                 QMessageBox.warning(self, "Error", "Title is required.")
                 return
             d['batch'] = self.parent_window.current_batch_id
+            d['subject_name'] = getattr(self.parent_window, 'current_subject_name', "")
             try:
                 res = api_client.post("exam-sessions/", d)
                 if res.status_code == 201:

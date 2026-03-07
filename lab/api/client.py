@@ -234,14 +234,16 @@ class APIClient:
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
     
-    def create_task(self, batch_id: int, title: str, description: str, deadline: Optional[str] = None) -> Dict[str, Any]:
+    def create_task(self, batch_id: int, title: str, description: str, subject_name: str = "", deadline: Optional[str] = None) -> Dict[str, Any]:
         """Create a new task for a batch"""
         try:
             payload = {
                 "batch": batch_id,
                 "title": title,
+                "subject_name": subject_name,
                 "description": description
             }
+
             if deadline:
                 payload["deadline"] = deadline
             

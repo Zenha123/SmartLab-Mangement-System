@@ -70,7 +70,12 @@ class StudentDashboard(QWidget):
 
         elif event == 'exam_started':
             title = data.get('title', 'Exam')
-            self.session_status_label.setText(f"\U0001f6a8 EXAM STARTED: {title} \u2014 Click Exams tab!")
+            subject = data.get('subject_name', '')
+            notif_text = f"🚨 EXAM STARTED: {title}"
+            if subject:
+                notif_text = f"🚨 EXAM STARTED: {subject} — {title}"
+            
+            self.session_status_label.setText(f"{notif_text} — Click Exams tab!")
             self.session_status_label.setStyleSheet("background-color: #DC2626; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
             self.session_status_label.show()
             # Pre-load exam data
@@ -115,9 +120,13 @@ class StudentDashboard(QWidget):
             self.add_task_to_ui(task)
             self.update_task_count()
             
-            # Show notification (simulated with status label for now or alert)
-            # We can use the notif btn or a temporary label
-            self.session_status_label.setText(f"🔔 NEW TASK ASSIGNED: {task.get('title')}")
+            # Show notification
+            subject = task.get('subject_name', '')
+            notif_text = f"🔔 NEW TASK: {task.get('title')}"
+            if subject:
+                notif_text = f"🔔 NEW TASK [{subject}]: {task.get('title')}"
+                
+            self.session_status_label.setText(notif_text)
             self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
             self.session_status_label.show()
             # In a real app, use QTimer to hide it after few seconds
@@ -549,9 +558,10 @@ QFrame {
             faculty_txt = "Faculty: Unknown"
         else:
             name = task.get('title', 'Unknown Task')
+            subject_name = task.get('subject_name', '')
             deadline_text = f"Deadline: {task.get('deadline', 'No Deadline').split('T')[0]}" if task.get('deadline') else "No Deadline"
             status_text = f"Status: {task.get('status', 'Active').title()}"
-            faculty_txt = f"Faculty: {task.get('faculty_name', 'Faculty')}"
+            faculty_txt = f"Subject: {subject_name}" if subject_name else f"Faculty: {task.get('faculty_name', 'Faculty')}"
 
         card = QFrame()
         card.setObjectName("card")

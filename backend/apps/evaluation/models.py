@@ -93,6 +93,7 @@ class ExamSession(models.Model):
     batch = models.ForeignKey('core.Batch', on_delete=models.CASCADE, related_name='exam_sessions')
     faculty = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='exam_sessions')
     duration_minutes = models.IntegerField(default=120)
+    subject_name = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=15, choices=STATUS_CHOICES, default='scheduled')
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -171,6 +172,7 @@ class Task(models.Model):
     faculty = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='tasks')
     
     title = models.CharField(max_length=200)
+    subject_name = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField()
     deadline = models.DateTimeField(null=True, blank=True)
     auto_delete = models.BooleanField(default=False, help_text='Auto-delete submissions after deadline')
