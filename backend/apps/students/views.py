@@ -10,7 +10,11 @@ from django.contrib.auth import authenticate
 from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
-from .services.etlab_sync import sync_faculty_from_etlab, sync_students_from_etlab
+from .services.etlab_sync import (
+    sync_faculty_from_etlab,
+    sync_students_from_etlab,
+    sync_timetable_from_etlab,
+)
 
 
 def _is_valid_service_token(request):
@@ -173,4 +177,16 @@ def sync_students_now(request):
         return Response({"detail": reason}, status=status.HTTP_401_UNAUTHORIZED)
 
     result = sync_students_from_etlab()
+    return Response(result, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@authentication_classes([])
+@permission_classes([AllowAny])
+def sync_timetable_now(request):
+    ok, reason = _is_valid_service_token(request)
+    if not ok:
+        return Response({"detail": reason}, status=status.HTTP_401_UNAUTHORIZED)
+
+    result = sync_timetable_from_etlab()
     return Response(result, status=status.HTTP_200_OK)

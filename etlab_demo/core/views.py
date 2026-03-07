@@ -569,6 +569,45 @@ def sync_students_now(request):
 
 @require_POST
 @login_required
+def sync_timetable_now(request):
+    if not _require_etlab_admin(request):
+        return HttpResponseForbidden("Only ETLab admin users can sync timetable.")
+
+    headers = {
+        "Authorization": f"Bearer {settings.ETLAB_SERVICE_TOKEN}",
+        "X-Service-Token": settings.ETLAB_SERVICE_TOKEN,
+    }
+
+    try:
+        response = requests.post(
+            settings.SMARTLAB_SYNC_TIMETABLE_URL,
+            headers=headers,
+            timeout=20,
+        )
+
+        if response.status_code == 200:
+            payload = response.json()
+            synced = payload.get("synced", 0)
+            skipped = payload.get("skipped", 0)
+            messages.success(
+                request,
+                f"Timetable sync completed. Synced: {synced}, Skipped: {skipped}.",
+            )
+        else:
+            detail = response.text.strip()
+            messages.error(
+                request,
+                f"Timetable sync failed: SmartLab returned HTTP {response.status_code}. {detail}",
+            )
+
+    except requests.RequestException as exc:
+        messages.error(request, f"Timetable sync failed: {exc}")
+
+    return redirect("semester_list")
+
+
+@require_POST
+@login_required
 def upload_faculty_csv(request):
     if not _require_etlab_admin(request):
         return HttpResponseForbidden("Only ETLab admin users can upload faculty CSV.")

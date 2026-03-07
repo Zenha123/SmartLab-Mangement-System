@@ -14,5 +14,6 @@ urlpatterns = [
     path("student/me/", views.studentMeView.as_view(), name="student-me"),
     path("sync/faculty/", views.sync_faculty_now, name="sync-faculty-now"),
     path("sync/students/", views.sync_students_now, name="sync-students-now"),
+    path("sync/timetable/", views.sync_timetable_now, name="sync-timetable-now"),
     #path("student/online_count/", views.online_students_count, name="online-students-count"),
 ]

@@ -1,8 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Student, Faculty
-from .serializers import studentSerializer, facultySerializer
+from .models import Student, Faculty, Timetable
+from .serializers import studentSerializer, facultySerializer, timetableSyncSerializer
 from django.conf import settings
 
 def check_service_token(request):
@@ -34,4 +34,18 @@ def faculty_list(request):
 
     faculties = Faculty.objects.all().select_related("user")
     serializer = facultySerializer(faculties, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def timetable_list(request):
+    if not check_service_token(request):
+        return Response({"detail": "Unauthorized"}, status=status.HTTP_401_UNAUTHORIZED)
+
+    slots = (
+        Timetable.objects
+        .filter(faculty__isnull=False, subject__isnull=False)
+        .select_related("semester", "subject", "faculty")
+    )
+    serializer = timetableSyncSerializer(slots, many=True)
     return Response(serializer.data)

@@ -21,6 +21,11 @@
     {% csrf_token %}
     <button type="submit">Sync Students Now</button>
   </form>
+  
+  <form method="post" action="{% url 'sync_timetable_now' %}" style="margin: 12px 0;">
+    {% csrf_token %}
+    <button type="submit">Sync Timetable Now</button>
+  </form>
 
   <form method="post" action="{% url 'upload_faculty_csv' %}" enctype="multipart/form-data" style="margin: 12px 0;">
     {% csrf_token %}

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Semester, Batch, PCMapping
+from .models import Semester, Batch, PCMapping, FacultyTimetableSlot
 
 
 @admin.register(Semester)
@@ -50,3 +50,11 @@ class PCMappingAdmin(admin.ModelAdmin):
         ('Status', {'fields': ('is_active',)}),
         ('Timestamps', {'fields': ('created_at', 'updated_at')}),
     )
+
+
+@admin.register(FacultyTimetableSlot)
+class FacultyTimetableSlotAdmin(admin.ModelAdmin):
+    list_display = ('faculty', 'semester', 'day_of_week', 'hour_slot', 'subject_name', 'updated_at')
+    list_filter = ('day_of_week', 'semester', 'faculty')
+    search_fields = ('faculty__faculty_id', 'faculty__name', 'subject_name', 'semester__name')
+    ordering = ('semester__number', 'day_of_week', 'hour_slot')
