@@ -116,9 +116,10 @@ class BatchDashboardScreen(QWidget):
             return
         
         batch_id = self.parent_window.current_batch_id
+        subject_name = getattr(self.parent_window, 'current_subject_name', "")
         
         # Call API to start session
-        result = api_client.start_lab_session(batch_id, session_type="regular")
+        result = api_client.start_lab_session(batch_id, session_type="regular", subject_name=subject_name)
         
         if result["success"]:
             session_data = result["data"]
@@ -130,8 +131,13 @@ class BatchDashboardScreen(QWidget):
             self.end_session_btn.setEnabled(True)
             self.attendance_card.update_value("Active")
             
-            QMessageBox.information(self, "Success", "Lab session started successfully!")
+            msg = "Lab session started successfully!"
+            if subject_name:
+                msg = f"Lab session for '{subject_name}' started successfully!"
+                
+            QMessageBox.information(self, "Success", msg)
             self.update_stats()
+
         else:
             QMessageBox.warning(self, "Error", f"Failed to start session:\n{result['error']}")
     

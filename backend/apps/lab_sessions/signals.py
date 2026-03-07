@@ -33,7 +33,9 @@ def session_status_update(sender, instance, created, **kwargs):
                 'session_id': instance.id,
                 'session_type': instance.session_type,
                 'faculty_name': instance.faculty.name,
+                'subject_name': instance.subject_name,
                 'start_time': instance.start_time.isoformat() if instance.start_time else None,
                 'end_time': instance.end_time.isoformat() if instance.end_time else None,
             }
+
         )

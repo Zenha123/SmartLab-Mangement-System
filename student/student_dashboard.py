@@ -49,7 +49,14 @@ class StudentDashboard(QWidget):
             self.load_viva_status()
             subject = data.get('subject', 'Viva')
             platform = data.get('platform', data.get('platform_name', 'N/A'))
-            self.session_status_label.setText(f"\U0001f3a4 LIVE VIVA: {subject} on {platform}")
+            self.session_status_label.setText(f"🎤 LIVE VIVA: {subject} on {platform}")
+            self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
+            self.session_status_label.show()
+
+        elif event == 'viva_active':
+            # For offline viva sessions
+            subject = data.get('subject', 'Viva')
+            self.session_status_label.setText(f"📢 OFFLINE VIVA STARTED: {subject}")
             self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
             self.session_status_label.show()
 
@@ -88,9 +95,16 @@ class StudentDashboard(QWidget):
         """Handle session status updates"""
         status = data.get('status')
         if status == 'session_started':
-            self.session_status_label.setText(f"🔴 LIVE SESSION: {data.get('session_type', 'Lab').upper()}")
+            subject = data.get('subject_name')
+            session_type = data.get('session_type', 'Lab').upper()
+            text = f"🔴 {session_type} IN PROGRESS"
+            if subject:
+                text = f"🔴 {session_type}: {subject}"
+            
+            self.session_status_label.setText(text)
             self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
             self.session_status_label.show()
+
         elif status == 'session_ended':
             self.session_status_label.hide()
 
@@ -125,34 +139,6 @@ class StudentDashboard(QWidget):
             # Refresh Results if current page
             if self.stack.currentIndex() == 3:
                 self.load_results()
-
-    def handle_viva_event(self, data):
-        """Handle viva events (online published or evaluated)"""
-        event = data.get('event')
-        
-        if event == 'viva_online_published':
-            # Always refresh live viva card — it must update instantly
-            self.load_viva_status()
-            
-            # Show notification banner
-            subject = data.get('subject', 'Viva')
-            platform = data.get('platform', data.get('platform_name', 'N/A'))
-            self.session_status_label.setText(f"🎤 LIVE VIVA: {subject} on {platform}")
-            self.session_status_label.setStyleSheet("background-color: #3b82f6; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
-            self.session_status_label.show()
-        
-        elif event == 'viva_evaluated':
-            # Always preload results so they are ready when student switches pages
-            self.load_results()
-            # If already on results page, it will have refreshed live above
-            
-            # Show notification banner
-            subject = data.get('subject', 'Viva')
-            marks = data.get('marks', 'N/A')
-            self.session_status_label.setText(f"✅ VIVA RESULT: {subject} — Marks: {marks}")
-            self.session_status_label.setStyleSheet("background-color: #22c55e; color: white; padding: 5px 10px; border-radius: 4px; font-weight: bold;")
-            self.session_status_label.show()
-
 
     def load_tasks(self):
         """Fetch tasks from API"""
