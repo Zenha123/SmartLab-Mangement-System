@@ -6,7 +6,6 @@ import requests
 from typing import Dict, List, Optional, Any
 import json
 
-
 class APIClient:
     """HTTP API client with JWT authentication"""
     
@@ -115,6 +114,21 @@ class APIClient:
             if response.status_code == 200:
                 return {"success": True, "data": response.json(), "error": None}
             return {"success": False, "data": None, "error": "Failed to fetch semesters"}
+        except Exception as e:
+            return {"success": False, "data": None, "error": str(e)}
+
+    def get_faculty_weekly_timetable(self) -> Dict[str, Any]:
+        """Get logged-in faculty's weekly timetable with semesters and batches."""
+        try:
+            response = requests.get(
+                f"{self.base_url}/auth/timetable/weekly/",
+                headers=self._get_headers(),
+                timeout=10
+            )
+
+            if response.status_code == 200:
+                return {"success": True, "data": response.json(), "error": None}
+            return {"success": False, "data": None, "error": "Failed to fetch faculty timetable"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
     

@@ -11,6 +11,8 @@ ETLAB_SERVICE_TOKEN = "etlab-smartlab-secret-123"
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
+SESSION_COOKIE_NAME = "smartlab_sessionid"
+CSRF_COOKIE_NAME = "smartlab_csrftoken"
 
 # Application definition
 INSTALLED_APPS = [

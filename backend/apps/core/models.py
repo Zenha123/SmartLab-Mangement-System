@@ -3,7 +3,7 @@ from django.db import models
 
 class Semester(models.Model):
     """Academic semester (e.g., Sem 1, Sem 2, etc.)"""
-    name = models.CharField(max_length=50)  # e.g., "Sem 1"
+    name = models.CharField(max_length=50)  # 
     number = models.IntegerField(unique=True)  # 1-8
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -50,4 +50,43 @@ class PCMapping(models.Model):
     def __str__(self):
         student_name = self.student.name if self.student else "Unassigned"
         return f"{self.pc_id} - {student_name}"
-    #
+
+    
+
+
+
+class FacultyTimetableSlot(models.Model):
+    """Faculty timetable slot synced from ETLab."""
+
+    DAYS = [
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday'),
+    ]
+
+    faculty = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.CASCADE,
+        related_name='timetable_slots'
+    )
+    semester = models.ForeignKey(
+        Semester,
+        on_delete=models.CASCADE,
+        related_name='faculty_timetable_slots'
+    )
+    day_of_week = models.CharField(max_length=10, choices=DAYS)
+    hour_slot = models.IntegerField()
+    subject_name = models.CharField(max_length=150)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'faculty_timetable_slots'
+        ordering = ['semester__number', 'day_of_week', 'hour_slot']
+        unique_together = ['faculty', 'semester', 'day_of_week', 'hour_slot']
+
+    def __str__(self):
+        return f"{self.faculty.faculty_id} {self.semester.name} {self.day_of_week} H{self.hour_slot} - {self.subject_name}"
+

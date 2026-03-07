@@ -1,14 +1,22 @@
 reg_number,name,semester_number
-S1-001,Student 1,1
-S1-002,Student 2,1
-S1-003,Student 3,1
-S1-004,Student 4,1
-S1-005,Student 5,1
-S1-006,Student 6,1
-S1-007,Student 7,1
-S1-008,Student 8,1
-S1-009,Student 9,1
-S1-010,Student 10,1
-S1-070,Student 70,1
-S1-071,Student71,1
+S1-001,Arun Raj,1
+S1-002,Megha Nair,1
+S1-003,Rahul Menon,1
+S1-004,Aisha Thomas,1
+S1-005,Kiran Das,1
+S1-006,Naveen Kumar,1
+S1-007,Farhan Ali,1
+S1-008,Priya R,1
+S1-009,Neha Varma,1
+S1-010,Ajay Krishnan,1
+S1-011,Divya Mathew,1
+S1-012,Anand Babu,1
+S1-013,Reshma Iyer,1
+S1-014,Sanjay Paul,1
+S1-015,Ritika S,1
+S1-016,Joel George,1
+S1-017,Kavya Menon,1
+S1-018,Vishnu Prasad,1
+S1-019,Amal Antony,1
+S1-020,Sneha Joseph,1
 

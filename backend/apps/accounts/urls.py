@@ -7,4 +7,5 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('profile/', views.profile_view, name='profile'),
+    path('timetable/weekly/', views.faculty_weekly_timetable_view, name='faculty-weekly-timetable'),
 ]

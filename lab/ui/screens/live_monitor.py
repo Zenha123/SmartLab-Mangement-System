@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QFrame, QHBoxLayout, QPushButton, QComboBox
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QGridLayout, QFrame, QHBoxLayout, QPushButton, QComboBox, QScrollArea
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont,QImage, QPixmap
 
@@ -8,6 +8,10 @@ from ui.common.badges import StatusDot, ModeBadge
 from api.global_client import api_client
 from monitor.webrtc_manager import FacultyWebRTCManager
 class LiveMonitorScreen(QWidget):
+    COLUMNS = 3
+    VISIBLE_ROWS = 2
+    TILE_HEIGHT = 300
+
     def __init__(self):
         super().__init__()
         root = QVBoxLayout(self)
@@ -47,16 +51,29 @@ class LiveMonitorScreen(QWidget):
         root.addLayout(header)
 
         grid_card = CardFrame(padding=20)
-        grid = QGridLayout()
-        grid.setSpacing(16)
-        # Default 3x3 concept tiles
+
+        # Scroll container: keep only 6 tiles visible (3 columns x 2 rows)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll_area.setStyleSheet("QScrollArea { background: transparent; }")
+
+        self.grid_container = QWidget()
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(16)
-        grid_card.layout.addLayout(self.grid_layout)
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.grid_container.setLayout(self.grid_layout)
+        self.grid_container.setStyleSheet("background: transparent;")
+
+        self.scroll_area.setWidget(self.grid_container)
+        visible_height = (self.TILE_HEIGHT * self.VISIBLE_ROWS) + (self.grid_layout.spacing() * (self.VISIBLE_ROWS - 1)) + 8
+        self.scroll_area.setFixedHeight(visible_height)
+        grid_card.layout.addWidget(self.scroll_area)
 
         self.students_data = []
 
-        grid_card.layout.addLayout(grid)
         root.addWidget(grid_card)
         root.addStretch(1)
 
@@ -100,6 +117,7 @@ class LiveMonitorScreen(QWidget):
             """
         )
         frame.setCursor(Qt.CursorShape.PointingHandCursor)
+        frame.setFixedHeight(self.TILE_HEIGHT)
         
         layout = QVBoxLayout(frame)
         layout.setContentsMargins(16, 16, 16, 16)
@@ -242,6 +260,6 @@ class LiveMonitorScreen(QWidget):
             tile = self._tile(student)
             
 
-            row = index // 3
-            col = index % 3
+            row = index // self.COLUMNS
+            col = index % self.COLUMNS
             self.grid_layout.addWidget(tile, row, col)

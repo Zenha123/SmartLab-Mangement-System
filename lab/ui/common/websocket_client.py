@@ -3,10 +3,11 @@ import json
 import threading
 import time
 from PyQt6.QtCore import QThread, pyqtSignal
+from config import BASE_WS
 
 # WS_URL should match your backend routing
-WS_URL = "ws://127.0.0.1:8000/ws/monitor/"
- # Generic signal for all events
+WS_URL = f"{BASE_WS}/ws/monitor/"
+# Generic signal for all events
 
 class FacultyWebSocketClient(QThread):
     student_status_signal = pyqtSignal(dict)  # Signal for student online/offline

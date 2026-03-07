@@ -13,11 +13,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-p!3se^2ft*g84_fb@nae-70r36y_!jdwnrtqgel9d)wz@9+5(@'
 
 ETLAB_SERVICE_TOKEN = "etlab-smartlab-secret-123"
+SMARTLAB_SYNC_FACULTY_URL = "http://127.0.0.1:8000/api/sync/faculty/"
+SMARTLAB_SYNC_STUDENT_URL = "http://127.0.0.1:8000/api/sync/students/"
+SMARTLAB_SYNC_TIMETABLE_URL = "http://127.0.0.1:8000/api/sync/timetable/"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
+SESSION_COOKIE_NAME = "etlab_sessionid"
+CSRF_COOKIE_NAME = "etlab_csrftoken"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

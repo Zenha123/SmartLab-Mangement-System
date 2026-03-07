@@ -1,7 +1,9 @@
 import requests
 import os
+from config import BASE_HTTP
 
-API_BASE = "http://127.0.0.1:8000/api"
+
+API_BASE = f"{BASE_HTTP}/api"
 
 
 

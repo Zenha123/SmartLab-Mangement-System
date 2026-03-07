@@ -7,9 +7,10 @@ from aiortc import RTCPeerConnection, RTCSessionDescription, RTCIceCandidate
 import asyncio
 
 from screen_track import ScreenVideoTrack
+from config import BASE_WS
 
 # WS_URL should match your backend routing
-WS_URL = "ws://127.0.0.1:8000/ws/student/"
+WS_URL = f"{BASE_WS}/ws/student/"
 
 
 class WebSocketClient(QThread):
