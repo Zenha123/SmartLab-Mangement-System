@@ -3,7 +3,7 @@ from django.db import models
 
 class Semester(models.Model):
     """Academic semester (e.g., Sem 1, Sem 2, etc.)"""
-    name = models.CharField(max_length=50)  # e.g., "Sem 1"
+    name = models.CharField(max_length=50)  # 
     number = models.IntegerField(unique=True)  # 1-8
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -51,6 +51,9 @@ class PCMapping(models.Model):
         student_name = self.student.name if self.student else "Unassigned"
         return f"{self.pc_id} - {student_name}"
 
+    
+
+
 
 class FacultyTimetableSlot(models.Model):
     """Faculty timetable slot synced from ETLab."""
@@ -86,3 +89,4 @@ class FacultyTimetableSlot(models.Model):
 
     def __str__(self):
         return f"{self.faculty.faculty_id} {self.semester.name} {self.day_of_week} H{self.hour_slot} - {self.subject_name}"
+

@@ -134,7 +134,8 @@ class TasksScreen(QWidget):
         result = api_client.create_task(
             batch_id=batch_id,
             title=title,
-            description=description
+            description=description,
+            subject_name=getattr(self.parent_window, 'current_subject_name', "")
         )
         
         if result["success"]:

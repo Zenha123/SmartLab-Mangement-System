@@ -12,7 +12,8 @@ class LabSessionSerializer(serializers.ModelSerializer):
         model = LabSession
         fields = [
             'id', 'faculty', 'faculty_name', 'batch', 'batch_name',
-            'session_type', 'status', 'start_time', 'end_time', 'duration_minutes',
+            'session_type', 'subject_name', 'status', 'start_time', 'end_time', 'duration_minutes',
             'created_at', 'updated_at'
         ]
+
         read_only_fields = ['id', 'faculty', 'created_at', 'updated_at']

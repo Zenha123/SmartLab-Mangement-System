@@ -109,6 +109,7 @@ class MainWindow(QMainWindow):
         self.current_batch_id = None
         self.current_semester = ""
         self.current_batch = ""
+        self.current_subject_name = ""
 
         self.websocket_client = None  # Will be initialized after batch selection
 
@@ -234,10 +235,11 @@ class MainWindow(QMainWindow):
         self._show_login()
         self.statusBar().showMessage("Logged out successfully", 3000)
 
-    def _on_batch_selected(self, semester: str, batch: str, batch_id: int):
+    def _on_batch_selected(self, semester: str, batch: str, batch_id: int, subject_name: str = ""):
         self.current_batch_id = batch_id  # Store for API calls
         self.current_semester = semester
         self.current_batch = batch
+        self.current_subject_name = subject_name
         self.stack.setCurrentWidget(self.dashboard_screen)
         # Dashboard is at index 1 in screens list (after Semester Select at 0)
         self.sidebar.setCurrentRow(1)

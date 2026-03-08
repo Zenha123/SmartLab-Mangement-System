@@ -28,13 +28,22 @@ class MonitorConsumer(AsyncWebsocketConsumer):
             return
 
         self.scope['user'] = user
+        self.broadcast_group_name = f'batch_{self.batch_id}'
 
+        # Join the monitor group (faculty-specific events)
         await self.channel_layer.group_add(
             self.batch_group_name,
             self.channel_name
         )
 
+        # Join the broadcast group (session/task events)
+        await self.channel_layer.group_add(
+            self.broadcast_group_name,
+            self.channel_name
+        )
+
         await self.accept()
+
 
         students = await self.get_batch_students(self.batch_id)
         await self.send(text_data=json.dumps({
@@ -49,6 +58,13 @@ class MonitorConsumer(AsyncWebsocketConsumer):
                 self.batch_group_name,
                 self.channel_name
             )
+        
+        if hasattr(self, 'broadcast_group_name'):
+            await self.channel_layer.group_discard(
+                self.broadcast_group_name,
+                self.channel_name
+            )
+
 
     async def receive(self, text_data):
         try:
@@ -224,13 +240,15 @@ class StudentConsumer(AsyncWebsocketConsumer):
 
         self.student_id = student_data['id']
         self.batch_id = student_data['batch_id']
-        self.batch_group_name = f'monitor_batch__{self.batch_id}'
+        # Fixed typo: changed monitor_batch__ to batch_
+        self.batch_group_name = f'batch_{self.batch_id}'
 
-        # Join batch group (for broadcast events)
+        # Join batch group (for broadcast events like session start)
         await self.channel_layer.group_add(
             self.batch_group_name,
             self.channel_name
         )
+
 
         # Join personal group (for individual events like monitor_offer)
         self.student_group_name = f'student_{self.student_id}'
@@ -269,6 +287,10 @@ class StudentConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(event))
 
     async def submission_event(self, event):
+        await self.send(text_data=json.dumps(event))
+
+    async def viva_event(self, event):
+        """Forward viva/exam events to student WebSocket"""
         await self.send(text_data=json.dumps(event))
 
     async def monitor_offer(self, event):

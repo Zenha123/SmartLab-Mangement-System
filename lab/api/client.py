@@ -172,15 +172,16 @@ class APIClient:
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
     
-    def start_lab_session(self, batch_id: int, session_type: str = "regular") -> Dict[str, Any]:
+    def start_lab_session(self, batch_id: int, session_type: str = "regular", subject_name: str = "") -> Dict[str, Any]:
         """Start a new lab session"""
         try:
             response = requests.post(
                 f"{self.base_url}/sessions/",
-                json={"batch": batch_id, "session_type": session_type},
+                json={"batch": batch_id, "session_type": session_type, "subject_name": subject_name},
                 headers=self._get_headers(),
                 timeout=10
             )
+
             
             if response.status_code == 201:
                 return {"success": True, "data": response.json(), "error": None}
@@ -233,14 +234,16 @@ class APIClient:
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
     
-    def create_task(self, batch_id: int, title: str, description: str, deadline: Optional[str] = None) -> Dict[str, Any]:
+    def create_task(self, batch_id: int, title: str, description: str, subject_name: str = "", deadline: Optional[str] = None) -> Dict[str, Any]:
         """Create a new task for a batch"""
         try:
             payload = {
                 "batch": batch_id,
                 "title": title,
+                "subject_name": subject_name,
                 "description": description
             }
+
             if deadline:
                 payload["deadline"] = deadline
             

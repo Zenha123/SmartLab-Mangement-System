@@ -27,8 +27,10 @@ class LabSessionViewSet(viewsets.ModelViewSet):
         return queryset
     
     def perform_create(self, serializer):
-        """Auto-assign faculty when creating session"""
-        serializer.save(faculty=self.request.user)
+        """Auto-assign faculty and subject when creating session"""
+        subject_name = self.request.data.get('subject_name')
+        serializer.save(faculty=self.request.user, subject_name=subject_name)
+
     
     @action(detail=True, methods=['post'])
     def end_session(self, request, pk=None):
