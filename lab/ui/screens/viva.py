@@ -259,9 +259,9 @@ class VivaScreen(QWidget):
                     self.current_viva_session_id = sessions[0]['id']
                 else:
                     create_res = api_client.post("viva-sessions/", {
-                        "batch":      batch_id,
-                        "subject":    "General Viva",
-                        "viva_type":  "offline",
+                        "batch": batch_id,
+                    "subject": getattr(self.parent_window, 'current_subject_name', "General Viva"),
+                    "viva_type": "offline"
                     })
                     if create_res.status_code == 201:
                         self.current_viva_session_id = create_res.json()['id']
@@ -436,9 +436,9 @@ class VivaScreen(QWidget):
                     self.current_viva_session_id = sessions[0]['id']
                     return True
             create_res = api_client.post("viva-sessions/", {
-                "batch":     batch_id,
-                "subject":   "General Viva",
-                "viva_type": "offline",
+            "batch": batch_id,
+            "subject": getattr(self.parent_window, 'current_subject_name', "General Viva"),
+            "viva_type": "offline"
             })
             if create_res.status_code == 201:
                 self.current_viva_session_id = create_res.json()['id']
@@ -546,10 +546,10 @@ class VivaScreen(QWidget):
 
         batch_id = self.parent_window.current_batch_id
         data = {
-            "batch":         batch_id,
-            "subject":       "Online Viva",
-            "viva_type":     "online",
-            "status":        "live",
+            "batch": batch_id,
+            "subject": getattr(self.parent_window, 'current_subject_name', "Online Viva"),
+            "viva_type": "online",
+            "status": "live",
             "platform_name": self.platform_combo.currentText(),
             "join_code":     self.join_code_input.text(),
             "join_link":     self.join_link_input.text(),

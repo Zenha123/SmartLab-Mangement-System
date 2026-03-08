@@ -8,9 +8,10 @@ from api.global_client import api_client
 
 
 class SemesterSelectionScreen(QWidget):
-    batch_selected = pyqtSignal(str, str, int)  # semester_name, batch_name, batch_id
+    batch_selected = pyqtSignal(str, str, int, str)  # semester_name, batch_name, batch_id, subject_name
 
     def __init__(self):
+
         super().__init__()
         # Set background color
         self.setStyleSheet(f"background: {Theme.background};")
@@ -201,10 +202,11 @@ class SemesterSelectionScreen(QWidget):
                 """
             )
             btn.clicked.connect(
-                lambda checked, s=semester_name, b=batch_name, bid=batch_id:
-                self.batch_selected.emit(s, b, bid)
+                lambda checked, s=semester_name, b=batch_name, bid=batch_id, subj=subject_name:
+                self.batch_selected.emit(s, b, bid, subj)
             )
             self.batch_layout.addWidget(btn, row, col)
+
             col += 1
             if col == 4:
                 col = 0

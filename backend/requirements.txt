@@ -35,3 +35,16 @@ typing_extensions==4.15.0
 tzdata==2025.3
 ujson==5.11.0
 zope.interface==8.1.1
+
+
+aiortc==1.14.0
+
+av==16.1.0
+mss==10.1.0
+numpy==2.4.2
+opencv-python==4.13.0.92
+
+aiortc==1.14.0
+
+websocket-client==1.7.0
+

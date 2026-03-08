@@ -33,3 +33,4 @@ class LoginSerializer(serializers.Serializer):
     """Serializer for login - accepts faculty_id or email"""
     faculty_id = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
+#

@@ -68,9 +68,10 @@ class ExamSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamSession
         fields = [
-            'id', 'title', 'batch', 'batch_name', 'faculty', 'faculty_name',
+            'id', 'title', 'subject_name', 'batch', 'batch_name', 'faculty', 'faculty_name',
             'duration_minutes', 'status', 'question_count', 'submission_count', 'created_at',
         ]
+
         read_only_fields = ['id', 'faculty', 'created_at']
 
 
@@ -121,9 +122,10 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id', 'batch', 'batch_name', 'faculty', 'faculty_name',
-            'title', 'description', 'deadline', 'auto_delete', 'submission_count',
+            'title', 'subject_name', 'description', 'deadline', 'auto_delete', 'submission_count',
             'status', 'created_at', 'updated_at'
         ]
+
         read_only_fields = ['id', 'faculty', 'created_at', 'updated_at']
     
     def get_submission_count(self, obj):
