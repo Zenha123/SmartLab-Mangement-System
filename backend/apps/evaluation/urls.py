@@ -32,4 +32,16 @@ urlpatterns = [
     path('reports/attendance/', views.attendance_report, name='attendance-report'),
     path('reports/viva/', views.viva_report, name='viva-report'),
     path('reports/submissions/', views.submission_report, name='submission-report'),
+
+      # NEW PDF REPORT ENDPOINTS
+    path(
+        'reports/submissions/student/<int:student_id>/pdf/',
+        views.student_submission_report_pdf,
+        name='student-submission-report-pdf'
+    ),
+    path(
+        'reports/submissions/batch/<int:batch_id>/pdf/',
+        views.batch_submission_report_pdf,
+        name='batch-submission-report-pdf'
+    ),
 ]
