@@ -172,12 +172,25 @@ class APIClient:
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
     
-    def start_lab_session(self, batch_id: int, session_type: str = "regular", subject_name: str = "") -> Dict[str, Any]:
+    def start_lab_session(
+        self,
+        batch_id: int,
+        session_type: str = "regular",
+        subject_name: str = "",
+        scheduled_date: str = "",
+        scheduled_hour: Optional[int] = None,
+    ) -> Dict[str, Any]:
         """Start a new lab session"""
         try:
+            payload = {"batch": batch_id, "session_type": session_type, "subject_name": subject_name}
+            if scheduled_date:
+                payload["scheduled_date"] = scheduled_date
+            if scheduled_hour:
+                payload["scheduled_hour"] = int(scheduled_hour)
+
             response = requests.post(
                 f"{self.base_url}/sessions/",
-                json={"batch": batch_id, "session_type": session_type, "subject_name": subject_name},
+                json=payload,
                 headers=self._get_headers(),
                 timeout=10
             )
@@ -194,6 +207,57 @@ class APIClient:
                 error_msg = f"Failed to start session (HTTP {response.status_code})"
             
             return {"success": False, "data": None, "error": error_msg}
+        except Exception as e:
+            return {"success": False, "data": None, "error": str(e)}
+
+    def get_semester_attendance(
+        self,
+        semester_id: int,
+        date: str = "",
+        subject_name: str = "",
+    ) -> Dict[str, Any]:
+        """Get attendance records filtered by semester/date/subject for the logged-in faculty."""
+        try:
+            params = [f"semester={semester_id}"]
+            if date:
+                params.append(f"date={date}")
+            if subject_name:
+                params.append(f"subject={subject_name}")
+
+            url = f"{self.base_url}/attendance/?{'&'.join(params)}"
+            response = requests.get(url, headers=self._get_headers(), timeout=10)
+
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, dict) and "results" in data:
+                    data = data["results"]
+                return {"success": True, "data": data, "error": None}
+            return {"success": False, "data": None, "error": "Failed to fetch attendance records"}
+        except Exception as e:
+            return {"success": False, "data": None, "error": str(e)}
+
+    def get_faculty_attendance(self, subject_name: str = "", date: str = "", hour: Optional[int] = None) -> Dict[str, Any]:
+        """Get faculty attendance records, optionally filtered by subject/date/hour."""
+        try:
+            params = []
+            if subject_name:
+                params.append(f"subject={subject_name}")
+            if date:
+                params.append(f"date={date}")
+            if hour:
+                params.append(f"hour={int(hour)}")
+
+            url = f"{self.base_url}/attendance/"
+            if params:
+                url += "?" + "&".join(params)
+
+            response = requests.get(url, headers=self._get_headers(), timeout=10)
+            if response.status_code == 200:
+                data = response.json()
+                if isinstance(data, dict) and "results" in data:
+                    data = data["results"]
+                return {"success": True, "data": data, "error": None}
+            return {"success": False, "data": None, "error": "Failed to fetch attendance records"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
     

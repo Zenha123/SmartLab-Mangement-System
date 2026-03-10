@@ -1,5 +1,6 @@
 from .login import LoginScreen
 from .semester_selection import SemesterSelectionScreen
+from .attendance import AttendanceScreen
 from .batch_dashboard import BatchDashboardScreen
 from .student_list import StudentListScreen
 from .student_progress import StudentProgressScreen

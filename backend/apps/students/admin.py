@@ -63,10 +63,19 @@ class AttendanceAdmin(admin.ModelAdmin):
         ('Timestamps', {'fields': ('created_at', 'updated_at')}),
     )
     
-    def duration_display(self, obj):
+    '''def duration_display(self, obj):
         """Display duration in minutes"""
-        duration = obj.get_duration()
-        if duration:
+        duration = obj.duration_minutes or 0
+        if duration <= 0 and obj.login_time and obj.logout_time:
+            delta = obj.logout_time - obj.login_time
+            duration = int(delta.total_seconds() / 60)
+        if duration > 0:
             return f"{duration} minutes"
         return "N/A"
-    duration_display.short_description = 'Duration'
+    duration_display.short_description = 'Duration'''
+    def duration_display(self, obj):
+        if obj.login_time and obj.logout_time:
+            return obj.logout_time - obj.login_time
+        return "-"
+    
+

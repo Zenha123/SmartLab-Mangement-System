@@ -20,6 +20,8 @@ class LabSession(models.Model):
     faculty = models.ForeignKey('accounts.User', on_delete=models.CASCADE, related_name='lab_sessions')
     batch = models.ForeignKey('core.Batch', on_delete=models.CASCADE, related_name='lab_sessions')
     subject_name = models.CharField(max_length=200, null=True, blank=True)
+    scheduled_date = models.DateField(null=True, blank=True)
+    scheduled_hour = models.PositiveSmallIntegerField(null=True, blank=True)
 
     
     session_type = models.CharField(max_length=10, choices=SESSION_TYPE_CHOICES, default='regular')

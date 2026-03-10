@@ -3,9 +3,10 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils import timezone
+from django.db import transaction
 from .models import LabSession
 from .serializers import LabSessionSerializer
-from apps.students.models import Attendance
+from apps.students.models import Attendance, Student
 
 
 class LabSessionViewSet(viewsets.ModelViewSet):
@@ -27,9 +28,34 @@ class LabSessionViewSet(viewsets.ModelViewSet):
         return queryset
     
     def perform_create(self, serializer):
-        """Auto-assign faculty and subject when creating session"""
+        """Auto-assign session details and mark attendance for the whole batch."""
         subject_name = self.request.data.get('subject_name')
-        serializer.save(faculty=self.request.user, subject_name=subject_name)
+        scheduled_date = self.request.data.get('scheduled_date') or None
+        scheduled_hour = self.request.data.get('scheduled_hour') or None
+
+        with transaction.atomic():
+            session = serializer.save(
+                faculty=self.request.user,
+                subject_name=subject_name,
+                scheduled_date=scheduled_date,
+                scheduled_hour=scheduled_hour,
+            )
+
+            now = timezone.now()
+            attendance_rows = []
+            for student in Student.objects.filter(batch=session.batch).only('id', 'status'):
+                is_present = student.status == 'online'
+                attendance_rows.append(
+                    Attendance(
+                        student_id=student.id,
+                        session=session,
+                        status='present' if is_present else 'absent',
+                        login_time=now if is_present else None,
+                    )
+                )
+
+            if attendance_rows:
+                Attendance.objects.bulk_create(attendance_rows, ignore_conflicts=True)
 
     
     @action(detail=True, methods=['post'])

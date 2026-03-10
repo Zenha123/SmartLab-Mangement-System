@@ -87,16 +87,33 @@ class AttendanceViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        queryset = super().get_queryset()
+        queryset = (
+            super()
+            .get_queryset()
+            .select_related('student', 'student__batch', 'student__batch__semester', 'session')
+            .filter(session__faculty=self.request.user)
+        )
         student_id = self.request.query_params.get('student', None)
         session_id = self.request.query_params.get('session', None)
+        semester_id = self.request.query_params.get('semester', None)
+        date_filter = self.request.query_params.get('date', None)
+        subject_name = self.request.query_params.get('subject', None)
+        hour_filter = self.request.query_params.get('hour', None)
         
         if student_id:
             queryset = queryset.filter(student_id=student_id)
         if session_id:
             queryset = queryset.filter(session_id=session_id)
+        if semester_id:
+            queryset = queryset.filter(session__batch__semester_id=semester_id)
+        if date_filter:
+            queryset = queryset.filter(session__scheduled_date=date_filter)
+        if subject_name:
+            queryset = queryset.filter(session__subject_name__iexact=subject_name.strip())
+        if hour_filter:
+            queryset = queryset.filter(session__scheduled_hour=hour_filter)
         
-        return queryset
+        return queryset.order_by('student__name')
     
 class StudentLoginView(APIView):
     def post(self, request):

@@ -117,9 +117,17 @@ class BatchDashboardScreen(QWidget):
         
         batch_id = self.parent_window.current_batch_id
         subject_name = getattr(self.parent_window, 'current_subject_name', "")
+        selected_date = getattr(self.parent_window, 'current_selected_date', "")
+        selected_hour = getattr(self.parent_window, 'current_selected_hour', None)
         
         # Call API to start session
-        result = api_client.start_lab_session(batch_id, session_type="regular", subject_name=subject_name)
+        result = api_client.start_lab_session(
+            batch_id,
+            session_type="regular",
+            subject_name=subject_name,
+            scheduled_date=selected_date,
+            scheduled_hour=selected_hour,
+        )
         
         if result["success"]:
             session_data = result["data"]
@@ -134,6 +142,8 @@ class BatchDashboardScreen(QWidget):
             msg = "Lab session started successfully!"
             if subject_name:
                 msg = f"Lab session for '{subject_name}' started successfully!"
+            if selected_date and selected_hour:
+                msg += f"\nScheduled: {selected_date} P{selected_hour}"
                 
             QMessageBox.information(self, "Success", msg)
             self.update_stats()
