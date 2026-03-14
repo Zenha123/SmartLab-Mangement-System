@@ -10,7 +10,15 @@ from .serializers import (
     ExamSessionSerializer, ExamQuestionSerializer, StudentExamSerializer,
     TaskSerializer, TaskSubmissionSerializer
 )
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from io import BytesIO
 
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
 
 class VivaSessionViewSet(viewsets.ModelViewSet):
     """ViewSet for Viva Session management"""
@@ -750,3 +758,227 @@ def submission_report(request):
     
     serializer = TaskSubmissionSerializer(queryset, many=True)
     return Response(serializer.data)
+def _build_pdf_response(filename, story, pagesize=landscape(A4)):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=pagesize,
+        rightMargin=30,
+        leftMargin=30,
+        topMargin=30,
+        bottomMargin=30,
+    )
+    doc.build(story)
+    pdf = buffer.getvalue()
+    buffer.close()
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="{filename}"'
+    return response
+
+
+def _submission_status_text(submission):
+    return (submission.status or "N/A").title()
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def student_submission_report_pdf(request, student_id):
+    from apps.students.models import Student
+
+    student = get_object_or_404(Student.objects.select_related('batch'), id=student_id)
+
+    submissions = (
+        TaskSubmission.objects
+        .filter(student=student)
+        .select_related('task', 'student', 'task__batch')
+        .order_by('task__title')
+    )
+
+    styles = getSampleStyleSheet()
+    story = []
+
+    title_style = styles['Title']
+    normal_style = styles['Normal']
+
+    cell_style = styles['BodyText'].clone('student_cell_style')
+    cell_style.fontName = "Helvetica"
+    cell_style.fontSize = 9
+    cell_style.leading = 11
+    cell_style.textColor = colors.black
+
+    header_style = styles['BodyText'].clone('student_header_style')
+    header_style.fontName = "Helvetica-Bold"
+    header_style.fontSize = 9
+    header_style.leading = 11
+    header_style.textColor = colors.white
+
+    story.append(Paragraph("Student Submission Report", title_style))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph(f"<b>Student ID:</b> {student.student_id}", normal_style))
+    story.append(Paragraph(f"<b>Name:</b> {student.name}", normal_style))
+    story.append(Paragraph(f"<b>Batch:</b> {student.batch}", normal_style))
+    story.append(Spacer(1, 16))
+
+    table_data = [[
+        Paragraph("Task Title", header_style),
+        Paragraph("Subject", header_style),
+        Paragraph("Submitted At", header_style),
+        Paragraph("Status", header_style),
+        Paragraph("Marks", header_style),
+        Paragraph("Feedback", header_style),
+    ]]
+
+    if submissions.exists():
+        for sub in submissions:
+            table_data.append([
+                Paragraph(sub.task.title if sub.task else "N/A", cell_style),
+                Paragraph(sub.task.subject_name if sub.task and sub.task.subject_name else "N/A", cell_style),
+                Paragraph(sub.submitted_at.strftime("%Y-%m-%d %H:%M") if sub.submitted_at else "N/A", cell_style),
+                Paragraph(_submission_status_text(sub), cell_style),
+                Paragraph(str(sub.marks) if sub.marks is not None else "N/A", cell_style),
+                Paragraph(sub.feedback if sub.feedback else "N/A", cell_style),
+            ])
+    else:
+        table_data.append([
+            Paragraph("No submissions found", cell_style),
+            Paragraph("-", cell_style),
+            Paragraph("-", cell_style),
+            Paragraph("-", cell_style),
+            Paragraph("-", cell_style),
+            Paragraph("-", cell_style),
+        ])
+
+    table = Table(
+        table_data,
+        repeatRows=1,
+        colWidths=[2.2 * inch, 1.4 * inch, 1.5 * inch, 1.0 * inch, 0.8 * inch, 2.1 * inch]
+    )
+
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('ALIGN', (4, 1), (4, -1), 'CENTER'),   # Marks center
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.HexColor('#f9fafb')]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ]))
+
+    story.append(table)
+
+    filename = f"student_submission_report_{student.student_id}.pdf"
+    return _build_pdf_response(filename, story)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def batch_submission_report_pdf(request, batch_id):
+    from apps.core.models import Batch
+    from apps.students.models import Student
+
+    batch = get_object_or_404(Batch, id=batch_id)
+
+    students = (
+        Student.objects
+        .filter(batch_id=batch_id)
+        .order_by('name')
+    )
+
+    styles = getSampleStyleSheet()
+    story = []
+
+    title_style = styles['Title']
+    normal_style = styles['Normal']
+
+    cell_style = styles['BodyText'].clone('batch_cell_style')
+    cell_style.fontName = "Helvetica"
+    cell_style.fontSize = 9
+    cell_style.leading = 11
+    cell_style.textColor = colors.black
+
+    header_style = styles['BodyText'].clone('batch_header_style')
+    header_style.fontName = "Helvetica-Bold"
+    header_style.fontSize = 9
+    header_style.leading = 11
+    header_style.textColor = colors.white
+
+    story.append(Paragraph("Full Batch Submission Report", title_style))
+    story.append(Spacer(1, 12))
+    story.append(Paragraph(f"<b>Batch:</b> {batch}", normal_style))
+    story.append(Spacer(1, 16))
+
+    table_data = [[
+        Paragraph("Student ID", header_style),
+        Paragraph("Name", header_style),
+        Paragraph("Tasks", header_style),
+        Paragraph("Submitted", header_style),
+        Paragraph("Evaluated", header_style),
+        Paragraph("Average Marks", header_style),
+    ]]
+
+    if students.exists():
+        for student in students:
+            student_subs = TaskSubmission.objects.filter(
+                student=student,
+                task__batch_id=batch_id
+            )
+
+            total_tasks = student_subs.count()
+            submitted_count = student_subs.exclude(submission_file='').count()
+            evaluated_subs = student_subs.filter(marks__isnull=False)
+            evaluated_count = evaluated_subs.count()
+
+            avg_marks = "N/A"
+            if evaluated_count > 0:
+                total_marks = sum(sub.marks for sub in evaluated_subs if sub.marks is not None)
+                avg_marks = f"{total_marks / evaluated_count:.1f}"
+
+            table_data.append([
+                Paragraph(student.student_id, cell_style),
+                Paragraph(student.name, cell_style),
+                Paragraph(str(total_tasks), cell_style),
+                Paragraph(str(submitted_count), cell_style),
+                Paragraph(str(evaluated_count), cell_style),
+                Paragraph(avg_marks, cell_style),
+            ])
+    else:
+        table_data.append([
+            Paragraph("No students", cell_style),
+            Paragraph("-", cell_style),
+            Paragraph("-", cell_style),
+            Paragraph("-", cell_style),
+            Paragraph("-", cell_style),
+            Paragraph("-", cell_style),
+        ])
+
+    table = Table(
+        table_data,
+        repeatRows=1,
+        colWidths=[1.2 * inch, 2.4 * inch, 0.9 * inch, 1.0 * inch, 1.0 * inch, 1.1 * inch]
+    )
+
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 9),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('ALIGN', (2, 1), (-1, -1), 'CENTER'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.HexColor('#f9fafb')]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+    ]))
+
+    story.append(table)
+
+    filename = f"batch_submission_report_{batch_id}.pdf"
+    return _build_pdf_response(filename, story)

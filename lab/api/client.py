@@ -2,22 +2,27 @@
 API Client for Smart Lab Management System
 Handles all HTTP requests to Django backend with JWT authentication
 """
+import os
+import webbrowser
+import subprocess
 import requests
-from typing import Dict, List, Optional, Any
-import json
+from typing import Dict, Optional, Any
+
 
 class APIClient:
     """HTTP API client with JWT authentication"""
-    
+
     def __init__(self, base_url: str = "http://localhost:8000/api"):
         self.base_url = base_url
         self.access_token: Optional[str] = None
         self.refresh_token: Optional[str] = None
         self.faculty_info: Optional[Dict] = None
-    
-    def _get_headers(self) -> Dict[str, str]:
+
+    def _get_headers(self, json_content: bool = True) -> Dict[str, str]:
         """Get request headers with JWT token"""
-        headers = {"Content-Type": "application/json"}
+        headers = {}
+        if json_content:
+            headers["Content-Type"] = "application/json"
         if self.access_token:
             headers["Authorization"] = f"Bearer {self.access_token}"
         return headers
@@ -25,23 +30,17 @@ class APIClient:
     def _request(self, method: str, endpoint: str, **kwargs) -> requests.Response:
         """Generic request handler with auto-refresh token support"""
         url = f"{self.base_url.rstrip('/')}/{endpoint.lstrip('/')}"
-        headers = self._get_headers()
-        
-        try:
-            response = requests.request(method, url, headers=headers, timeout=10, **kwargs)
-            
-            # If 401, try to refresh token and retry
-            if response.status_code == 401 and self.refresh_token:
-                if self.refresh_access_token():
-                    headers = self._get_headers()
-                    response = requests.request(method, url, headers=headers, timeout=10, **kwargs)
-            
-            return response
-        except requests.exceptions.RequestException as e:
-            # Create a dummy response object for errors if needed, 
-            # or let the caller handle the exception. 
-            # For consistency with how I used it in viva.py, returning the response.
-            raise e
+        headers = kwargs.pop("headers", self._get_headers())
+
+        response = requests.request(method, url, headers=headers, timeout=20, **kwargs)
+
+        # If 401, try refresh token once
+        if response.status_code == 401 and self.refresh_token:
+            if self.refresh_access_token():
+                headers = self._get_headers()
+                response = requests.request(method, url, headers=headers, timeout=20, **kwargs)
+
+        return response
 
     def get(self, endpoint: str, params: Optional[Dict] = None) -> requests.Response:
         return self._request("GET", endpoint, params=params)
@@ -57,7 +56,7 @@ class APIClient:
 
     def delete(self, endpoint: str) -> requests.Response:
         return self._request("DELETE", endpoint)
-    
+
     def login(self, faculty_id: str, password: str) -> Dict[str, Any]:
         """
         Login faculty and store JWT tokens
@@ -69,7 +68,7 @@ class APIClient:
                 json={"faculty_id": faculty_id, "password": password},
                 timeout=10
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 self.access_token = data.get("access")
@@ -77,40 +76,41 @@ class APIClient:
                 self.faculty_info = data.get("faculty")
                 return {"success": True, "data": data, "error": None}
             else:
-                error_msg = response.json().get("error", "Login failed")
+                try:
+                    error_msg = response.json().get("error", "Login failed")
+                except Exception:
+                    error_msg = f"Login failed (HTTP {response.status_code})"
                 return {"success": False, "data": None, "error": error_msg}
         except requests.exceptions.RequestException as e:
             return {"success": False, "data": None, "error": f"Connection error: {str(e)}"}
-    
+
     def refresh_access_token(self) -> bool:
         """Refresh the access token using refresh token"""
         if not self.refresh_token:
             return False
-        
+
         try:
             response = requests.post(
                 f"{self.base_url}/auth/refresh/",
                 json={"refresh": self.refresh_token},
                 timeout=10
             )
-            
+
             if response.status_code == 200:
                 data = response.json()
                 self.access_token = data.get("access")
                 return True
             return False
-        except:
+        except Exception:
             return False
-    
+
     def get_semesters(self) -> Dict[str, Any]:
-        """Get list of all semesters"""
         try:
             response = requests.get(
                 f"{self.base_url}/semesters/",
                 headers=self._get_headers(),
                 timeout=10
             )
-            
             if response.status_code == 200:
                 return {"success": True, "data": response.json(), "error": None}
             return {"success": False, "data": None, "error": "Failed to fetch semesters"}
@@ -118,37 +118,32 @@ class APIClient:
             return {"success": False, "data": None, "error": str(e)}
 
     def get_faculty_weekly_timetable(self) -> Dict[str, Any]:
-        """Get logged-in faculty's weekly timetable with semesters and batches."""
         try:
             response = requests.get(
                 f"{self.base_url}/auth/timetable/weekly/",
                 headers=self._get_headers(),
                 timeout=10
             )
-
             if response.status_code == 200:
                 return {"success": True, "data": response.json(), "error": None}
             return {"success": False, "data": None, "error": "Failed to fetch faculty timetable"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
-    
+
     def get_batches(self, semester_id: Optional[int] = None) -> Dict[str, Any]:
-        """Get batches, optionally filtered by semester"""
         try:
             url = f"{self.base_url}/batches/"
             if semester_id:
                 url += f"?semester={semester_id}"
-            
+
             response = requests.get(url, headers=self._get_headers(), timeout=10)
-            
             if response.status_code == 200:
                 return {"success": True, "data": response.json(), "error": None}
             return {"success": False, "data": None, "error": "Failed to fetch batches"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
-    
+
     def get_students(self, batch_id: Optional[int] = None, status: Optional[str] = None) -> Dict[str, Any]:
-        """Get students, optionally filtered by batch and status"""
         try:
             url = f"{self.base_url}/students/"
             params = []
@@ -156,15 +151,13 @@ class APIClient:
                 params.append(f"batch={batch_id}")
             if status:
                 params.append(f"status={status}")
-            
+
             if params:
                 url += "?" + "&".join(params)
-            
+
             response = requests.get(url, headers=self._get_headers(), timeout=10)
-            
             if response.status_code == 200:
                 data = response.json()
-                # Handle paginated response
                 if isinstance(data, dict) and 'results' in data:
                     return {"success": True, "data": data['results'], "error": None}
                 return {"success": True, "data": data, "error": None}
@@ -195,17 +188,15 @@ class APIClient:
                 timeout=10
             )
 
-            
             if response.status_code == 201:
                 return {"success": True, "data": response.json(), "error": None}
-            
-            # Get actual error message from backend
+
             try:
                 error_data = response.json()
                 error_msg = str(error_data)
-            except:
+            except Exception:
                 error_msg = f"Failed to start session (HTTP {response.status_code})"
-            
+
             return {"success": False, "data": None, "error": error_msg}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
@@ -262,22 +253,20 @@ class APIClient:
             return {"success": False, "data": None, "error": str(e)}
     
     def end_lab_session(self, session_id: int) -> Dict[str, Any]:
-        """End an active lab session"""
         try:
             response = requests.post(
                 f"{self.base_url}/sessions/{session_id}/end_session/",
                 headers=self._get_headers(),
                 timeout=10
             )
-            
+
             if response.status_code == 200:
                 return {"success": True, "data": response.json(), "error": None}
             return {"success": False, "data": None, "error": "Failed to end session"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
-    
+
     def submit_viva_marks(self, student_id: int, session_id: int, marks: int, notes: str = "") -> Dict[str, Any]:
-        """Submit viva marks for a student"""
         try:
             response = requests.post(
                 f"{self.base_url}/viva/",
@@ -291,15 +280,14 @@ class APIClient:
                 headers=self._get_headers(),
                 timeout=10
             )
-            
+
             if response.status_code == 201:
                 return {"success": True, "data": response.json(), "error": None}
             return {"success": False, "data": None, "error": "Failed to submit viva marks"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
-    
+
     def create_task(self, batch_id: int, title: str, description: str, subject_name: str = "", deadline: Optional[str] = None) -> Dict[str, Any]:
-        """Create a new task for a batch"""
         try:
             payload = {
                 "batch": batch_id,
@@ -310,47 +298,138 @@ class APIClient:
 
             if deadline:
                 payload["deadline"] = deadline
-            
+
             response = requests.post(
                 f"{self.base_url}/tasks/",
                 json=payload,
                 headers=self._get_headers(),
                 timeout=10
             )
-            
+
             if response.status_code == 201:
                 return {"success": True, "data": response.json(), "error": None}
             return {"success": False, "data": None, "error": "Failed to create task"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
+
+
+
+    def send_control_command(self, batch_id: int, command_type: str, payload: Dict = None) -> Dict[str, Any]:
+        """Send a control command (lock, internet, etc.) to all students in a batch"""
+        try:
+            response = requests.post(
+                f"{self.base_url}/control/command/",
+                json={"batch": batch_id, "command_type": command_type, "payload": payload or {}},
+                headers=self._get_headers(),
+                timeout=10
+            )
+            if response.status_code == 201:
+                return {"success": True, "data": response.json(), "error": None}
+            return {"success": False, "data": None, "error": response.text}
+        except Exception as e:
+            return {"success": False, "data": None, "error": str(e)}
+
+    def get_control_state(self, batch_id: int) -> Dict[str, Any]:
+        """Get the current control state of a batch"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/control/state/",
+                params={"batch": batch_id},
+                headers=self._get_headers(),
+                timeout=10
+            )
+            if response.status_code == 200:
+                return {"success": True, "data": response.json(), "error": None}
+            return {"success": False, "data": None, "error": "Failed to fetch state"}
+        except Exception as e:
+            return {"success": False, "data": None, "error": str(e)}
     
     def get_attendance_report(self, batch_id: Optional[int] = None, date: Optional[str] = None) -> Dict[str, Any]:
-        """Get attendance report"""
         try:
-            url = f"{self.base_url}/evaluation/reports/attendance/"
+            url = f"{self.base_url}/reports/attendance/"
             params = []
             if batch_id:
                 params.append(f"batch={batch_id}")
             if date:
                 params.append(f"date={date}")
-            
+
             if params:
                 url += "?" + "&".join(params)
-            
+
             response = requests.get(url, headers=self._get_headers(), timeout=10)
-            
             if response.status_code == 200:
                 return {"success": True, "data": response.json(), "error": None}
             return {"success": False, "data": None, "error": "Failed to fetch report"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
-    
+
+    # -----------------------------
+    # PDF REPORT DOWNLOAD METHODS
+    # -----------------------------
+    def download_pdf_to_path(self, endpoint: str, save_path: str) -> Dict[str, Any]:
+        try:
+            response = requests.get(
+                f"{self.base_url.rstrip('/')}/{endpoint.lstrip('/')}",
+                headers=self._get_headers(json_content=False),
+                timeout=30
+            )
+
+            if response.status_code != 200:
+                try:
+                    err = response.json()
+                    msg = err.get("detail") or str(err)
+                except Exception:
+                    msg = f"Failed to download PDF (HTTP {response.status_code})"
+                return {"success": False, "path": None, "error": msg}
+
+            with open(save_path, "wb") as f:
+                f.write(response.content)
+
+            return {"success": True, "path": save_path, "error": None}
+        except Exception as e:
+            return {"success": False, "path": None, "error": str(e)}
+
+    def download_student_submission_report_pdf_to_path(self, student_id: int, save_path: str) -> Dict[str, Any]:
+        return self.download_pdf_to_path(
+            f"reports/submissions/student/{student_id}/pdf/",
+            save_path
+        )
+
+    def download_batch_submission_report_pdf_to_path(self, batch_id: int, save_path: str) -> Dict[str, Any]:
+        return self.download_pdf_to_path(
+            f"reports/submissions/batch/{batch_id}/pdf/",
+            save_path
+        )
+
+    def open_file(self, file_path: str) -> Dict[str, Any]:
+        try:
+            if os.name == "nt":
+                os.startfile(file_path)
+            elif os.name == "posix":
+                try:
+                    subprocess.Popen(["xdg-open", file_path])
+                except Exception:
+                    webbrowser.open(f"file://{file_path}")
+            else:
+                webbrowser.open(f"file://{file_path}")
+
+            return {"success": True, "error": None}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
+    def open_pdf_in_browser(self, file_path: str) -> Dict[str, Any]:
+        try:
+            import pathlib
+            file_url = pathlib.Path(file_path).resolve().as_uri()
+            webbrowser.open(file_url)
+            return {"success": True, "error": None}
+        except Exception as e:
+            return {"success": False, "error": str(e)}
+
     def is_authenticated(self) -> bool:
-        """Check if user is authenticated"""
         return self.access_token is not None
-    
+
     def logout(self):
-        """Clear authentication tokens"""
         self.access_token = None
         self.refresh_token = None
         self.faculty_info = None

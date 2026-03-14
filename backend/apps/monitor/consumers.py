@@ -159,12 +159,19 @@ class MonitorConsumer(AsyncWebsocketConsumer):
     async def submission_event(self, event):
         await self.send(text_data=json.dumps(event))
 
+    async def session_status(self, event):
+        """Forward session status events (start/end) to faculty"""
+        await self.send(text_data=json.dumps(event))
 
     async def viva_event(self, event):
         """
         Receive viva event (viva_evaluated, viva_online_published).
         Called by channel_layer.group_send with type='viva_event'.
         """
+        await self.send(text_data=json.dumps(event))
+    
+    async def control_ack(self, event):
+        """Receive control acknowledgment and forward to faculty"""
         await self.send(text_data=json.dumps(event))
     
 
@@ -291,6 +298,10 @@ class StudentConsumer(AsyncWebsocketConsumer):
 
     async def viva_event(self, event):
         """Forward viva/exam events to student WebSocket"""
+        await self.send(text_data=json.dumps(event))
+
+    async def control_command(self, event):
+        """Receive control command and forward to student app"""
         await self.send(text_data=json.dumps(event))
 
     async def monitor_offer(self, event):

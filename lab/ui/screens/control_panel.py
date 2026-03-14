@@ -4,11 +4,13 @@ from PyQt6.QtGui import QFont
 
 from ui.theme import heading_font, Theme, body_font
 from ui.common.cards import CardFrame
+from api.global_client import api_client
 
 
 class ControlPanelScreen(QWidget):
-    def __init__(self):
+    def __init__(self, parent=None):
         super().__init__()
+        self.parent_window = parent
         root = QVBoxLayout(self)
         root.setContentsMargins(24, 24, 24, 24)
         root.setSpacing(20)
@@ -41,6 +43,18 @@ class ControlPanelScreen(QWidget):
         
         grid = QGridLayout()
         grid.setSpacing(12)
+        
+        # Mapping UI text to backend command types
+        self.command_map = {
+            "🔒 Lock All PCs": "lock_pc",
+            "🔓 Unlock All PCs": "unlock_pc",
+            "🚫 Block Internet": "block_internet",
+            "✅ Unblock Internet": "unblock_internet",
+            "💾 Enable USB": "enable_usb",
+            "🚫 Disable USB": "disable_usb",
+            "📋 App Whitelist": "app_whitelist"
+        }
+
         actions = [
             ("🔒 Lock All PCs", Theme.danger),
             ("🔓 Unlock All PCs", Theme.success),
@@ -76,14 +90,29 @@ class ControlPanelScreen(QWidget):
         root.addWidget(card)
         root.addStretch(1)
 
-    def confirm_action(self, action: str):
+    def confirm_action(self, action_text: str):
+        batch_id = getattr(self.parent_window, 'current_batch_id', None)
+        if not batch_id:
+            QMessageBox.warning(self, "No Batch Selected", "Please select a batch first from the Dashboard.")
+            return
+
+        command_type = self.command_map.get(action_text)
+        if not command_type:
+            return
+
         reply = QMessageBox.question(
             self, 
             "Confirm Action", 
-            f"Are you sure you want to execute '{action}'?\n\nThis will affect all students in the current batch.",
+            f"Are you sure you want to execute '{action_text}'?\n\nThis will affect all students in the current batch.",
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
             QMessageBox.StandardButton.No
         )
         if reply == QMessageBox.StandardButton.Yes:
-            QMessageBox.information(self, "Action Executed", f"'{action}' has been executed (UI-only demo).")
+            # Call API
+            res = api_client.send_control_command(batch_id, command_type)
+            
+            if res.get("success"):
+                QMessageBox.information(self, "Action Executed", f"'{action_text}' has been sent to all students.")
+            else:
+                QMessageBox.critical(self, "Execution Failed", f"Failed to execute action: {res.get('error')}")
 
