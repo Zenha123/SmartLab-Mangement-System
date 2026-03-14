@@ -21,6 +21,7 @@ from ui.theme import app_stylesheet, Theme
 from ui.screens import (
     LoginScreen,
     SemesterSelectionScreen,
+    AttendanceScreen,
     BatchDashboardScreen,
     StudentListScreen,
     StudentProgressScreen,
@@ -110,6 +111,8 @@ class MainWindow(QMainWindow):
         self.current_semester = ""
         self.current_batch = ""
         self.current_subject_name = ""
+        self.current_selected_date = ""
+        self.current_selected_hour = None
 
         self.websocket_client = None  # Will be initialized after batch selection
 
@@ -134,6 +137,7 @@ class MainWindow(QMainWindow):
 
         self.sem_screen = SemesterSelectionScreen()
         self.sem_screen.batch_selected.connect(self._on_batch_selected)
+        self.attendance_screen = AttendanceScreen(parent=self)
 
         self.dashboard_screen = BatchDashboardScreen(parent=self)
         self.student_list_screen = StudentListScreen(parent=self)
@@ -154,6 +158,7 @@ class MainWindow(QMainWindow):
         # Navigation items with icons (excluding login - it's shown separately)
         self.screens = [
             ("📚 Semester Select", self.sem_screen),
+            ("📅 Attendance", self.attendance_screen),
             ("📊 Dashboard", self.dashboard_screen),
             ("👥 Student List", self.student_list_screen),
             ("📈 Student Progress", self.student_progress_screen),
@@ -235,15 +240,31 @@ class MainWindow(QMainWindow):
         self._show_login()
         self.statusBar().showMessage("Logged out successfully", 3000)
 
-    def _on_batch_selected(self, semester: str, batch: str, batch_id: int, subject_name: str = ""):
+    def _on_batch_selected(
+        self,
+        semester: str,
+        batch: str,
+        batch_id: int,
+        subject_name: str = "",
+        selected_date: str = "",
+        selected_hour: int = 0,
+    ):
         self.current_batch_id = batch_id  # Store for API calls
         self.current_semester = semester
         self.current_batch = batch
         self.current_subject_name = subject_name
+        self.current_selected_date = selected_date
+        self.current_selected_hour = selected_hour
         self.stack.setCurrentWidget(self.dashboard_screen)
-        # Dashboard is at index 1 in screens list (after Semester Select at 0)
-        self.sidebar.setCurrentRow(1)
-        self.statusBar().showMessage(f"Selected {semester} - {batch}", 3000)
+        # Dashboard is at index 2 in screens list (after Semester Select and Attendance)
+        self.sidebar.setCurrentRow(2)
+
+        status_text = f"Selected {semester} - {batch}"
+        if subject_name:
+            status_text += f" | {subject_name}"
+        if selected_date and selected_hour:
+            status_text += f" | {selected_date} P{selected_hour}"
+        self.statusBar().showMessage(status_text, 3500)
 
 
     def _on_nav_change(self, index: int):
