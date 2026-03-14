@@ -1,47 +1,109 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>eTLab Admin - Semesters</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="admin-page">
 
+  <div class="admin-shell">
+    <div class="admin-card">
 
+      <div class="page-header centered-header">
+        <div class="header-content">
+          <p class="eyebrow">eTLab Admin</p>
+          <h1>Select Semester</h1>
+          <p class="page-subtitle">
+            Manage semester data, sync records to SmartLab, and upload faculty CSV files.
+          </p>
+        </div>
 
-<div class="container">
-  <h2>Select Semester</h2>
-<form method="post" action="{% url 'logout' %}">
-    {% csrf_token %}
-    <button type="submit" class="logout-btn">
-        Logout
-    </button>
-</form>
+        <form method="post" action="{% url 'logout' %}" class="logout-form-top">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-dark">Logout</button>
+        </form>
+      </div>
 
-  <form method="post" action="{% url 'sync_faculty_now' %}" style="margin: 12px 0;">
-    {% csrf_token %}
-    <button type="submit">Sync Faculty Now</button>
-  </form>
+      {% if messages %}
+        <div class="messages-stack">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
 
-  <form method="post" action="{% url 'sync_students_now' %}" style="margin: 12px 0;">
-    {% csrf_token %}
-    <button type="submit">Sync Students Now</button>
-  </form>
-  
-  <form method="post" action="{% url 'sync_timetable_now' %}" style="margin: 12px 0;">
-    {% csrf_token %}
-    <button type="submit">Sync Timetable Now</button>
-  </form>
+      <div class="admin-grid">
 
-  <form method="post" action="{% url 'upload_faculty_csv' %}" enctype="multipart/form-data" style="margin: 12px 0;">
-    {% csrf_token %}
-    <input type="file" name="faculty_csv" accept=".csv" required>
-    <button type="submit">Upload Faculty CSV</button>
-  </form>
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Quick Actions</h2>
+            <p>Sync the latest data to SmartLab and manage faculty uploads.</p>
+          </div>
 
-  {% if messages %}
-    {% for message in messages %}
-      <p>{{ message }}</p>
-    {% endfor %}
-  {% endif %}
+          <div class="action-row">
+            <form method="post" action="{% url 'sync_faculty_now' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary">Sync Faculty Now</button>
+            </form>
 
-  {% for s in semesters %}
-    <p>
-    <a href="{% url 'semester_detail' s.number %}">{{ s.semester_name }}</a>
-    </p>
-  {% endfor %}
-</div>
+            <form method="post" action="{% url 'sync_students_now' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary">Sync Students Now</button>
+            </form>
+
+            <form method="post" action="{% url 'sync_timetable_now' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-primary">Sync Timetable Now</button>
+            </form>
+          </div>
+
+          <div class="upload-box">
+            <h3>Upload Faculty CSV</h3>
+            <p>Import or update faculty records from a CSV file.</p>
+
+            <form method="post"
+                  action="{% url 'upload_faculty_csv' %}"
+                  enctype="multipart/form-data"
+                  class="upload-form">
+              {% csrf_token %}
+              <input type="file" name="faculty_csv" accept=".csv" required class="file-input">
+              <button type="submit" class="btn btn-secondary">Upload Faculty CSV</button>
+            </form>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Available Semesters</h2>
+            <p>Open a semester to manage students, subjects, and timetable.</p>
+          </div>
+
+          {% if semesters %}
+            <div class="semester-list">
+              {% for s in semesters %}
+                <a href="{% url 'semester_detail' s.number %}" class="semester-card">
+                  <div class="semester-badge">Semester</div>
+                  <div class="semester-name">{{ s.semester_name }}</div>
+                  <div class="semester-meta">Open details →</div>
+                </a>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty-state">
+              <h3>No semesters available</h3>
+              <p>Add semester data to begin managing eTLab records.</p>
+            </div>
+          {% endif %}
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
