@@ -9,6 +9,31 @@ API_BASE = f"{BASE_HTTP}/api"
 
 ACCESS_TOKEN = None
 REFRESH_TOKEN = None
+BASE_URL = API_BASE  # Alias for compatibility
+
+# Cached student profile data (set after login)
+_student_profile = {}
+
+def set_student_profile(profile):
+    global _student_profile
+    _student_profile = profile or {}
+
+def get_student_batch_id():
+    """Return the batch_id of the logged-in student."""
+    return _student_profile.get('batch_id') or _student_profile.get('batch', {}).get('id')
+
+def acknowledge_control(command_id, status='acknowledged'):
+    """Send acknowledgment for a control command."""
+    try:
+        response = requests.post(
+            f"{API_BASE}/control/ack/",
+            json={"command_id": command_id, "status": status},
+            headers=auth_headers(),
+            timeout=5
+        )
+        return response.status_code == 200
+    except Exception:
+        return False
 
 def login_student(student_id, password):
     global ACCESS_TOKEN, REFRESH_TOKEN
@@ -26,6 +51,7 @@ def login_student(student_id, password):
             data = response.json()
             ACCESS_TOKEN = data["access"]
             REFRESH_TOKEN = data["refresh"]
+            set_student_profile(data.get("student", {}))
             return {
                 "success": True,
                 "student": data["student"]

@@ -9,8 +9,8 @@ from PyQt6.QtCore import Qt, QSize
 from PyQt6.QtGui import QFont, QColor
 import sys
 
-
 from websocket_client import WebSocketClient
+from system_controller import SystemController
 import api_client
 
 class StudentDashboard(QWidget):
@@ -18,10 +18,13 @@ class StudentDashboard(QWidget):
         super().__init__()
         self.username = username
         self.tasks = []
+        self.lock_overlay = None
+        self.system_controller = SystemController(dashboard=self)
         self.init_ui()
         
         # Load initial data
         self.load_tasks()
+        self.fetch_initial_control_state()
         
         # Start WebSocket Client
         self.ws_client = WebSocketClient()
@@ -40,6 +43,8 @@ class StudentDashboard(QWidget):
             self.handle_submission_event(data)
         elif event_type == 'viva_event':
             self.handle_viva_event(data)
+        elif event_type == 'control_command':
+            self.handle_control_command(data)
 
     def handle_viva_event(self, data):
         """Handle viva AND exam events (both use viva_event channel type)"""
@@ -1249,6 +1254,132 @@ QFrame {
         button.style().unpolish(button)
         button.style().polish(button)
 
+    # ================= CONTROL PANEL HANDLERS =================
+    def handle_control_command(self, data):
+        """Handle control commands from faculty Control Panel."""
+        command_type = data.get('command_type', '')
+        payload = data.get('payload', {})
+        command_id = data.get('command_id')
+
+        print(f"[Student] Received control command: {command_type}")
+
+        # Execute the OS-level action
+        success = self.system_controller.execute(command_type, payload)
+
+        # Show notification
+        cmd_labels = {
+            'lock_pc': '🔒 PC LOCKED by Faculty',
+            'unlock_pc': '🔓 PC UNLOCKED by Faculty',
+            'block_internet': '🚫 Internet BLOCKED by Faculty',
+            'unblock_internet': '✅ Internet UNBLOCKED by Faculty',
+            'disable_usb': '🚫 USB DISABLED by Faculty',
+            'enable_usb': '💾 USB ENABLED by Faculty',
+            'app_whitelist': '📋 App Whitelist UPDATED by Faculty',
+        }
+        label = cmd_labels.get(command_type, f'Control: {command_type}')
+        
+        is_restriction = command_type in ('lock_pc', 'block_internet', 'disable_usb')
+        color = '#DC2626' if is_restriction else '#16a34a'
+        
+        self.session_status_label.setText(label)
+        self.session_status_label.setStyleSheet(
+            f"background-color: {color}; color: white; padding: 5px 10px; "
+            f"border-radius: 4px; font-weight: bold;"
+        )
+        self.session_status_label.show()
+
+        # Acknowledge command back to backend
+        if command_id:
+            try:
+                api_client.acknowledge_control(command_id, 'acknowledged' if success else 'failed')
+            except Exception:
+                pass
+
+    from PyQt6.QtCore import pyqtSlot
+
+    @pyqtSlot()
+    def show_lock_overlay(self):
+        """Show a fullscreen, always-on-top lock window that blocks all access."""
+        if self.lock_overlay:
+            self.lock_overlay.showFullScreen()
+            return
+
+        # Create a separate top-level window (not a child widget)
+        self.lock_overlay = QWidget()
+        self.lock_overlay.setWindowTitle("SmartLab - PC Locked")
+
+        # Frameless + Always on top + Bypass window manager (blocks Alt+Tab)
+        self.lock_overlay.setWindowFlags(
+            Qt.WindowType.FramelessWindowHint |
+            Qt.WindowType.WindowStaysOnTopHint |
+            Qt.WindowType.BypassWindowManagerHint
+        )
+
+        self.lock_overlay.setStyleSheet("background-color: #0a0a0a;")
+
+        overlay_layout = QVBoxLayout(self.lock_overlay)
+        overlay_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        lock_icon = QLabel("🔒")
+        lock_icon.setFont(QFont("Segoe UI Emoji", 80))
+        lock_icon.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lock_icon.setStyleSheet("color: #ef4444; background: transparent;")
+        overlay_layout.addWidget(lock_icon)
+
+        lock_text = QLabel("Your PC has been locked by the Faculty")
+        lock_text.setFont(QFont("Segoe UI", 24, QFont.Weight.Bold))
+        lock_text.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lock_text.setStyleSheet("color: white; background: transparent; margin-top: 20px;")
+        overlay_layout.addWidget(lock_text)
+
+        lock_sub = QLabel("Please wait for the faculty to unlock your PC.\nDo not attempt to close this window.")
+        lock_sub.setFont(QFont("Segoe UI", 13))
+        lock_sub.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lock_sub.setStyleSheet("color: #888; background: transparent; margin-top: 10px;")
+        overlay_layout.addWidget(lock_sub)
+
+        # Override close event to prevent Alt+F4
+        self.lock_overlay.closeEvent = lambda e: e.ignore()
+        # Override key press to block Escape and other keys
+        self.lock_overlay.keyPressEvent = lambda e: e.ignore()
+
+        self.lock_overlay.showFullScreen()
+
+    @pyqtSlot()
+    def hide_lock_overlay(self):
+        """Hide and destroy the lock overlay."""
+        if self.lock_overlay:
+            self.lock_overlay.close()
+            self.lock_overlay.deleteLater()
+            self.lock_overlay = None
+
+    def fetch_initial_control_state(self):
+        """Fetch the current control state from the backend on startup."""
+        try:
+            batch_id = api_client.get_student_batch_id()
+            if not batch_id:
+                return
+
+            import requests
+            headers = {"Authorization": f"Bearer {api_client.ACCESS_TOKEN}"}
+            resp = requests.get(
+                f"{api_client.BASE_URL}/control/state/",
+                params={"batch": batch_id},
+                headers=headers,
+                timeout=5
+            )
+            if resp.status_code == 200:
+                state = resp.json()
+                if state.get('pc_locked'):
+                    self.system_controller.lock_pc()
+                if state.get('internet_blocked'):
+                    self.system_controller.block_internet()
+                if state.get('usb_disabled'):
+                    self.system_controller.disable_usb()
+                if state.get('whitelisted_apps'):
+                    self.system_controller.set_app_whitelist({'apps': state['whitelisted_apps']})
+        except Exception as e:
+            print(f"[Student] Failed to fetch initial control state: {e}")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -259,6 +259,36 @@ class APIClient:
             return {"success": False, "data": None, "error": "Failed to create task"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
+
+    def send_control_command(self, batch_id: int, command_type: str, payload: Dict = None) -> Dict[str, Any]:
+        """Send a control command (lock, internet, etc.) to all students in a batch"""
+        try:
+            response = requests.post(
+                f"{self.base_url}/control/command/",
+                json={"batch": batch_id, "command_type": command_type, "payload": payload or {}},
+                headers=self._get_headers(),
+                timeout=10
+            )
+            if response.status_code == 201:
+                return {"success": True, "data": response.json(), "error": None}
+            return {"success": False, "data": None, "error": response.text}
+        except Exception as e:
+            return {"success": False, "data": None, "error": str(e)}
+
+    def get_control_state(self, batch_id: int) -> Dict[str, Any]:
+        """Get the current control state of a batch"""
+        try:
+            response = requests.get(
+                f"{self.base_url}/control/state/",
+                params={"batch": batch_id},
+                headers=self._get_headers(),
+                timeout=10
+            )
+            if response.status_code == 200:
+                return {"success": True, "data": response.json(), "error": None}
+            return {"success": False, "data": None, "error": "Failed to fetch state"}
+        except Exception as e:
+            return {"success": False, "data": None, "error": str(e)}
     
     def get_attendance_report(self, batch_id: Optional[int] = None, date: Optional[str] = None) -> Dict[str, Any]:
         """Get attendance report"""
