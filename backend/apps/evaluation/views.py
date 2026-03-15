@@ -4,14 +4,9 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.utils import timezone
 from rest_framework.views import APIView
-from .models import VivaRecord, VivaSession, ExamSession, ExamQuestion, StudentExam, Task, TaskSubmission
-from .serializers import (
-    VivaRecordSerializer, VivaSessionSerializer,
-    ExamSessionSerializer, ExamQuestionSerializer, StudentExamSerializer,
-    TaskSerializer, TaskSubmissionSerializer
-)
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.db.models import Avg, Q
 from io import BytesIO
 
 from reportlab.lib import colors
@@ -19,6 +14,17 @@ from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+
+from .models import (
+    VivaRecord, VivaSession, ExamSession, ExamQuestion,
+    StudentExam, Task, TaskSubmission
+)
+from .serializers import (
+    VivaRecordSerializer, VivaSessionSerializer,
+    ExamSessionSerializer, ExamQuestionSerializer, StudentExamSerializer,
+    TaskSerializer, TaskSubmissionSerializer
+)
+
 
 class VivaSessionViewSet(viewsets.ModelViewSet):
     """ViewSet for Viva Session management"""
@@ -31,14 +37,14 @@ class VivaSessionViewSet(viewsets.ModelViewSet):
         batch_id = self.request.query_params.get('batch', None)
         viva_type = self.request.query_params.get('viva_type', None)
         status_param = self.request.query_params.get('status', None)
-        
+
         if batch_id:
             queryset = queryset.filter(batch_id=batch_id)
         if viva_type:
             queryset = queryset.filter(viva_type=viva_type)
         if status_param:
             queryset = queryset.filter(status=status_param)
-            
+
         return queryset
 
     def perform_create(self, serializer):
@@ -47,8 +53,7 @@ class VivaSessionViewSet(viewsets.ModelViewSet):
         Broadcast immediately for online viva if status is 'live'.
         """
         session = serializer.save(faculty=self.request.user)
-        
-        # If offline, auto-create placeholders for all students in batch
+
         if session.viva_type == 'offline':
             from apps.students.models import Student
             students = Student.objects.filter(batch=session.batch)
@@ -59,13 +64,12 @@ class VivaSessionViewSet(viewsets.ModelViewSet):
                     defaults={'faculty': self.request.user, 'status': 'waiting'}
                 )
         elif session.viva_type == 'online' and session.status == 'live':
-            # Broadcast to batch WebSocket group
             try:
                 from channels.layers import get_channel_layer
                 from asgiref.sync import async_to_sync
                 channel_layer = get_channel_layer()
                 batch_group = f'batch_{session.batch.id}'
-                
+
                 async_to_sync(channel_layer.group_send)(
                     batch_group,
                     {
@@ -80,7 +84,7 @@ class VivaSessionViewSet(viewsets.ModelViewSet):
                     }
                 )
             except Exception:
-                pass  # WebSocket failure is non-fatal
+                pass
 
     @action(detail=True, methods=['post'])
     def publish(self, request, pk=None):
@@ -90,17 +94,16 @@ class VivaSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         if session.viva_type != 'online':
             return Response({'error': 'Only online sessions can be published'}, status=400)
-        
+
         session.status = 'live'
         session.save()
-        
-        # Broadcast to batch WebSocket group
+
         try:
             from channels.layers import get_channel_layer
             from asgiref.sync import async_to_sync
             channel_layer = get_channel_layer()
             batch_group = f'batch_{session.batch.id}'
-            
+
             async_to_sync(channel_layer.group_send)(
                 batch_group,
                 {
@@ -115,8 +118,8 @@ class VivaSessionViewSet(viewsets.ModelViewSet):
                 }
             )
         except Exception:
-            pass  # WebSocket failure is non-fatal
-            
+            pass
+
         return Response({'status': 'published', 'session_id': session.id})
 
     @action(detail=True, methods=['post'])
@@ -125,18 +128,19 @@ class VivaSessionViewSet(viewsets.ModelViewSet):
         session = self.get_object()
         session.status = 'completed'
         session.save()
-        
-        # Publish all viva records for this session so students can see them
+
         published_count = VivaRecord.objects.filter(
             viva_session=session, status='completed'
         ).update(is_published=True)
-        
-        # Broadcast to each student in batch via WebSocket
+
         try:
             from channels.layers import get_channel_layer
             from asgiref.sync import async_to_sync
             channel_layer = get_channel_layer()
-            records = VivaRecord.objects.filter(viva_session=session, is_published=True).select_related('student', 'viva_session')
+            records = VivaRecord.objects.filter(
+                viva_session=session, is_published=True
+            ).select_related('student', 'viva_session')
+
             for record in records:
                 student_group = f'student_{record.student.id}'
                 async_to_sync(channel_layer.group_send)(
@@ -152,7 +156,7 @@ class VivaSessionViewSet(viewsets.ModelViewSet):
                 )
         except Exception:
             pass
-        
+
         return Response({'status': 'completed', 'published_count': published_count})
 
 
@@ -161,24 +165,23 @@ class VivaRecordViewSet(viewsets.ModelViewSet):
     queryset = VivaRecord.objects.all()
     serializer_class = VivaRecordSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         session_id = self.request.query_params.get('session', None)
         viva_session_id = self.request.query_params.get('viva_session', None)
         student_id = self.request.query_params.get('student', None)
-        
+
         if session_id:
             queryset = queryset.filter(session_id=session_id)
         if viva_session_id:
             queryset = queryset.filter(viva_session_id=viva_session_id)
         if student_id:
             queryset = queryset.filter(student_id=student_id)
-        
+
         return queryset
-    
+
     def perform_create(self, serializer):
-        """Auto-assign faculty when creating viva record"""
         serializer.save(faculty=self.request.user)
 
     def perform_update(self, serializer):
@@ -186,16 +189,15 @@ class VivaRecordViewSet(viewsets.ModelViewSet):
         Broadcast Viva evaluation to student when status is updated to completed.
         """
         record = serializer.save()
-        
-        # If marked completed, notify the student
+
         if record.status == 'completed':
             try:
                 from channels.layers import get_channel_layer
                 from asgiref.sync import async_to_sync
-                
+
                 channel_layer = get_channel_layer()
                 student_group = f'student_{record.student.id}'
-                
+
                 async_to_sync(channel_layer.group_send)(
                     student_group,
                     {
@@ -222,7 +224,10 @@ class VivaResultView(APIView):
         notes = request.data.get('notes', '')
 
         if not viva_session_id or not student_id or marks is None:
-            return Response({'error': 'viva_session, student, and marks are required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'viva_session, student, and marks are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         record, created = VivaRecord.objects.get_or_create(
             viva_session_id=viva_session_id,
@@ -235,7 +240,6 @@ class VivaResultView(APIView):
         record.conducted_at = timezone.now()
         record.save()
 
-        # Broadcast via WebSocket
         try:
             from channels.layers import get_channel_layer
             from asgiref.sync import async_to_sync
@@ -254,7 +258,7 @@ class VivaResultView(APIView):
             )
         except Exception:
             pass
-            
+
         return Response({'status': 'Evaluated', 'record_id': record.id})
 
 
@@ -266,27 +270,20 @@ class LiveVivaView(APIView):
         student = getattr(request.user, 'student_profile', None)
         if not student:
             return Response({'error': 'User is not a student'}, status=status.HTTP_400_BAD_REQUEST)
-            
+
         session = VivaSession.objects.filter(
-            batch=student.batch, 
-            viva_type='online', 
+            batch=student.batch,
+            viva_type='online',
             status='live'
         ).order_by('-created_at').first()
-        
+
         if session:
             return Response(VivaSessionSerializer(session).data)
-        return Response({}) # Return empty if no live viva
+        return Response({})
 
-
-# ===========================================================================
-# EXAM MODULE — Clean, simplified implementation
-# ===========================================================================
 
 class ExamSessionViewSet(viewsets.ModelViewSet):
-    """Faculty: Create and manage exam sessions.
-    GET  /api/exam-sessions/?batch=<id>
-    POST /api/exam-sessions/
-    """
+    """Faculty: Create and manage exam sessions."""
     queryset = ExamSession.objects.all()
     serializer_class = ExamSessionSerializer
     permission_classes = [IsAuthenticated]
@@ -303,10 +300,7 @@ class ExamSessionViewSet(viewsets.ModelViewSet):
 
 
 class ExamQuestionViewSet(viewsets.ModelViewSet):
-    """Faculty: Add / edit / delete questions per session.
-    GET  /api/exam-questions/?session=<id>
-    POST /api/exam-questions/
-    """
+    """Faculty: Add / edit / delete questions per session."""
     queryset = ExamQuestion.objects.all()
     serializer_class = ExamQuestionSerializer
     permission_classes = [IsAuthenticated]
@@ -320,9 +314,7 @@ class ExamQuestionViewSet(viewsets.ModelViewSet):
 
 
 class ExamStartView(APIView):
-    """Faculty: Start an exam session — randomly assigns questions to all students.
-    POST /api/exam-start/  body: { session_id: <id> }
-    """
+    """Faculty: Start an exam session — randomly assigns questions to all students."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -341,14 +333,16 @@ class ExamStartView(APIView):
 
         questions = list(session.questions.all())
         if not questions:
-            return Response({'error': 'Add at least one question before starting'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'Add at least one question before starting'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         from apps.students.models import Student
         students = list(Student.objects.filter(batch=session.batch))
         if not students:
             return Response({'error': 'No students found in batch'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Random assignment — each student gets 1 or 2 questions
         random.shuffle(questions)
         assigned_count = 0
         for i, student in enumerate(students):
@@ -356,19 +350,16 @@ class ExamStartView(APIView):
                 session=session, student=student
             )
             if created or exam_rec.assigned_questions.count() == 0:
-                # Cycle through questions list
                 start = i % len(questions)
                 end = start + min(2, len(questions))
-                assigned = (questions + questions)[start:end]  # wrap-around
+                assigned = (questions + questions)[start:end]
                 exam_rec.assigned_questions.set(assigned)
                 exam_rec.save()
             assigned_count += 1
 
-        # Mark session active
         session.status = 'active'
         session.save()
 
-        # Notify all students via WebSocket
         try:
             from channels.layers import get_channel_layer
             from asgiref.sync import async_to_sync
@@ -377,7 +368,7 @@ class ExamStartView(APIView):
             async_to_sync(channel_layer.group_send)(
                 batch_group,
                 {
-                    'type': 'viva_event',  # reuse channel handler
+                    'type': 'viva_event',
                     'event': 'exam_started',
                     'session_id': session.id,
                     'title': session.title,
@@ -395,9 +386,7 @@ class ExamStartView(APIView):
 
 
 class ExamEndView(APIView):
-    """Faculty: End an exam — marks completed and blocks submissions.
-    POST /api/exam-end/  body: { session_id: <id> }
-    """
+    """Faculty: End an exam — marks completed and blocks submissions."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -412,7 +401,6 @@ class ExamEndView(APIView):
         session.status = 'completed'
         session.save()
 
-        # Notify all students — time is over
         try:
             from channels.layers import get_channel_layer
             from asgiref.sync import async_to_sync
@@ -434,9 +422,7 @@ class ExamEndView(APIView):
 
 
 class ExamSubmissionsView(APIView):
-    """Faculty: List all student submissions for an exam session.
-    GET /api/exam-submissions/?session_id=<id>
-    """
+    """Faculty: List all student submissions for an exam session."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -451,9 +437,7 @@ class ExamSubmissionsView(APIView):
 
 
 class ExamEvaluateView(APIView):
-    """Faculty: Save marks and feedback for a student's exam submission.
-    POST /api/exam-evaluate/  body: { student_exam_id, marks, feedback }
-    """
+    """Faculty: Save marks and feedback for a student's exam submission."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -462,7 +446,10 @@ class ExamEvaluateView(APIView):
         feedback = request.data.get('feedback', '')
 
         if exam_id is None or marks is None:
-            return Response({'error': 'student_exam_id and marks are required'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'student_exam_id and marks are required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         try:
             marks = int(marks)
         except (ValueError, TypeError):
@@ -479,7 +466,6 @@ class ExamEvaluateView(APIView):
         exam_rec.is_published = True
         exam_rec.save()
 
-        # Notify student
         try:
             from channels.layers import get_channel_layer
             from asgiref.sync import async_to_sync
@@ -504,9 +490,7 @@ class ExamEvaluateView(APIView):
 
 
 class MyExamView(APIView):
-    """Student: Get their assigned exam questions for the active session.
-    GET /api/my-exam/?session_id=<id>
-    """
+    """Student: Get their assigned exam questions for the active session."""
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -515,7 +499,6 @@ class MyExamView(APIView):
             return Response({'error': 'Not a student'}, status=status.HTTP_403_FORBIDDEN)
 
         session_id = request.query_params.get('session_id')
-        # If no session_id, return all active exam sessions for their batch
         if not session_id:
             sessions = ExamSession.objects.filter(
                 batch=student.batch, status='active'
@@ -557,9 +540,7 @@ class MyExamView(APIView):
 
 
 class SubmitExamView(APIView):
-    """Student: Submit exam file.
-    POST /api/submit-exam/  multipart: { exam_rec_id, file }
-    """
+    """Student: Submit exam file."""
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -576,9 +557,11 @@ class SubmitExamView(APIView):
         except StudentExam.DoesNotExist:
             return Response({'error': 'Exam record not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Block if exam ended
         if exam_rec.session.status == 'completed':
-            return Response({'error': 'Exam has ended. Submissions are closed.'}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {'error': 'Exam has ended. Submissions are closed.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
         uploaded_file = request.FILES.get('file')
         if not uploaded_file:
@@ -597,23 +580,19 @@ class TaskViewSet(viewsets.ModelViewSet):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         batch_id = self.request.query_params.get('batch', None)
-        
         if batch_id:
             queryset = queryset.filter(batch_id=batch_id)
-        
         return queryset
-    
+
     def perform_create(self, serializer):
-        """Auto-assign faculty when creating task"""
         serializer.save(faculty=self.request.user)
-    
+
     @action(detail=True, methods=['get'])
     def submissions(self, request, pk=None):
-        """Get all submissions for this task"""
         task = self.get_object()
         submissions = task.submissions.all()
         serializer = TaskSubmissionSerializer(submissions, many=True)
@@ -625,26 +604,23 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
     queryset = TaskSubmission.objects.all()
     serializer_class = TaskSubmissionSerializer
     permission_classes = [IsAuthenticated]
-    
+
     def get_queryset(self):
         queryset = super().get_queryset()
         task_id = self.request.query_params.get('task', None)
         student_id = self.request.query_params.get('student', None)
-        
+
         if task_id:
             queryset = queryset.filter(task_id=task_id)
         if student_id:
             queryset = queryset.filter(student_id=student_id)
-        
+
         return queryset
 
     @action(detail=True, methods=['post'])
     def evaluate(self, request, pk=None):
         """
         Faculty publishes marks + feedback for a submission.
-        POST /api/submissions/<id>/evaluate/
-        Body: { "marks": 85, "feedback": "Good work." }
-        Sets is_published=True and fires WebSocket event to the student.
         """
         submission = self.get_object()
         marks = request.data.get('marks')
@@ -672,7 +648,6 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
         submission.is_published = True
         submission.save()
 
-        # Fire WebSocket event to student's personal group
         try:
             from channels.layers import get_channel_layer
             from asgiref.sync import async_to_sync
@@ -692,12 +667,10 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
                 }
             )
         except Exception:
-            # Non-fatal: WebSocket broadcast failure shouldn't break the API response
             pass
 
         serializer = self.get_serializer(submission)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
 
 @api_view(['GET'])
@@ -705,28 +678,25 @@ class TaskSubmissionViewSet(viewsets.ModelViewSet):
 def attendance_report(request):
     """Generate attendance report"""
     from apps.students.models import Attendance
-    from apps.students.serializers import AttendanceSerializer
-    
+    from django.db.models import Count, Q
+    from django.db.models.functions import TruncDate
+
     batch_id = request.query_params.get('batch', None)
     date_filter = request.query_params.get('date', None)
-    
+
     queryset = Attendance.objects.all()
-    
+
     if batch_id:
         queryset = queryset.filter(session__batch_id=batch_id)
     if date_filter:
         queryset = queryset.filter(created_at__date=date_filter)
-    
-    # Group by date and calculate stats
-    from django.db.models import Count, Q
-    from django.db.models.functions import TruncDate
-    
+
     stats = queryset.annotate(date=TruncDate('created_at')).values('date').annotate(
         present=Count('id', filter=Q(status='present')),
         absent=Count('id', filter=Q(status='absent')),
         late=Count('id', filter=Q(status='late'))
     ).order_by('-date')
-    
+
     return Response(list(stats))
 
 
@@ -735,12 +705,12 @@ def attendance_report(request):
 def viva_report(request):
     """Generate viva marks report"""
     batch_id = request.query_params.get('batch', None)
-    
+
     queryset = VivaRecord.objects.filter(status='completed')
-    
+
     if batch_id:
-        queryset = queryset.filter(session__batch_id=batch_id)
-    
+        queryset = queryset.filter(viva_session__batch_id=batch_id)
+
     serializer = VivaRecordSerializer(queryset, many=True)
     return Response(serializer.data)
 
@@ -750,23 +720,29 @@ def viva_report(request):
 def submission_report(request):
     """Generate task submission report"""
     batch_id = request.query_params.get('batch', None)
-    
+
     queryset = TaskSubmission.objects.all()
-    
+
     if batch_id:
         queryset = queryset.filter(task__batch_id=batch_id)
-    
+
     serializer = TaskSubmissionSerializer(queryset, many=True)
     return Response(serializer.data)
+
+
+# =========================
+# PDF HELPERS
+# =========================
+
 def _build_pdf_response(filename, story, pagesize=landscape(A4)):
     buffer = BytesIO()
     doc = SimpleDocTemplate(
         buffer,
         pagesize=pagesize,
-        rightMargin=30,
-        leftMargin=30,
-        topMargin=30,
-        bottomMargin=30,
+        rightMargin=24,
+        leftMargin=24,
+        topMargin=24,
+        bottomMargin=24,
     )
     doc.build(story)
     pdf = buffer.getvalue()
@@ -777,102 +753,295 @@ def _build_pdf_response(filename, story, pagesize=landscape(A4)):
     return response
 
 
+def _safe(value, default="N/A"):
+    if value is None:
+        return default
+    value = str(value).strip()
+    return value if value else default
+
+
 def _submission_status_text(submission):
     return (submission.status or "N/A").title()
+
+
+def _make_styles():
+    styles = getSampleStyleSheet()
+
+    title_style = styles['Title']
+    title_style.fontName = "Helvetica-Bold"
+    title_style.fontSize = 20
+    title_style.leading = 24
+    title_style.alignment = 1
+
+    section_style = styles['Heading2']
+    section_style.fontName = "Helvetica-Bold"
+    section_style.fontSize = 13
+    section_style.leading = 16
+    section_style.spaceBefore = 8
+    section_style.spaceAfter = 8
+    section_style.textColor = colors.HexColor("#111827")
+
+    normal_style = styles['Normal']
+    normal_style.fontName = "Helvetica"
+    normal_style.fontSize = 10
+    normal_style.leading = 13
+
+    cell_style = styles['BodyText'].clone('pdf_cell_style')
+    cell_style.fontName = "Helvetica"
+    cell_style.fontSize = 8.5
+    cell_style.leading = 10
+    cell_style.textColor = colors.black
+
+    header_style = styles['BodyText'].clone('pdf_header_style')
+    header_style.fontName = "Helvetica-Bold"
+    header_style.fontSize = 8.5
+    header_style.leading = 10
+    header_style.textColor = colors.white
+
+    return {
+        "title": title_style,
+        "section": section_style,
+        "normal": normal_style,
+        "cell": cell_style,
+        "header": header_style,
+    }
+
+
+def _styled_table(table_data, col_widths, align_center_from_col=None):
+    table = Table(table_data, repeatRows=1, colWidths=col_widths)
+    style_commands = [
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 8.5),
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#9ca3af')),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.HexColor('#f9fafb')]),
+        ('LEFTPADDING', (0, 0), (-1, -1), 6),
+        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+        ('TOPPADDING', (0, 0), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
+    ]
+    if align_center_from_col is not None:
+        style_commands.append(('ALIGN', (align_center_from_col, 1), (-1, -1), 'CENTER'))
+
+    table.setStyle(TableStyle(style_commands))
+    return table
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def student_submission_report_pdf(request, student_id):
-    from apps.students.models import Student
+    from apps.students.models import Student, Attendance
 
-    student = get_object_or_404(Student.objects.select_related('batch'), id=student_id)
+    student = get_object_or_404(
+        Student.objects.select_related('batch', 'batch__semester'),
+        id=student_id
+    )
 
     submissions = (
         TaskSubmission.objects
         .filter(student=student)
-        .select_related('task', 'student', 'task__batch')
+        .select_related('task', 'task__batch')
         .order_by('task__title')
     )
 
-    styles = getSampleStyleSheet()
+    viva_records = (
+        VivaRecord.objects
+        .filter(student=student, status='completed')
+        .select_related('viva_session')
+        .order_by('-conducted_at', '-created_at')
+    )
+
+    attendance_records = (
+        Attendance.objects
+        .filter(student=student)
+        .select_related('session')
+        .order_by('-session__scheduled_date', '-session__start_time')
+    )
+
+    styles = _make_styles()
     story = []
 
-    title_style = styles['Title']
-    normal_style = styles['Normal']
-
-    cell_style = styles['BodyText'].clone('student_cell_style')
-    cell_style.fontName = "Helvetica"
-    cell_style.fontSize = 9
-    cell_style.leading = 11
-    cell_style.textColor = colors.black
-
-    header_style = styles['BodyText'].clone('student_header_style')
-    header_style.fontName = "Helvetica-Bold"
-    header_style.fontSize = 9
-    header_style.leading = 11
-    header_style.textColor = colors.white
-
-    story.append(Paragraph("Student Submission Report", title_style))
+    story.append(Paragraph("Student Performance Report", styles["title"]))
     story.append(Spacer(1, 12))
-    story.append(Paragraph(f"<b>Student ID:</b> {student.student_id}", normal_style))
-    story.append(Paragraph(f"<b>Name:</b> {student.name}", normal_style))
-    story.append(Paragraph(f"<b>Batch:</b> {student.batch}", normal_style))
-    story.append(Spacer(1, 16))
 
-    table_data = [[
-        Paragraph("Task Title", header_style),
-        Paragraph("Subject", header_style),
-        Paragraph("Submitted At", header_style),
-        Paragraph("Status", header_style),
-        Paragraph("Marks", header_style),
-        Paragraph("Feedback", header_style),
+    story.append(Paragraph("Student Information", styles["section"]))
+    story.append(Paragraph(f"<b>Student ID:</b> {_safe(student.student_id)}", styles["normal"]))
+    story.append(Paragraph(f"<b>Name:</b> {_safe(student.name)}", styles["normal"]))
+    story.append(Paragraph(f"<b>Batch:</b> {_safe(student.batch)}", styles["normal"]))
+    story.append(Spacer(1, 12))
+
+    total_tasks = submissions.count()
+    submitted_count = submissions.filter(
+        Q(status__in=['submitted', 'evaluated']) | Q(submission_file__isnull=False)
+    ).count()
+    evaluated_qs = submissions.filter(marks__isnull=False)
+    evaluated_count = evaluated_qs.count()
+    avg_task_marks = evaluated_qs.aggregate(avg=Avg('marks'))['avg']
+
+    total_attendance = attendance_records.count()
+    present_count = attendance_records.filter(status='present').count()
+    attendance_percentage = (present_count / total_attendance * 100) if total_attendance > 0 else 0
+
+    viva_count = viva_records.count()
+    viva_avg = viva_records.aggregate(avg=Avg('marks'))['avg']
+
+    story.append(Paragraph("Performance Summary", styles["section"]))
+
+    summary_table_data = [
+        [
+            Paragraph("Metric", styles["header"]),
+            Paragraph("Value", styles["header"]),
+            Paragraph("Metric", styles["header"]),
+            Paragraph("Value", styles["header"]),
+        ],
+        [
+            Paragraph("Total Tasks", styles["cell"]),
+            Paragraph(str(total_tasks), styles["cell"]),
+            Paragraph("Submitted Tasks", styles["cell"]),
+            Paragraph(str(submitted_count), styles["cell"]),
+        ],
+        [
+            Paragraph("Evaluated Tasks", styles["cell"]),
+            Paragraph(str(evaluated_count), styles["cell"]),
+            Paragraph("Average Task Marks", styles["cell"]),
+            Paragraph(f"{avg_task_marks:.1f}" if avg_task_marks is not None else "N/A", styles["cell"]),
+        ],
+        [
+            Paragraph("Attendance Sessions", styles["cell"]),
+            Paragraph(str(total_attendance), styles["cell"]),
+            Paragraph("Attendance %", styles["cell"]),
+            Paragraph(f"{attendance_percentage:.1f}%", styles["cell"]),
+        ],
+        [
+            Paragraph("Viva Count", styles["cell"]),
+            Paragraph(str(viva_count), styles["cell"]),
+            Paragraph("Average Viva Marks", styles["cell"]),
+            Paragraph(f"{viva_avg:.1f}" if viva_avg is not None else "N/A", styles["cell"]),
+        ],
+    ]
+
+    story.append(_styled_table(
+        summary_table_data,
+        [2.0 * inch, 1.2 * inch, 2.0 * inch, 1.2 * inch]
+    ))
+    story.append(Spacer(1, 14))
+
+    story.append(Paragraph("Task Submission Details", styles["section"]))
+
+    task_table_data = [[
+        Paragraph("Task Title", styles["header"]),
+        Paragraph("Subject", styles["header"]),
+        Paragraph("Submitted At", styles["header"]),
+        Paragraph("Status", styles["header"]),
+        Paragraph("Marks", styles["header"]),
+        Paragraph("Feedback", styles["header"]),
     ]]
 
     if submissions.exists():
         for sub in submissions:
-            table_data.append([
-                Paragraph(sub.task.title if sub.task else "N/A", cell_style),
-                Paragraph(sub.task.subject_name if sub.task and sub.task.subject_name else "N/A", cell_style),
-                Paragraph(sub.submitted_at.strftime("%Y-%m-%d %H:%M") if sub.submitted_at else "N/A", cell_style),
-                Paragraph(_submission_status_text(sub), cell_style),
-                Paragraph(str(sub.marks) if sub.marks is not None else "N/A", cell_style),
-                Paragraph(sub.feedback if sub.feedback else "N/A", cell_style),
+            task_table_data.append([
+                Paragraph(_safe(sub.task.title if sub.task else None), styles["cell"]),
+                Paragraph(_safe(sub.task.subject_name if sub.task else None), styles["cell"]),
+                Paragraph(sub.submitted_at.strftime("%Y-%m-%d %H:%M") if sub.submitted_at else "N/A", styles["cell"]),
+                Paragraph(_submission_status_text(sub), styles["cell"]),
+                Paragraph(str(sub.marks) if sub.marks is not None else "N/A", styles["cell"]),
+                Paragraph(_safe(sub.feedback), styles["cell"]),
             ])
     else:
-        table_data.append([
-            Paragraph("No submissions found", cell_style),
-            Paragraph("-", cell_style),
-            Paragraph("-", cell_style),
-            Paragraph("-", cell_style),
-            Paragraph("-", cell_style),
-            Paragraph("-", cell_style),
+        task_table_data.append([
+            Paragraph("No submissions found", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
         ])
 
-    table = Table(
-        table_data,
-        repeatRows=1,
-        colWidths=[2.2 * inch, 1.4 * inch, 1.5 * inch, 1.0 * inch, 0.8 * inch, 2.1 * inch]
-    )
+    story.append(_styled_table(
+        task_table_data,
+        [2.0 * inch, 1.3 * inch, 1.4 * inch, 1.0 * inch, 0.8 * inch, 2.1 * inch],
+        align_center_from_col=4
+    ))
+    story.append(Spacer(1, 14))
 
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('ALIGN', (4, 1), (4, -1), 'CENTER'),   # Marks center
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.HexColor('#f9fafb')]),
-        ('LEFTPADDING', (0, 0), (-1, -1), 8),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-    ]))
+    story.append(Paragraph("Viva Details", styles["section"]))
 
-    story.append(table)
+    viva_table_data = [[
+        Paragraph("Subject", styles["header"]),
+        Paragraph("Date", styles["header"]),
+        Paragraph("Status", styles["header"]),
+        Paragraph("Marks", styles["header"]),
+        Paragraph("Notes", styles["header"]),
+    ]]
 
-    filename = f"student_submission_report_{student.student_id}.pdf"
+    if viva_records.exists():
+        for record in viva_records:
+            viva_subject = record.viva_session.subject if record.viva_session else "Viva"
+            viva_date = record.viva_session.date if record.viva_session else None
+
+            viva_table_data.append([
+                Paragraph(_safe(viva_subject), styles["cell"]),
+                Paragraph(str(viva_date) if viva_date else "N/A", styles["cell"]),
+                Paragraph(_safe(record.status.title() if record.status else None), styles["cell"]),
+                Paragraph(str(record.marks) if record.marks is not None else "N/A", styles["cell"]),
+                Paragraph(_safe(record.notes), styles["cell"]),
+            ])
+    else:
+        viva_table_data.append([
+            Paragraph("No viva records found", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+        ])
+
+    story.append(_styled_table(
+        viva_table_data,
+        [1.7 * inch, 1.1 * inch, 1.0 * inch, 0.8 * inch, 3.1 * inch],
+        align_center_from_col=2
+    ))
+    story.append(Spacer(1, 14))
+
+    story.append(Paragraph("Attendance Details", styles["section"]))
+
+    attendance_table_data = [[
+        Paragraph("Session Date", styles["header"]),
+        Paragraph("Subject", styles["header"]),
+        Paragraph("Present", styles["header"]),
+        Paragraph("Absent", styles["header"]),
+        Paragraph("Attendance %", styles["header"]),
+    ]]
+
+    if attendance_records.exists():
+        for att in attendance_records:
+            session = att.session
+            is_present = att.status == "present"
+
+            attendance_table_data.append([
+                Paragraph(str(session.scheduled_date) if session and session.scheduled_date else "N/A", styles["cell"]),
+                Paragraph(_safe(session.subject_name if session else None), styles["cell"]),
+                Paragraph("1" if is_present else "0", styles["cell"]),
+                Paragraph("0" if is_present else "1", styles["cell"]),
+                Paragraph("100%" if is_present else "0%", styles["cell"]),
+            ])
+    else:
+        attendance_table_data.append([
+            Paragraph("No attendance records found", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+        ])
+
+    story.append(_styled_table(
+        attendance_table_data,
+        [1.5 * inch, 2.0 * inch, 0.8 * inch, 0.8 * inch, 1.1 * inch],
+        align_center_from_col=2
+    ))
+
+    filename = f"student_performance_report_{student.student_id}.pdf"
     return _build_pdf_response(filename, story)
 
 
@@ -880,46 +1049,34 @@ def student_submission_report_pdf(request, student_id):
 @permission_classes([IsAuthenticated])
 def batch_submission_report_pdf(request, batch_id):
     from apps.core.models import Batch
-    from apps.students.models import Student
+    from apps.students.models import Student, Attendance
 
-    batch = get_object_or_404(Batch, id=batch_id)
-
-    students = (
-        Student.objects
-        .filter(batch_id=batch_id)
-        .order_by('name')
+    batch = get_object_or_404(
+        Batch.objects.select_related('semester'),
+        id=batch_id
     )
 
-    styles = getSampleStyleSheet()
+    students = Student.objects.filter(batch_id=batch_id).order_by('name')
+
+    styles = _make_styles()
     story = []
 
-    title_style = styles['Title']
-    normal_style = styles['Normal']
-
-    cell_style = styles['BodyText'].clone('batch_cell_style')
-    cell_style.fontName = "Helvetica"
-    cell_style.fontSize = 9
-    cell_style.leading = 11
-    cell_style.textColor = colors.black
-
-    header_style = styles['BodyText'].clone('batch_header_style')
-    header_style.fontName = "Helvetica-Bold"
-    header_style.fontSize = 9
-    header_style.leading = 11
-    header_style.textColor = colors.white
-
-    story.append(Paragraph("Full Batch Submission Report", title_style))
+    story.append(Paragraph("Full Batch Performance Report", styles["title"]))
     story.append(Spacer(1, 12))
-    story.append(Paragraph(f"<b>Batch:</b> {batch}", normal_style))
-    story.append(Spacer(1, 16))
+    story.append(Paragraph(f"<b>Batch:</b> {_safe(batch)}", styles["normal"]))
+    story.append(Paragraph(f"<b>Total Students:</b> {students.count()}", styles["normal"]))
+    story.append(Spacer(1, 14))
 
     table_data = [[
-        Paragraph("Student ID", header_style),
-        Paragraph("Name", header_style),
-        Paragraph("Tasks", header_style),
-        Paragraph("Submitted", header_style),
-        Paragraph("Evaluated", header_style),
-        Paragraph("Average Marks", header_style),
+        Paragraph("Student ID", styles["header"]),
+        Paragraph("Name", styles["header"]),
+        Paragraph("Tasks", styles["header"]),
+        Paragraph("Submitted", styles["header"]),
+        Paragraph("Evaluated", styles["header"]),
+        Paragraph("Avg Task", styles["header"]),
+        Paragraph("Attendance %", styles["header"]),
+        Paragraph("Viva Count", styles["header"]),
+        Paragraph("Avg Viva", styles["header"]),
     ]]
 
     if students.exists():
@@ -930,55 +1087,70 @@ def batch_submission_report_pdf(request, batch_id):
             )
 
             total_tasks = student_subs.count()
-            submitted_count = student_subs.exclude(submission_file='').count()
-            evaluated_subs = student_subs.filter(marks__isnull=False)
-            evaluated_count = evaluated_subs.count()
+            submitted_count = student_subs.filter(
+                Q(status__in=['submitted', 'evaluated']) | Q(submission_file__isnull=False)
+            ).count()
+            evaluated_qs = student_subs.filter(marks__isnull=False)
+            evaluated_count = evaluated_qs.count()
+            avg_task_marks = evaluated_qs.aggregate(avg=Avg('marks'))['avg']
 
-            avg_marks = "N/A"
-            if evaluated_count > 0:
-                total_marks = sum(sub.marks for sub in evaluated_subs if sub.marks is not None)
-                avg_marks = f"{total_marks / evaluated_count:.1f}"
+            student_attendance = Attendance.objects.filter(
+                student=student,
+                session__batch_id=batch_id
+            )
+            total_attendance = student_attendance.count()
+            present_count = student_attendance.filter(status='present').count()
+            attendance_pct = (present_count / total_attendance * 100) if total_attendance > 0 else 0
+
+            student_vivas = VivaRecord.objects.filter(
+                student=student,
+                status='completed',
+                viva_session__batch_id=batch_id
+            )
+            viva_count = student_vivas.count()
+            viva_avg = student_vivas.aggregate(avg=Avg('marks'))['avg']
 
             table_data.append([
-                Paragraph(student.student_id, cell_style),
-                Paragraph(student.name, cell_style),
-                Paragraph(str(total_tasks), cell_style),
-                Paragraph(str(submitted_count), cell_style),
-                Paragraph(str(evaluated_count), cell_style),
-                Paragraph(avg_marks, cell_style),
+                Paragraph(_safe(student.student_id), styles["cell"]),
+                Paragraph(_safe(student.name), styles["cell"]),
+                Paragraph(str(total_tasks), styles["cell"]),
+                Paragraph(str(submitted_count), styles["cell"]),
+                Paragraph(str(evaluated_count), styles["cell"]),
+                Paragraph(f"{avg_task_marks:.1f}" if avg_task_marks is not None else "N/A", styles["cell"]),
+                Paragraph(f"{attendance_pct:.1f}%", styles["cell"]),
+                Paragraph(str(viva_count), styles["cell"]),
+                Paragraph(f"{viva_avg:.1f}" if viva_avg is not None else "N/A", styles["cell"]),
             ])
     else:
         table_data.append([
-            Paragraph("No students", cell_style),
-            Paragraph("-", cell_style),
-            Paragraph("-", cell_style),
-            Paragraph("-", cell_style),
-            Paragraph("-", cell_style),
-            Paragraph("-", cell_style),
+            Paragraph("No students", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
+            Paragraph("-", styles["cell"]),
         ])
 
-    table = Table(
+    batch_table = _styled_table(
         table_data,
-        repeatRows=1,
-        colWidths=[1.2 * inch, 2.4 * inch, 0.9 * inch, 1.0 * inch, 1.0 * inch, 1.1 * inch]
+        [
+            0.95 * inch,
+            1.9 * inch,
+            0.65 * inch,
+            0.8 * inch,
+            0.8 * inch,
+            0.85 * inch,
+            0.9 * inch,
+            0.75 * inch,
+            0.8 * inch,
+        ],
+        align_center_from_col=2
     )
 
-    table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1f2937')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, -1), 9),
-        ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
-        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-        ('ALIGN', (2, 1), (-1, -1), 'CENTER'),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.whitesmoke, colors.HexColor('#f9fafb')]),
-        ('LEFTPADDING', (0, 0), (-1, -1), 8),
-        ('RIGHTPADDING', (0, 0), (-1, -1), 8),
-        ('TOPPADDING', (0, 0), (-1, -1), 8),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-    ]))
+    story.append(batch_table)
 
-    story.append(table)
-
-    filename = f"batch_submission_report_{batch_id}.pdf"
+    filename = f"batch_performance_report_{batch_id}.pdf"
     return _build_pdf_response(filename, story)
