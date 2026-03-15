@@ -114,9 +114,16 @@ class ReportsScreen(QWidget):
         self.subject_combo.addItem("Select subject...", "")
         filters_layout.addWidget(self.subject_combo, 1, 1)
 
+        batch_lbl = QLabel("Batch")
+        batch_lbl.setFont(body_font(12, QFont.Weight.DemiBold))
+        filters_layout.addWidget(batch_lbl, 0, 2)
+        self.batch_combo = QComboBox()
+        self.batch_combo.addItem("Select batch...", None)
+        filters_layout.addWidget(self.batch_combo, 1, 2)
+
         self.attendance_load_btn = QPushButton("Show Attendance Report")
         self.attendance_load_btn.clicked.connect(self.load_attendance_report)
-        filters_layout.addWidget(self.attendance_load_btn, 1, 2)
+        filters_layout.addWidget(self.attendance_load_btn, 1, 3)
 
         widget.layout.addLayout(filters_layout)
 
@@ -171,6 +178,7 @@ class ReportsScreen(QWidget):
 
         previous_sem_id = self.semester_combo.currentData() if hasattr(self, "semester_combo") else None
         previous_subject = self.subject_combo.currentData() if hasattr(self, "subject_combo") else ""
+        previous_batch_id = self.batch_combo.currentData() if hasattr(self, "batch_combo") else None
         self.semester_combo.blockSignals(True)
         self.semester_combo.clear()
         self.semester_combo.addItem("Select semester...", None)
@@ -182,8 +190,12 @@ class ReportsScreen(QWidget):
             idx = self.semester_combo.findData(previous_sem_id)
             if idx >= 0:
                 self.semester_combo.setCurrentIndex(idx)
-                self.on_semester_changed(idx, preferred_subject=previous_subject)
-                if self.subject_combo.currentData():
+                self.on_semester_changed(
+                    idx,
+                    preferred_subject=previous_subject,
+                    preferred_batch_id=previous_batch_id
+                )
+                if self.subject_combo.currentData() and self.batch_combo.currentData():
                     self.load_attendance_report()
                 if hasattr(self.parent_window, 'current_batch_id') and self.parent_window.current_batch_id is not None:
                     self.load_submission_students()
@@ -193,39 +205,59 @@ class ReportsScreen(QWidget):
         if hasattr(self.parent_window, 'current_batch_id') and self.parent_window.current_batch_id is not None:
             self.load_submission_students()
 
-    def on_semester_changed(self, _index: int, preferred_subject: str = ""):
+    def on_semester_changed(self, _index: int, preferred_subject: str = "", preferred_batch_id=None):
         sem_id = self.semester_combo.currentData()
         self.subject_combo.clear()
         self.subject_combo.addItem("Select subject...", "")
+        self.batch_combo.clear()
+        self.batch_combo.addItem("Select batch...", None)
         self.attendance_table.setRowCount(0)
 
         if not sem_id or sem_id not in self.semester_map:
-            self.attendance_summary_label.setText("Select semester and subject to view attendance percentage.")
+            self.attendance_summary_label.setText("Select semester, subject and batch to view attendance percentage.")
             return
 
         subjects = sorted(self.semester_map[sem_id]["subjects"])
         for subject in subjects:
             self.subject_combo.addItem(subject, subject)
 
+        batches = sorted(
+            self.semester_map[sem_id]["batches"],
+            key=lambda batch: str(batch.get("name", "")).lower()
+        )
+        for batch in batches:
+            batch_id = batch.get("id")
+            if batch_id:
+                self.batch_combo.addItem(batch.get("name", "Batch"), batch_id)
+
         if preferred_subject:
             subject_index = self.subject_combo.findData(preferred_subject)
             if subject_index >= 0:
                 self.subject_combo.setCurrentIndex(subject_index)
 
+        if preferred_batch_id is not None:
+            batch_index = self.batch_combo.findData(preferred_batch_id)
+            if batch_index >= 0:
+                self.batch_combo.setCurrentIndex(batch_index)
+
         if subjects:
-            self.attendance_summary_label.setText("Select a subject and click 'Show Attendance Report'.")
+            self.attendance_summary_label.setText("Select a subject and batch, then click 'Show Attendance Report'.")
         else:
             self.attendance_summary_label.setText("No subjects found for selected semester.")
 
     def load_attendance_report(self):
         sem_id = self.semester_combo.currentData()
         subject_name = (self.subject_combo.currentData() or "").strip()
+        batch_id = self.batch_combo.currentData()
 
         if not sem_id:
             QMessageBox.information(self, "Semester Required", "Please select a semester.")
             return
         if not subject_name:
             QMessageBox.information(self, "Subject Required", "Please select a subject.")
+            return
+        if not batch_id:
+            QMessageBox.information(self, "Batch Required", "Please select a batch.")
             return
 
         sem_data = self.semester_map.get(sem_id)
@@ -238,28 +270,30 @@ class ReportsScreen(QWidget):
             QMessageBox.warning(self, "Error", f"Failed to load attendance report:\n{attendance_result['error']}")
             return
 
-        records = attendance_result.get("data") or []
+        students_by_id = {}
+        students_result = api_client.get_students(batch_id=int(batch_id))
+        if not students_result["success"]:
+            QMessageBox.warning(self, "Error", f"Failed to load students for batch:\n{students_result['error']}")
+            return
+
+        for st in students_result.get("data") or []:
+            sid = st.get("id")
+            if not sid:
+                continue
+            students_by_id[sid] = {
+                "id": sid,
+                "name": st.get("name", "Unknown"),
+                "student_id": st.get("student_id", "N/A"),
+                "batch_name": st.get("batch_name", "-"),
+            }
+
+        selected_student_ids = set(students_by_id.keys())
+        records = [
+            rec for rec in (attendance_result.get("data") or [])
+            if rec.get("student") in selected_student_ids
+        ]
         session_ids = {r.get("session") for r in records if r.get("session")}
         total_sessions = len(session_ids)
-
-        students_by_id = {}
-        for batch in sem_data.get("batches", []):
-            batch_id = batch.get("id")
-            if not batch_id:
-                continue
-            students_result = api_client.get_students(batch_id=batch_id)
-            if not students_result["success"]:
-                continue
-            for st in students_result.get("data") or []:
-                sid = st.get("id")
-                if not sid:
-                    continue
-                students_by_id[sid] = {
-                    "id": sid,
-                    "name": st.get("name", "Unknown"),
-                    "student_id": st.get("student_id", "N/A"),
-                    "batch_name": st.get("batch_name", "-"),
-                }
 
         present_counts = {}
         for rec in records:
@@ -269,7 +303,14 @@ class ReportsScreen(QWidget):
             if rec.get("status") == "present":
                 present_counts[sid] = present_counts.get(sid, 0) + 1
 
-        sorted_students = sorted(students_by_id.values(), key=lambda s: s["name"].lower())
+        def _student_sort_key(student):
+            student_id = str(student.get("student_id", "")).strip()
+            prefix = "".join(ch for ch in student_id if not ch.isdigit()).lower()
+            digits = "".join(ch for ch in student_id if ch.isdigit())
+            numeric = int(digits) if digits else float("inf")
+            return (prefix, numeric, student_id.lower(), student["name"].lower())
+
+        sorted_students = sorted(students_by_id.values(), key=_student_sort_key)
         self.attendance_table.setRowCount(len(sorted_students))
 
         total_present_marks = 0
@@ -277,7 +318,7 @@ class ReportsScreen(QWidget):
             sid = student["id"]
             present = present_counts.get(sid, 0)
             total_present_marks += present
-            percentage = (present / total_sessions * 100.0) if total_sessions > 0 else 0.0
+            percentage = (present / total_sessions * 100.0) if total_sessions > 0 else 100.0
 
             name_item = QTableWidgetItem(student["name"])
             name_item.setFont(body_font(12, QFont.Weight.Medium))
@@ -295,9 +336,10 @@ class ReportsScreen(QWidget):
 
         student_count = len(sorted_students)
         denominator = student_count * total_sessions
-        overall_percentage = (total_present_marks / denominator * 100.0) if denominator > 0 else 0.0
+        overall_percentage = (total_present_marks / denominator * 100.0) if denominator > 0 else 100.0
+        batch_name = self.batch_combo.currentText()
         self.attendance_summary_label.setText(
-            f"Semester: {sem_data['name']} | Subject: {subject_name} | Students: {student_count} | Sessions: {total_sessions} | Overall Present: {overall_percentage:.1f}%"
+            f"Semester: {sem_data['name']} | Subject: {subject_name} | Batch: {batch_name} | Students: {student_count} | Sessions: {total_sessions} | Overall Present: {overall_percentage:.1f}%"
         )
 
     def _generic_tab(self, title: str):
