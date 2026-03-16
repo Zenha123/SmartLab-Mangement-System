@@ -251,6 +251,62 @@ class APIClient:
             return {"success": False, "data": None, "error": "Failed to fetch attendance records"}
         except Exception as e:
             return {"success": False, "data": None, "error": str(e)}
+
+    def sync_attendance_to_etlab(self, subject_name: str, date: str, hour: Optional[int] = None) -> Dict[str, Any]:
+        """Sync the selected attendance slice to ETLab."""
+        try:
+            payload = {
+                "subject": subject_name,
+                "date": date,
+            }
+            if hour:
+                payload["hour"] = int(hour)
+
+            response = requests.post(
+                f"{self.base_url}/attendance/sync-to-etlab/",
+                json=payload,
+                headers=self._get_headers(),
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                return {"success": True, "data": response.json(), "error": None}
+
+            try:
+                error_data = response.json()
+                error_msg = error_data.get("detail") or str(error_data)
+            except Exception:
+                error_msg = f"Failed to sync attendance (HTTP {response.status_code})"
+
+            return {"success": False, "data": None, "error": error_msg}
+        except Exception as e:
+            return {"success": False, "data": None, "error": str(e)}
+
+    def sync_subject_attendance_to_etlab(self, subject_name: str, semester_id: int) -> Dict[str, Any]:
+        """Sync all recorded attendance sessions for a subject in one semester to ETLab."""
+        try:
+            response = requests.post(
+                f"{self.base_url}/attendance/sync-subject-to-etlab/",
+                json={
+                    "subject": subject_name,
+                    "semester_id": int(semester_id),
+                },
+                headers=self._get_headers(),
+                timeout=30
+            )
+
+            if response.status_code == 200:
+                return {"success": True, "data": response.json(), "error": None}
+
+            try:
+                error_data = response.json()
+                error_msg = error_data.get("detail") or str(error_data)
+            except Exception:
+                error_msg = f"Failed to sync full subject attendance (HTTP {response.status_code})"
+
+            return {"success": False, "data": None, "error": error_msg}
+        except Exception as e:
+            return {"success": False, "data": None, "error": str(e)}
     
     def end_lab_session(self, session_id: int) -> Dict[str, Any]:
         try:

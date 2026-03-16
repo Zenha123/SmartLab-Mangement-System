@@ -22,6 +22,7 @@ class LabSession(models.Model):
     subject_name = models.CharField(max_length=200, null=True, blank=True)
     scheduled_date = models.DateField(null=True, blank=True)
     scheduled_hour = models.PositiveSmallIntegerField(null=True, blank=True)
+    last_synced_to_etlab_at = models.DateTimeField(null=True, blank=True)
 
     
     session_type = models.CharField(max_length=10, choices=SESSION_TYPE_CHOICES, default='regular')

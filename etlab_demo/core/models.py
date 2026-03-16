@@ -126,9 +126,16 @@ class AttendanceSession(models.Model):
 
 # ---------------- ATTENDANCE RECORD ----------------
 class AttendanceRecord(models.Model):
+    STATUS_CHOICES = [
+        ("present", "Present"),
+        ("absent", "Absent"),
+        ("not_available", "Not Available"),
+    ]
+
     session = models.ForeignKey(AttendanceSession, on_delete=models.CASCADE, related_name="records")
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     is_present = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="absent")
 
 # ---------------- MARKS ----------------
 class Marks(models.Model):

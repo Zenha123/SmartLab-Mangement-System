@@ -26,22 +26,37 @@
       <tr>
         <th>Roll No</th>
         <th>Name</th>
-        <th>Present</th>
+        <th>Status</th>
+        <th>Edit</th>
       </tr>
     </thead>
 
     <tbody>
       {% for student in students %}
+      {% with student_status=attendance_map|get_item:student.reg_number %}
       <tr>
         <td>{{ student.reg_number }}</td>
         <td>{{ student.name }}</td>
         <td>
+          {% if student_status == "present" %}
+            ✓
+          {% elif student_status == "absent" %}
+            ✗
+          {% elif student_status == "not_available" %}
+            N/A
+          {% else %}
+            ✗
+          {% endif %}
+        </td>
+        <td>
           <input type="checkbox"
-       name="present_{{ student.reg_number }}"
-       {% if attendance_map|get_item:student.reg_number %}checked{% endif %}>
+      name="present_{{ student.reg_number }}"
+      {% if student_status == "present" %}checked{% endif %}
+      {% if student_status == "not_available" %}disabled{% endif %}>
 
         </td>
       </tr>
+      {% endwith %}
       {% endfor %}
     </tbody>
   </table>

@@ -8,6 +8,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-test-key-replace-in-production'
 
 ETLAB_SERVICE_TOKEN = "etlab-smartlab-secret-123"
+ETLAB_ATTENDANCE_SYNC_URL = "http://127.0.0.1:8001/api/attendance/sync/"
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
