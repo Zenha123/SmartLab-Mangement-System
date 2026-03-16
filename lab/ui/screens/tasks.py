@@ -129,8 +129,8 @@ class TasksScreen(QWidget):
         batch_id = self.parent_window.current_batch_id
         result   = api_client.create_task(
             batch_id=batch_id,
-            title=title,
-            description=description,
+            title=title_text,
+            description=desc_text,
             subject_name=getattr(self.parent_window, 'current_subject_name', "")
         )
 
