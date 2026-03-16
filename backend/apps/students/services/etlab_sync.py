@@ -5,10 +5,17 @@ from apps.core.models import Batch, Semester, FacultyTimetableSlot
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from collections import defaultdict
+from django.utils.dateparse import parse_date
+from django.utils import timezone
 
 ETLAB_API = "http://127.0.0.1:8001/api/students/"
 ETLAB_FACULTY_API = "http://127.0.0.1:8001/api/faculty/"
 ETLAB_TIMETABLE_API = "http://127.0.0.1:8001/api/timetable/"
+ETLAB_ATTENDANCE_SYNC_API = getattr(
+    settings,
+    "ETLAB_ATTENDANCE_SYNC_URL",
+    "http://127.0.0.1:8001/api/attendance/sync/",
+)
 
 UserModel = get_user_model()
 
@@ -256,6 +263,157 @@ def sync_timetable_from_etlab():
         "updated": 0,
         "skipped": skipped_count,
     }
+
+
+def _build_attendance_sync_payload(*, faculty, attendance_rows, fallback_subject_name="", fallback_date=None):
+    if not attendance_rows.exists():
+        raise ValueError("No attendance records found for the selected criteria.")
+
+    rows_by_session = defaultdict(list)
+    for row in attendance_rows:
+        rows_by_session[row.session].append(row)
+
+    payload_sessions = []
+    total_rows = 0
+
+    for session, rows in rows_by_session.items():
+        semester = session.batch.semester
+        semester_students = list(
+            Student.objects
+            .filter(batch__semester=semester)
+            .select_related("batch")
+            .order_by("student_id")
+        )
+        attendance_by_student_id = {row.student_id: row for row in rows}
+
+        records = []
+        for student in semester_students:
+            attendance_row = attendance_by_student_id.get(student.id)
+            status = attendance_row.status if attendance_row else "not_available"
+            records.append(
+                {
+                    "reg_number": student.student_id,
+                    "name": student.name,
+                    "status": status,
+                    "batch_name": student.batch.name,
+                }
+            )
+
+        payload_sessions.append(
+            {
+                "faculty_id": faculty.faculty_id,
+                "subject_name": session.subject_name or fallback_subject_name,
+                "semester_number": semester.number,
+                "semester_name": semester.name,
+                "date": str(session.scheduled_date or fallback_date),
+                "period": session.scheduled_hour,
+                "source_batch": session.batch.name,
+                "records": records,
+            }
+        )
+        total_rows += len(records)
+
+    return rows_by_session, payload_sessions, total_rows
+
+
+def _send_attendance_payload_to_etlab(*, rows_by_session, payload_sessions, total_rows):
+    if not payload_sessions:
+        raise ValueError("No attendance sessions found to sync.")
+
+    headers = {
+        "Authorization": f"Bearer {settings.ETLAB_SERVICE_TOKEN}",
+        "X-Service-Token": settings.ETLAB_SERVICE_TOKEN,
+    }
+    response = requests.post(
+        ETLAB_ATTENDANCE_SYNC_API,
+        json={"sessions": payload_sessions},
+        headers=headers,
+        timeout=30,
+    )
+    response.raise_for_status()
+
+    result = response.json() if response.content else {}
+    synced_at = timezone.now()
+    for session in rows_by_session.keys():
+        session.last_synced_to_etlab_at = synced_at
+        session.save(update_fields=["last_synced_to_etlab_at", "updated_at"])
+
+    result.setdefault("sessions_sent", len(payload_sessions))
+    result.setdefault("records_sent", total_rows)
+    result["last_synced_to_etlab_at"] = synced_at.isoformat()
+    return result
+
+
+@transaction.atomic
+def sync_attendance_to_etlab(*, faculty, subject_name, scheduled_date, scheduled_hour=None):
+    from apps.students.models import Attendance
+
+    normalized_subject = (subject_name or "").strip()
+    parsed_date = parse_date(str(scheduled_date)) if scheduled_date else None
+    if not normalized_subject:
+        raise ValueError("Subject name is required.")
+    if not parsed_date:
+        raise ValueError("A valid scheduled date is required.")
+
+    session_filters = {
+        "session__faculty": faculty,
+        "session__subject_name__iexact": normalized_subject,
+        "session__scheduled_date": parsed_date,
+    }
+    if scheduled_hour not in (None, ""):
+        session_filters["session__scheduled_hour"] = int(scheduled_hour)
+
+    attendance_rows = (
+        Attendance.objects
+        .filter(**session_filters)
+        .select_related("student", "student__batch", "student__batch__semester", "session")
+        .order_by("session__scheduled_hour", "student__name")
+    )
+
+    rows_by_session, payload_sessions, total_rows = _build_attendance_sync_payload(
+        faculty=faculty,
+        attendance_rows=attendance_rows,
+        fallback_subject_name=normalized_subject,
+        fallback_date=parsed_date,
+    )
+    return _send_attendance_payload_to_etlab(
+        rows_by_session=rows_by_session,
+        payload_sessions=payload_sessions,
+        total_rows=total_rows,
+    )
+
+
+@transaction.atomic
+def sync_subject_semester_attendance_to_etlab(*, faculty, subject_name, semester_id):
+    from apps.students.models import Attendance
+
+    normalized_subject = (subject_name or "").strip()
+    if not normalized_subject:
+        raise ValueError("Subject name is required.")
+    if not semester_id:
+        raise ValueError("Semester is required.")
+
+    attendance_rows = (
+        Attendance.objects
+        .filter(
+            session__faculty=faculty,
+            session__subject_name__iexact=normalized_subject,
+            session__batch__semester_id=int(semester_id),
+        )
+        .select_related("student", "student__batch", "student__batch__semester", "session")
+        .order_by("session__scheduled_date", "session__scheduled_hour", "student__name")
+    )
+
+    rows_by_session, payload_sessions, total_rows = _build_attendance_sync_payload(
+        faculty=faculty,
+        attendance_rows=attendance_rows,
+        fallback_subject_name=normalized_subject,
+    )
+    return _send_attendance_payload_to_etlab(
+        rows_by_session=rows_by_session,
+        payload_sessions=payload_sessions,
+        total_rows=total_rows,
+    )
 
 
 '''student default password format:

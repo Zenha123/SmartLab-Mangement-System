@@ -11,7 +11,9 @@ from django.conf import settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
 from .services.etlab_sync import (
+    sync_attendance_to_etlab,
     sync_faculty_from_etlab,
+    sync_subject_semester_attendance_to_etlab,
     sync_students_from_etlab,
     sync_timetable_from_etlab,
 )
@@ -114,6 +116,44 @@ class AttendanceViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(session__scheduled_hour=hour_filter)
         
         return queryset.order_by('student__name')
+
+    @action(detail=False, methods=['post'], url_path='sync-to-etlab')
+    def sync_to_etlab(self, request):
+        subject_name = request.data.get('subject')
+        date_value = request.data.get('date')
+        hour_value = request.data.get('hour')
+
+        try:
+            result = sync_attendance_to_etlab(
+                faculty=request.user,
+                subject_name=subject_name,
+                scheduled_date=date_value,
+                scheduled_hour=hour_value if hour_value not in ("", None) else None,
+            )
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
+
+        return Response(result, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'], url_path='sync-subject-to-etlab')
+    def sync_subject_to_etlab(self, request):
+        subject_name = request.data.get('subject')
+        semester_id = request.data.get('semester_id')
+
+        try:
+            result = sync_subject_semester_attendance_to_etlab(
+                faculty=request.user,
+                subject_name=subject_name,
+                semester_id=semester_id,
+            )
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
+
+        return Response(result, status=status.HTTP_200_OK)
     
 class StudentLoginView(APIView):
     def post(self, request):

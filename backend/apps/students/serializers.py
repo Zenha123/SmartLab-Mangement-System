@@ -22,18 +22,21 @@ class AttendanceSerializer(serializers.ModelSerializer):
     student_name = serializers.CharField(source='student.name', read_only=True)
     student_id = serializers.CharField(source='student.student_id', read_only=True)
     batch_name = serializers.CharField(source='student.batch.name', read_only=True)
+    semester_id = serializers.IntegerField(source='student.batch.semester_id', read_only=True)
     semester_name = serializers.CharField(source='student.batch.semester.name', read_only=True)
     subject_name = serializers.CharField(source='session.subject_name', read_only=True)
     scheduled_date = serializers.DateField(source='session.scheduled_date', read_only=True)
     scheduled_hour = serializers.IntegerField(source='session.scheduled_hour', read_only=True)
+    last_synced_to_etlab_at = serializers.DateTimeField(source='session.last_synced_to_etlab_at', read_only=True)
     session_date = serializers.SerializerMethodField()
     session_info = serializers.CharField(source='session.__str__', read_only=True)
     
     class Meta:
         model = Attendance
         fields = [
-            'id', 'student', 'student_name', 'student_id', 'batch_name', 'semester_name',
+            'id', 'student', 'student_name', 'student_id', 'batch_name', 'semester_id', 'semester_name',
             'session', 'session_info', 'subject_name', 'scheduled_date', 'scheduled_hour', 'session_date',
+            'last_synced_to_etlab_at',
             'login_time', 'logout_time', 'duration_minutes', 'status',
             'created_at', 'updated_at'
         ]

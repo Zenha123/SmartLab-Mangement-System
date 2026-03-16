@@ -344,15 +344,32 @@ def mark_attendance(request):
 
     students = Student.objects.filter(semester=semester)
 
+    existing_status_map = {
+        r.student.reg_number: r.status or ("present" if r.is_present else "absent")
+        for r in AttendanceRecord.objects.filter(session=session).select_related("student")
+    }
+
     if request.method == "POST":
         AttendanceRecord.objects.filter(session=session).delete()
 
         for student in students:
+            existing_status = existing_status_map.get(student.reg_number, "absent")
+            if existing_status == "not_available":
+                AttendanceRecord.objects.create(
+                    session=session,
+                    student=student,
+                    is_present=False,
+                    status="not_available",
+                )
+                continue
+
             is_present = request.POST.get(f"present_{student.reg_number}")
+            status_value = "present" if is_present else "absent"
             AttendanceRecord.objects.create(
                 session=session,
                 student=student,
-                is_present=bool(is_present)
+                is_present=bool(is_present),
+                status=status_value,
             )
 
         messages.success(request, "Attendance saved successfully.")
@@ -361,9 +378,9 @@ def mark_attendance(request):
         )
 
     attendance_map = {
-    r.student.reg_number: r.is_present
-    for r in AttendanceRecord.objects.filter(session=session)
-}
+        r.student.reg_number: r.status or ("present" if r.is_present else "absent")
+        for r in AttendanceRecord.objects.filter(session=session).select_related("student")
+    }
 
 
     return render(request, "faculty/mark_attendance.html", {
@@ -443,12 +460,17 @@ def faculty_report(request, subject_id, semester_id):
         present_count = AttendanceRecord.objects.filter(
             session__in=sessions,
             student=student,
-            is_present=True
+            status="present"
         ).count()
 
+        applicable_classes = AttendanceRecord.objects.filter(
+            session__in=sessions,
+            student=student,
+        ).exclude(status="not_available").count()
+
         attendance_percentage = 0
-        if total_classes > 0:
-            attendance_percentage = (present_count / total_classes) * 100
+        if applicable_classes > 0:
+            attendance_percentage = (present_count / applicable_classes) * 100
 
 
         # ---------- MARKS ----------

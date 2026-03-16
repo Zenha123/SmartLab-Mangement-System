@@ -10,6 +10,7 @@ from PyQt6.QtWidgets import (
     QTableWidgetItem,
 )
 from PyQt6.QtGui import QFont, QColor
+from datetime import datetime
 
 from ui.common.cards import CardFrame
 from ui.common.tables import StyledTableWidget
@@ -21,6 +22,7 @@ class AttendanceScreen(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent_window = parent
+        self.current_records = []
 
         self.main_layout = QVBoxLayout(self)
         self.main_layout.setContentsMargins(24, 24, 24, 24)
@@ -103,7 +105,43 @@ class AttendanceScreen(QWidget):
         ])
         table_card.layout.addWidget(self.table)
         self.main_layout.addWidget(table_card)
+
+        footer = QHBoxLayout()
+        footer.addStretch(1)
+
+        self.sync_etlab_btn = QPushButton("Sync Attendance to ETLab")
+        self.sync_etlab_btn.clicked.connect(self.sync_attendance_to_etlab)
+        footer.addWidget(self.sync_etlab_btn)
+
+        self.sync_subject_etlab_btn = QPushButton("Sync Whole Subject to ETLab")
+        self.sync_subject_etlab_btn.clicked.connect(self.sync_subject_attendance_to_etlab)
+        footer.addWidget(self.sync_subject_etlab_btn)
+
+        self.main_layout.addLayout(footer)
         self.main_layout.addStretch(1)
+
+    def _format_last_sync_text(self, records):
+        sync_values = [
+            (item.get("last_synced_to_etlab_at") or "").strip()
+            for item in records
+            if item.get("last_synced_to_etlab_at")
+        ]
+
+        if not sync_values:
+            return "Last Sync to ETLab: Not synced yet"
+
+        raw_value = max(sync_values)
+        display_value = self._format_sync_timestamp(raw_value)
+        return f"Last Sync to ETLab: {display_value}"
+
+    def _format_sync_timestamp(self, raw_value):
+        display_value = (raw_value or "").replace("T", " ").split("+")[0].replace("Z", "")
+        try:
+            dt_value = datetime.fromisoformat(raw_value.replace("Z", "+00:00"))
+            display_value = dt_value.strftime("%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            pass
+        return display_value or "Not synced yet"
 
     def _extract_subjects_from_timetable(self):
         subjects = set()
@@ -126,6 +164,7 @@ class AttendanceScreen(QWidget):
         self.hour_combo.clear()
         self.hour_combo.addItem("All periods", "")
         self.table.setRowCount(0)
+        self.current_records = []
 
         subjects = set()
 
@@ -154,6 +193,7 @@ class AttendanceScreen(QWidget):
         self.hour_combo.clear()
         self.hour_combo.addItem("All periods", "")
         self.table.setRowCount(0)
+        self.current_records = []
 
         if not subject_name:
             self.summary_label.setText("Choose a subject to load session dates.")
@@ -218,6 +258,7 @@ class AttendanceScreen(QWidget):
             return
 
         records = result.get("data") or []
+        self.current_records = records
         self.table.setRowCount(len(records))
 
         present_count = 0
@@ -255,8 +296,101 @@ class AttendanceScreen(QWidget):
         total = len(records)
         hour_label = self.hour_combo.currentText() if hour else "All periods"
         self.summary_label.setText(
-            f"Subject: {subject_name} | Date: {date_str} | Hour: {hour_label} | Total: {total} | Present: {present_count} | Absent: {absent_count}"
+            f"Subject: {subject_name} | Date: {date_str} | Hour: {hour_label} | Total: {total} | Present: {present_count} | Absent: {absent_count} | {self._format_last_sync_text(records)}"
         )
+
+    def sync_attendance_to_etlab(self):
+        subject_name = self.subject_combo.currentData() or ""
+        date_str = self.date_combo.currentData() or ""
+        hour = self.hour_combo.currentData() or ""
+
+        if not subject_name:
+            QMessageBox.information(self, "Subject Required", "Please select a subject.")
+            return
+        if not date_str:
+            QMessageBox.information(self, "Date Required", "Please select a lab-session date.")
+            return
+        if self.table.rowCount() == 0:
+            QMessageBox.information(self, "Load Attendance", "Please load the attendance list before syncing.")
+            return
+
+        self.sync_etlab_btn.setEnabled(False)
+        try:
+            result = api_client.sync_attendance_to_etlab(
+                subject_name=subject_name,
+                date=date_str,
+                hour=hour if hour else None,
+            )
+        finally:
+            self.sync_etlab_btn.setEnabled(True)
+
+        if not result["success"]:
+            QMessageBox.warning(self, "Sync Failed", f"Failed to sync attendance to ETLab:\n{result['error']}")
+            return
+
+        payload = result.get("data") or {}
+        QMessageBox.information(
+            self,
+            "Sync Complete",
+            (
+                f"Attendance synced to ETLab.\n\n"
+                f"Sessions: {payload.get('sessions_synced', payload.get('sessions_sent', 0))}\n"
+                f"Records: {payload.get('records_synced', payload.get('records_sent', 0))}\n"
+                f"Not Available: {payload.get('not_available_records', 0)}\n"
+                f"Last Sync to ETLab: {self._format_sync_timestamp(payload.get('last_synced_to_etlab_at', ''))}"
+            ),
+        )
+        self.load_attendance_for_selection()
+
+    def sync_subject_attendance_to_etlab(self):
+        subject_name = self.subject_combo.currentData() or ""
+        if not subject_name:
+            QMessageBox.information(self, "Subject Required", "Please select a subject.")
+            return
+        if not self.current_records:
+            QMessageBox.information(self, "Load Attendance", "Please load one attendance session first.")
+            return
+
+        semester_ids = {
+            item.get("semester_id")
+            for item in self.current_records
+            if item.get("semester_id") not in (None, "")
+        }
+        if not semester_ids:
+            QMessageBox.warning(self, "Semester Missing", "Could not detect the semester from the loaded attendance.")
+            return
+        if len(semester_ids) > 1:
+            QMessageBox.warning(self, "Multiple Semesters", "Loaded attendance contains multiple semesters. Please narrow the selection first.")
+            return
+
+        semester_id = next(iter(semester_ids))
+
+        self.sync_subject_etlab_btn.setEnabled(False)
+        try:
+            result = api_client.sync_subject_attendance_to_etlab(
+                subject_name=subject_name,
+                semester_id=int(semester_id),
+            )
+        finally:
+            self.sync_subject_etlab_btn.setEnabled(True)
+
+        if not result["success"]:
+            QMessageBox.warning(self, "Sync Failed", f"Failed to sync full subject attendance to ETLab:\n{result['error']}")
+            return
+
+        payload = result.get("data") or {}
+        QMessageBox.information(
+            self,
+            "Bulk Sync Complete",
+            (
+                f"All recorded lab sessions for this subject and semester were synced to ETLab.\n\n"
+                f"Sessions: {payload.get('sessions_synced', payload.get('sessions_sent', 0))}\n"
+                f"Records: {payload.get('records_synced', payload.get('records_sent', 0))}\n"
+                f"Not Available: {payload.get('not_available_records', 0)}\n"
+                f"Last Sync to ETLab: {self._format_sync_timestamp(payload.get('last_synced_to_etlab_at', ''))}"
+            ),
+        )
+        self.load_attendance_for_selection()
 
     def showEvent(self, event):
         super().showEvent(event)

@@ -15,7 +15,7 @@ from .views import (
     upload_faculty_csv,
     upload_students_csv,
 )
-from .api_views import student_list, faculty_list, timetable_list
+from .api_views import student_list, faculty_list, timetable_list, attendance_sync
 
 urlpatterns = [
     path('', login_view, name='login'),
@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/students/', student_list, name='api_students'),  # New API endpoint
     path('api/faculty/', faculty_list, name='api_faculty'),
     path('api/timetable/', timetable_list, name='api_timetable'),
+    path('api/attendance/sync/', attendance_sync, name='api_attendance_sync'),
     path('logout/', logout_view, name='logout'),  # Logout view
     path("marks/<int:subject_id>/<int:semester_id>/",mark_marks,name="mark_marks"),
     path(
