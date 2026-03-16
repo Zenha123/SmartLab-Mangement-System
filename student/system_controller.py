@@ -64,38 +64,76 @@ class SystemController:
 
     # ── Internet Block / Unblock ──────────────────────────────────────
     def block_internet(self, payload=None):
-        """Block internet by adding a firewall rule."""
+        """Block internet by adding firewall rules for IPv4 and IPv6."""
         try:
+            flags = 0x08000000  # CREATE_NO_WINDOW
+
+            # Block ALL outbound IPv4
             subprocess.run(
                 ['netsh', 'advfirewall', 'firewall', 'add', 'rule',
                  'name=SmartLabBlockInternet', 'dir=out', 'action=block',
-                 'remoteip=0.0.0.0-255.255.255.255'],
-                capture_output=True, creationflags=0x08000000
+                 'protocol=any', 'remoteip=0.0.0.0-255.255.255.255'],
+                capture_output=True, creationflags=flags
             )
-            # Allow LAN traffic (keep WebSocket alive)
+
+            # Block ALL outbound IPv6
+            subprocess.run(
+                ['netsh', 'advfirewall', 'firewall', 'add', 'rule',
+                 'name=SmartLabBlockInternetV6', 'dir=out', 'action=block',
+                 'protocol=any', 'remoteip=::-ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff'],
+                capture_output=True, creationflags=flags
+            )
+
+            # Block DNS specifically (port 53) to prevent any resolution
+            subprocess.run(
+                ['netsh', 'advfirewall', 'firewall', 'add', 'rule',
+                 'name=SmartLabBlockDNS', 'dir=out', 'action=block',
+                 'protocol=UDP', 'remoteport=53'],
+                capture_output=True, creationflags=flags
+            )
+            subprocess.run(
+                ['netsh', 'advfirewall', 'firewall', 'add', 'rule',
+                 'name=SmartLabBlockDNS-TCP', 'dir=out', 'action=block',
+                 'protocol=TCP', 'remoteport=53'],
+                capture_output=True, creationflags=flags
+            )
+
+            # Allow LAN traffic (keep WebSocket alive) — IPv4
             subprocess.run(
                 ['netsh', 'advfirewall', 'firewall', 'add', 'rule',
                  'name=SmartLabAllowLAN', 'dir=out', 'action=allow',
                  'remoteip=localsubnet'],
-                capture_output=True, creationflags=0x08000000
+                capture_output=True, creationflags=flags
             )
-            print("[SystemController] Internet Blocked")
+            # Allow localhost (127.0.0.1 and ::1)
+            subprocess.run(
+                ['netsh', 'advfirewall', 'firewall', 'add', 'rule',
+                 'name=SmartLabAllowLocalhost', 'dir=out', 'action=allow',
+                 'remoteip=127.0.0.1'],
+                capture_output=True, creationflags=flags
+            )
+
+            print("[SystemController] Internet Blocked (IPv4 + IPv6 + DNS)")
         except Exception as e:
             print(f"[SystemController] block_internet failed: {e}")
 
     def unblock_internet(self, payload=None):
-        """Remove the internet block firewall rule."""
+        """Remove all internet block firewall rules."""
         try:
-            subprocess.run(
-                ['netsh', 'advfirewall', 'firewall', 'delete', 'rule',
-                 'name=SmartLabBlockInternet'],
-                capture_output=True, creationflags=0x08000000
-            )
-            subprocess.run(
-                ['netsh', 'advfirewall', 'firewall', 'delete', 'rule',
-                 'name=SmartLabAllowLAN'],
-                capture_output=True, creationflags=0x08000000
-            )
+            flags = 0x08000000
+            for rule_name in [
+                'SmartLabBlockInternet',
+                'SmartLabBlockInternetV6',
+                'SmartLabBlockDNS',
+                'SmartLabBlockDNS-TCP',
+                'SmartLabAllowLAN',
+                'SmartLabAllowLocalhost'
+            ]:
+                subprocess.run(
+                    ['netsh', 'advfirewall', 'firewall', 'delete', 'rule',
+                     'name=' + rule_name],
+                    capture_output=True, creationflags=flags
+                )
             print("[SystemController] Internet Unblocked")
         except Exception as e:
             print(f"[SystemController] unblock_internet failed: {e}")
